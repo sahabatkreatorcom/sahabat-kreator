@@ -3,17 +3,12 @@ name: Build Docker Images
 on:
   push:
     branches: [main]
-    paths:
-      - 'apps/**'
-      - 'packages/**'
-      - 'Dockerfile'
-      - 'apps/*/Dockerfile'
-      - 'docker-compose.prod.yml'
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  SHA: ${{ github.sha }}
 
 jobs:
   build-and-push:
@@ -37,15 +32,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata for server
-        id: meta-server
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/server
-          tags: |
-            type=sha,prefix=,suffix=,format=long
-            type=raw,value=latest,enable={{is_default_branch}}
-
       - name: Build and push server
         uses: docker/build-push-action@v5
         with:
@@ -53,19 +39,11 @@ jobs:
           file: ./Dockerfile
           target: server-production
           push: true
-          tags: ${{ steps.meta-server.outputs.tags }}
-          labels: ${{ steps.meta-server.outputs.labels }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/server:${{ env.SHA }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/server:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Extract metadata for worker
-        id: meta-worker
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker
-          tags: |
-            type=sha,prefix=,suffix=,format=long
-            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push worker
         uses: docker/build-push-action@v5
@@ -73,19 +51,11 @@ jobs:
           context: .
           file: ./apps/worker/Dockerfile
           push: true
-          tags: ${{ steps.meta-worker.outputs.tags }}
-          labels: ${{ steps.meta-worker.outputs.labels }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker:${{ env.SHA }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Extract metadata for web
-        id: meta-web
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web
-          tags: |
-            type=sha,prefix=,suffix=,format=long
-            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push web
         uses: docker/build-push-action@v5
@@ -93,7 +63,8 @@ jobs:
           context: .
           file: ./apps/web/Dockerfile
           push: true
-          tags: ${{ steps.meta-web.outputs.tags }}
-          labels: ${{ steps.meta-web.outputs.labels }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:${{ env.SHA }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max

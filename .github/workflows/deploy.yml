@@ -19,6 +19,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  SHA: ${{ github.sha }}
 
 jobs:
   deploy:
@@ -32,44 +33,38 @@ jobs:
       matrix:
         environment:
           - production
-          - staging
       fail-fast: false
 
     steps:
       - name: Deploy to ${{ matrix.environment }}
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ matrix.environment == 'production' && secrets.PRODUCTION_VPS_HOST || secrets.STAGING_VPS_HOST }}
-          username: ${{ matrix.environment == 'production' && secrets.PRODUCTION_VPS_USER || secrets.STAGING_VPS_USER }}
-          key: ${{ matrix.environment == 'production' && secrets.PRODUCTION_VPS_SSH_KEY || secrets.STAGING_VPS_SSH_KEY }}
-          port: ${{ matrix.environment == 'production' && secrets.PRODUCTION_VPS_PORT || secrets.STAGING_VPS_PORT }}
+          host: ${{ secrets.PRODUCTION_VPS_HOST }}
+          username: ${{ secrets.PRODUCTION_VPS_USER }}
+          key: ${{ secrets.PRODUCTION_VPS_SSH_KEY }}
+          port: ${{ secrets.PRODUCTION_VPS_PORT }}
           script: |
             cd /opt/sahabat-kreator
 
-            # Pull latest code (optional, only needed for env files and docker-compose)
+            # Pull latest code (for docker-compose and env files)
             git pull || true
 
             # Login to GitHub Container Registry
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # Pull postgres and redis images (these don't change)
+            # Pull postgres and redis images
             docker pull postgres:16-alpine || true
             docker pull redis:7-alpine || true
 
             # Pull application images from GitHub Container Registry
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}/server:latest || \
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}/server:${{ github.sha }} || true
-            
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}/worker:latest || \
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}/worker:${{ github.sha }} || true
-            
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}/web:latest || \
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}/web:${{ github.sha }} || true
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/server:${{ env.SHA }} || true
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker:${{ env.SHA }} || true
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:${{ env.SHA }} || true
 
-            # Tag pulled images with expected names
-            docker tag ghcr.io/${{ env.IMAGE_NAME }}/server:latest sahabatkreator/server:latest 2>/dev/null || true
-            docker tag ghcr.io/${{ env.IMAGE_NAME }}/worker:latest sahabatkreator/worker:latest 2>/dev/null || true
-            docker tag ghcr.io/${{ env.IMAGE_NAME }}/web:latest sahabatkreator/web:latest 2>/dev/null || true
+            # Also pull latest tags as fallback
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/server:latest || true
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker:latest || true
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:latest || true
 
             # Stop old containers
             docker compose -f docker-compose.prod.yml down || true
