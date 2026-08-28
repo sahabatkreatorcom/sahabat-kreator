@@ -24,7 +24,9 @@ jobs:
   deploy:
     name: Deploy to VPS
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/main') }}
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/main')
 
     strategy:
       matrix:
@@ -34,9 +36,6 @@ jobs:
       fail-fast: false
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Deploy to ${{ matrix.environment }}
         uses: appleboy/ssh-action@v1
         with:
@@ -47,37 +46,43 @@ jobs:
           script: |
             cd /opt/sahabat-kreator
 
-            # Pull latest code if not triggered by workflow
-            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-              git pull origin main
-            fi
+            # Pull latest code (optional, only needed for env files and docker-compose)
+            git pull || true
 
-            # Create .env.production if not exists
-            if [ ! -f .env.production ]; then
-              cp .env.example .env.production
-            fi
+            # Login to GitHub Container Registry
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # Update docker-compose with correct environment and ports
-            sed -i 's|NEXT_PUBLIC_APP_URL:.*|NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://sahabatkreator.com}|' docker-compose.prod.yml
-            sed -i 's|BETTER_AUTH_URL:.*|BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://api.sahabatkreator.com}|' docker-compose.prod.yml
-            sed -i 's|CORS_ORIGIN:.*|CORS_ORIGIN: ${CORS_ORIGIN:-https://sahabatkreator.com}|' docker-compose.prod.yml
-            sed -i 's|NEXT_PUBLIC_SERVER_URL:.*|NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-https://api.sahabatkreator.com}|' docker-compose.prod.yml
-            # Update ports if needed (8080 for web, 8081 for server)
-            sed -i 's|"3000:3000"|"8080:3000"|' docker-compose.prod.yml
-            sed -i 's|"3001:3001"|"8081:3001"|' docker-compose.prod.yml
+            # Pull postgres and redis images (these don't change)
+            docker pull postgres:16-alpine || true
+            docker pull redis:7-alpine || true
+
+            # Pull application images from GitHub Container Registry
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}/server:latest || \
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}/server:${{ github.sha }} || true
+            
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}/worker:latest || \
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}/worker:${{ github.sha }} || true
+            
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}/web:latest || \
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}/web:${{ github.sha }} || true
+
+            # Tag pulled images with expected names
+            docker tag ghcr.io/${{ env.IMAGE_NAME }}/server:latest sahabatkreator/server:latest 2>/dev/null || true
+            docker tag ghcr.io/${{ env.IMAGE_NAME }}/worker:latest sahabatkreator/worker:latest 2>/dev/null || true
+            docker tag ghcr.io/${{ env.IMAGE_NAME }}/web:latest sahabatkreator/web:latest 2>/dev/null || true
 
             # Stop old containers
-            docker compose -f docker-compose.prod.yml down
+            docker compose -f docker-compose.prod.yml down || true
 
-            # Pull latest images
-            docker compose -f docker-compose.prod.yml pull
+            # Create volumes directory
+            sudo mkdir -p uploads
 
-            # Start containers
-            docker compose -f docker-compose.prod.yml up -d --build
+            # Start containers (no --build, use pulled images)
+            docker compose --env-file .env.production.local -f docker-compose.prod.yml up -d
 
             # Health check
             echo "Waiting for services to be healthy..."
-            for i in {1..30}; do
+            for i in {1..60}; do
               if docker exec sk_server curl -sf http://localhost:3001/health > /dev/null 2>&1; then
                 echo "Server is healthy!"
                 break

@@ -63,11 +63,7 @@ services:
       - sk-network
 
   server:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: server-production
-    image: sahabatkreator/server:latest
+    image: ghcr.io/${{ github.repository }}/server:latest
     container_name: sk_server
     restart: unless-stopped
     ports:
@@ -109,10 +105,7 @@ services:
       - ./uploads:/app/uploads
 
   worker:
-    build:
-      context: .
-      dockerfile: apps/worker/Dockerfile
-    image: sahabatkreator/worker:latest
+    image: ghcr.io/${{ github.repository }}/worker:latest
     container_name: sk_worker
     restart: unless-stopped
     environment:
@@ -138,10 +131,7 @@ services:
       - sk-network
 
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-    image: sahabatkreator/web:latest
+    image: ghcr.io/${{ github.repository }}/web:latest
     container_name: sk_web
     restart: unless-stopped
     ports:
