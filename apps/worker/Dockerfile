@@ -57,9 +57,6 @@ COPY --from=builder /app/packages/config ./packages/config
 COPY --from=builder /app/packages/jobs ./packages/jobs
 COPY --from=builder /app/packages/platform ./packages/platform
 
-# Copy environment file
-COPY .env.production.local ./
-
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3001/ || exit 1

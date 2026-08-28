@@ -57,9 +57,6 @@ COPY --from=builder /app/bun.lock ./bun.lock
 COPY --from=builder /app/package.json ./package.json
 RUN bun install --frozen-lockfile --production
 
-# Copy environment file
-COPY .env.production.local ./
-
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:3001/health || exit 1
