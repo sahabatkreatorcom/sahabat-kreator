@@ -1,0 +1,92 @@
+name: Deploy to VPS
+
+on:
+  workflow_run:
+    workflows: ["Build Docker Images"]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/main') }}
+
+    strategy:
+      matrix:
+        environment:
+          - production
+          - staging
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to ${{ matrix.environment }}
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ matrix.environment == 'production' && secrets.PRODUCTION_VPS_HOST || secrets.STAGING_VPS_HOST }}
+          username: ${{ matrix.environment == 'production' && secrets.PRODUCTION_VPS_USER || secrets.STAGING_VPS_USER }}
+          key: ${{ matrix.environment == 'production' && secrets.PRODUCTION_VPS_SSH_KEY || secrets.STAGING_VPS_SSH_KEY }}
+          port: ${{ matrix.environment == 'production' && secrets.PRODUCTION_VPS_PORT || secrets.STAGING_VPS_PORT }}
+          script: |
+            cd /opt/sahabat-kreator
+
+            # Pull latest code if not triggered by workflow
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              git pull origin main
+            fi
+
+            # Create .env.production if not exists
+            if [ ! -f .env.production ]; then
+              cp .env.example .env.production
+            fi
+
+            # Update docker-compose with correct environment and ports
+            sed -i 's|NEXT_PUBLIC_APP_URL:.*|NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://sahabatkreator.com}|' docker-compose.prod.yml
+            sed -i 's|BETTER_AUTH_URL:.*|BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://api.sahabatkreator.com}|' docker-compose.prod.yml
+            sed -i 's|CORS_ORIGIN:.*|CORS_ORIGIN: ${CORS_ORIGIN:-https://sahabatkreator.com}|' docker-compose.prod.yml
+            sed -i 's|NEXT_PUBLIC_SERVER_URL:.*|NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-https://api.sahabatkreator.com}|' docker-compose.prod.yml
+            # Update ports if needed (8080 for web, 8081 for server)
+            sed -i 's|"3000:3000"|"8080:3000"|' docker-compose.prod.yml
+            sed -i 's|"3001:3001"|"8081:3001"|' docker-compose.prod.yml
+
+            # Stop old containers
+            docker compose -f docker-compose.prod.yml down
+
+            # Pull latest images
+            docker compose -f docker-compose.prod.yml pull
+
+            # Start containers
+            docker compose -f docker-compose.prod.yml up -d --build
+
+            # Health check
+            echo "Waiting for services to be healthy..."
+            for i in {1..30}; do
+              if docker exec sk_server curl -sf http://localhost:3001/health > /dev/null 2>&1; then
+                echo "Server is healthy!"
+                break
+              fi
+              sleep 5
+            done
+
+            # Show status
+            docker compose -f docker-compose.prod.yml ps
+
+            # Show latest logs
+            docker compose -f docker-compose.prod.yml logs --tail=50 server

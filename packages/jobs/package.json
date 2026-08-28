@@ -1,0 +1,33 @@
+{
+  "name": "@sahabatkreator/jobs",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./queue": {
+      "types": "./src/queue.ts",
+      "default": "./src/queue.ts"
+    },
+    "./resend": {
+      "types": "./src/resend-worker.ts",
+      "default": "./src/resend-worker.ts"
+    }
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sahabatkreator/env": "workspace:*",
+    "bullmq": "^5.81.2",
+    "resend": "^4.6.0"
+  },
+  "devDependencies": {
+    "@sahabatkreator/config": "workspace:*",
+    "@types/bun": "catalog:",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "extends": "@sahabatkreator/config/tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

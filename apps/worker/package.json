@@ -1,0 +1,27 @@
+{
+  "name": "worker",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsdown",
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run dist/index.js",
+    "scheduler": "bun run src/jobs/post-scheduler.ts",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sahabatkreator/db": "workspace:*",
+    "@sahabatkreator/env": "workspace:*",
+    "@sahabatkreator/jobs": "workspace:*",
+    "@sahabatkreator/platform": "workspace:*",
+    "bullmq": "^5.81.2",
+    "dotenv": "catalog:",
+    "drizzle-orm": "^0.45.2"
+  },
+  "devDependencies": {
+    "@sahabatkreator/config": "workspace:*",
+    "@types/bun": "catalog:",
+    "tsdown": "^0.22.3",
+    "typescript": "^6.0.3"
+  }
+}

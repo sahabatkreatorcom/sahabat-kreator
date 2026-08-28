@@ -1,0 +1,26 @@
+{
+  "name": "@sahabatkreator/payment",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sahabatkreator/db": "workspace:*",
+    "@sahabatkreator/env": "workspace:*",
+    "drizzle-orm": "^0.45.2"
+  },
+  "devDependencies": {
+    "@sahabatkreator/config": "workspace:*",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,65 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches: ["develop", "staging"]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to Staging
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.STAGING_VPS_HOST }}
+          username: ${{ secrets.STAGING_VPS_USER }}
+          key: ${{ secrets.STAGING_VPS_SSH_KEY }}
+          port: ${{ secrets.STAGING_VPS_PORT }}
+          script: |
+            cd /opt/sahabat-kreator
+
+            # Pull latest code
+            git pull origin develop
+
+            # Create .env.development if not exists
+            if [ ! -f .env.development ]; then
+              cp .env.example .env.development
+            fi
+
+            # Update environment variables for staging
+            sed -i 's|NEXT_PUBLIC_APP_URL:.*|NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://app.sahabatkreator.com}|' docker-compose.prod.yml
+            sed -i 's|BETTER_AUTH_URL:.*|BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://api.app.sahabatkreator.com}|' docker-compose.prod.yml
+            sed -i 's|CORS_ORIGIN:.*|CORS_ORIGIN: ${CORS_ORIGIN:-https://app.sahabatkreator.com}|' docker-compose.prod.yml
+            sed -i 's|NEXT_PUBLIC_SERVER_URL:.*|NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-https://api.app.sahabatkreator.com}|' docker-compose.prod.yml
+            # Update ports if needed (8080 for web, 8081 for server)
+            sed -i 's|"3000:3000"|"8080:3000"|' docker-compose.prod.yml
+            sed -i 's|"3001:3001"|"8081:3001"|' docker-compose.prod.yml
+
+            # Stop old containers
+            docker compose -f docker-compose.prod.yml down
+
+            # Start containers with development env
+            docker compose -f docker-compose.prod.yml --env-file .env.development up -d --build
+
+            # Health check
+            echo "Waiting for services to be healthy..."
+            for i in {1..30}; do
+              if docker exec sk_server curl -sf http://localhost:3001/health > /dev/null 2>&1; then
+                echo "Staging server is healthy!"
+                break
+              fi
+              sleep 5
+            done
+
+            # Show status
+            docker compose -f docker-compose.prod.yml ps
