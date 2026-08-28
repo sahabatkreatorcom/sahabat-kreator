@@ -29,15 +29,18 @@ RUN for i in 1 2 3; do \
 # Copy source code
 COPY . .
 
-# Set minimal env vars for build (runtime values come from docker-compose)
-ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/sahabatkreator"
-ENV BETTER_AUTH_SECRET="dummy-secret-for-build-only-32chars"
-ENV BETTER_AUTH_URL="http://localhost:3001"
-ENV CORS_ORIGIN="http://localhost:3000"
-ENV VAPID_PRIVATE_KEY="dummy-vapid-private-key-for-build"
-ENV VAPID_PUBLIC_KEY="dummy-vapid-public-key-for-build"
-ENV REDIS_HOST="redis"
-ENV REDIS_PORT="6379"
+# Generate .env for build-time validation
+RUN cat > .env <<'EOF'
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/sahabatkreator
+BETTER_AUTH_SECRET=dummy-secret-for-build-only-32chars-long
+BETTER_AUTH_URL=http://localhost:3001
+CORS_ORIGIN=http://localhost:3000
+VAPID_PRIVATE_KEY=dummy-vapid-private-key-for-build
+VAPID_PUBLIC_KEY=dummy-vapid-public-key-for-build
+REDIS_HOST=localhost
+REDIS_PORT=6379
+NODE_ENV=production
+EOF
 
 # Build all packages
 RUN bun run build
