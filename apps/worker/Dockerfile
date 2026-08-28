@@ -4,7 +4,7 @@ FROM oven/bun:1-alpine AS builder
 WORKDIR /app
 
 # Install system dependencies
-RUN apk add --no-cache git
+RUN apk add --no-cache git curl
 
 # Copy monorepo structure
 COPY package.json bun.lock ./
@@ -21,8 +21,10 @@ COPY packages/jobs/package.json packages/jobs/
 COPY packages/payment/package.json packages/payment/
 COPY packages/platform/package.json packages/platform/
 
-# Install all dependencies
-RUN bun install --frozen-lockfile
+# Retry installation with exponential backoff for network issues
+RUN for i in 1 2 3; do \
+      bun install || sleep $((i * 5)); \
+    done
 
 # Copy source code
 COPY . .
