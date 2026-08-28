@@ -24,6 +24,9 @@
 #   New ports: 8080 (Web), 8081 (Server)
 #
 # Environment file: .env.production.local (DO NOT COMMIT TO GIT)
+# Copy from .env.production.local.example and fill in real values
+
+dotenv: [.env.production.local]
 
 services:
   postgres:

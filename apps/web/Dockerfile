@@ -6,7 +6,7 @@ WORKDIR /app
 RUN apk add --no-cache git
 
 # Copy monorepo structure
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 COPY apps/web/package.json apps/web/
 COPY apps/server/package.json apps/server/
 COPY apps/worker/package.json apps/worker/
@@ -62,13 +62,13 @@ COPY --from=builder /app/packages/platform ./packages/platform
 
 # Copy root package files
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/bun.lockb ./bun.lockb
+COPY --from=builder /app/bun.lock ./bun.lock
 
 # Install production dependencies (Next.js needs bun to run)
 RUN bun install --frozen-lockfile --production
 
 # Copy environment variables
-COPY .env.production ./apps/web/
+COPY .env.production.local ./apps/web/
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
