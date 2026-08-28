@@ -63,7 +63,7 @@ services:
       - sk-network
 
   server:
-    image: ghcr.io/${{ github.repository }}/server:latest
+    image: ghcr.io/sahabatkreatorcom/sahabat-kreator/server:latest
     container_name: sk_server
     restart: unless-stopped
     ports:
@@ -105,7 +105,7 @@ services:
       - ./uploads:/app/uploads
 
   worker:
-    image: ghcr.io/${{ github.repository }}/worker:latest
+    image: ghcr.io/sahabatkreatorcom/sahabat-kreator/worker:latest
     container_name: sk_worker
     restart: unless-stopped
     environment:
@@ -131,7 +131,7 @@ services:
       - sk-network
 
   web:
-    image: ghcr.io/${{ github.repository }}/web:latest
+    image: ghcr.io/sahabatkreatorcom/sahabat-kreator/web:latest
     container_name: sk_web
     restart: unless-stopped
     ports:
