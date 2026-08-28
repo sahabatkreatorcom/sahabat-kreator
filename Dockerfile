@@ -11,7 +11,6 @@ COPY package.json bun.lock ./
 COPY apps/server/package.json apps/server/
 COPY apps/web/package.json apps/web/
 COPY apps/worker/package.json apps/worker/
-COPY apps/mcp/package.json apps/mcp/
 COPY packages/*/*/package.json packages/*/
 COPY packages/db/package.json packages/db/
 COPY packages/env/package.json packages/env/
@@ -42,7 +41,6 @@ RUN apk add --no-cache curl
 # Copy only necessary files
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
 COPY --from=builder /app/apps/server/package.json ./apps/server/
-COPY --from=builder /app/apps/mcp/package.json ./apps/mcp/
 COPY --from=builder /app/packages/db ./packages/db
 COPY --from=builder /app/packages/env ./packages/env
 COPY --from=builder /app/packages/config ./packages/config
