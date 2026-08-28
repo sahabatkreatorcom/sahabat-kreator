@@ -7,7 +7,7 @@ WORKDIR /app
 RUN apk add --no-cache git
 
 # Copy monorepo structure
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 COPY apps/server/package.json apps/server/
 COPY apps/web/package.json apps/web/
 COPY apps/worker/package.json apps/worker/
@@ -53,12 +53,12 @@ COPY --from=builder /app/packages/payment ./packages/payment
 COPY --from=builder /app/packages/platform ./packages/platform
 
 # Install production dependencies
-COPY --from=builder /app/bun.lockb ./bun.lockb
+COPY --from=builder /app/bun.lock ./bun.lock
 COPY --from=builder /app/package.json ./package.json
 RUN bun install --frozen-lockfile --production
 
 # Copy environment file
-COPY .env.production ./
+COPY .env.production.local ./
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
@@ -83,12 +83,12 @@ COPY --from=builder /app/apps/web/tsconfig.json ./apps/web/
 COPY --from=builder /app/apps/web/src ./apps/web/src
 
 # Install production dependencies
-COPY --from=builder /app/bun.lockb ./bun.lockb
+COPY --from=builder /app/bun.lock ./bun.lock
 COPY --from=builder /app/package.json ./package.json
 RUN bun install --frozen-lockfile --production
 
 # Copy environment variables for Next.js
-COPY .env.production ./apps/web/
+COPY .env.production.local ./apps/web/
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \

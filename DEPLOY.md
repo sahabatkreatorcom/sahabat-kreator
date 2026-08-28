@@ -37,7 +37,7 @@ Internet → Cloudflare → Nginx (port 80/443)
 ```bash
 ssh root@your-server-ip
 
-git clone https://github.com/your-org/sahabat-kreator.git /opt/sahabat-kreator
+git clone https://github.com/sahabatkreatorcom/sahabat-kreator.git /opt/sahabat-kreator
 cd /opt/sahabat-kreator
 
 # Create environment

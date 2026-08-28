@@ -22,8 +22,8 @@
 #   3000, 3001, 3002, 3100, 3200 - IN USE
 #   6379 (Redis), 5432 (Postgres) - IN USE
 #   New ports: 8080 (Web), 8081 (Server)
-
-version: "3.9"
+#
+# Environment file: .env.production.local (DO NOT COMMIT TO GIT)
 
 services:
   postgres:
