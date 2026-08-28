@@ -46,6 +46,9 @@ jobs:
           script: |
             cd /opt/sahabat-kreator
 
+            # Fix git safe directory
+            git config --global --add safe.directory /opt/sahabat-kreator
+
             # Pull latest code (for docker-compose and env files)
             git pull || true
 
@@ -57,14 +60,9 @@ jobs:
             docker pull redis:7-alpine || true
 
             # Pull application images from GitHub Container Registry
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/server:${{ env.SHA }} || true
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker:${{ env.SHA }} || true
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:${{ env.SHA }} || true
-
-            # Also pull latest tags as fallback
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/server:latest || true
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker:latest || true
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:latest || true
+            docker pull ghcr.io/sahabatkreatorcom/sahabat-kreator/server:latest || true
+            docker pull ghcr.io/sahabatkreatorcom/sahabat-kreator/worker:latest || true
+            docker pull ghcr.io/sahabatkreatorcom/sahabat-kreator/web:latest || true
 
             # Stop old containers
             docker compose -f docker-compose.prod.yml down || true
