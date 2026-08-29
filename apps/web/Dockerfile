@@ -54,7 +54,7 @@ WORKDIR /app/apps/web
 
 RUN apk add --no-cache curl
 
-# Copy built Next.js app (relative to WORKDIR /app/apps/web)
+# Copy built Next.js app
 COPY --from=builder /app/apps/web/.next ./.next
 COPY --from=builder /app/apps/web/public ./public
 COPY --from=builder /app/apps/web/src ./src
@@ -63,15 +63,15 @@ COPY --from=builder /app/apps/web/next.config.ts ./next.config.ts
 COPY --from=builder /app/apps/web/postcss.config.mjs ./postcss.config.mjs
 COPY --from=builder /app/apps/web/tsconfig.json ./tsconfig.json
 
-# Copy workspace packages (bun resolves via /app/packages/)
+# Copy workspace packages (must be at /app/packages/ for bun resolution)
 COPY --from=builder /app/packages ./packages
 
-# Copy root package files
+# Copy root package files (bun resolves workspace from here)
 COPY --from=builder /app/package.json ../package.json
 COPY --from=builder /app/bun.lock ../bun.lock
 
-# Install production deps (creates node_modules at /app/apps/web/)
-RUN bun install --frozen-lockfile --production
+# Copy node_modules from builder (already has all deps + workspace symlinks)
+COPY --from=builder /app/node_modules ./node_modules
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
