@@ -57,10 +57,6 @@ RUN apk add --no-cache curl
 # Copy standalone output (node_modules tree for only used deps)
 COPY --from=builder /app/apps/web/.next/standalone/ .
 
-# Copy public assets, static, and server files
-COPY --from=builder /app/apps/web/.next/standalone/apps/web/.next/static ./apps/web/.next/static
-COPY --from=builder /app/apps/web/.next/standalone/apps/web/public ./apps/web/public
-
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
@@ -70,4 +66,5 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV PORT=3000
 
-CMD ["node", "apps/web/server.js"]
+# Standalone output has server.js at root
+CMD ["bun", "server.js"]
