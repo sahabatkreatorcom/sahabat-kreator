@@ -54,32 +54,25 @@ WORKDIR /app
 
 RUN apk add --no-cache curl
 
-# Copy built Next.js app
-COPY --from=builder /app/apps/web/.next ./apps/web/.next
-COPY --from=builder /app/apps/web/public ./apps/web/public
-COPY --from=builder /app/apps/web/src ./apps/web/src
-COPY --from=builder /app/apps/web/node_modules ./apps/web/node_modules
-COPY --from=builder /app/apps/web/package.json ./apps/web/
-COPY --from=builder /app/apps/web/next.config.ts ./apps/web/
-COPY --from=builder /app/apps/web/postcss.config.mjs ./apps/web/
-COPY --from=builder /app/apps/web/tsconfig.json ./apps/web/
+# Run from /app where node_modules is installed; .next is at /app/apps/web/.next
+WORKDIR /app
 
-# Copy workspace packages
-COPY --from=builder /app/packages/db ./packages/db
-COPY --from=builder /app/packages/env ./packages/env
-COPY --from=builder /app/packages/config ./packages/config
-COPY --from=builder /app/packages/api ./packages/api
-COPY --from=builder /app/packages/auth ./packages/auth
-COPY --from=builder /app/packages/jobs ./packages/jobs
-COPY --from=builder /app/packages/payment ./packages/payment
-COPY --from=builder /app/packages/platform ./packages/platform
-
-# Copy root package files
+# Copy workspace packages and root files
+COPY --from=builder /app/packages ./packages
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/bun.lock ./bun.lock
 
-# Install production dependencies (Next.js needs bun to run)
+# Install production deps at /app (creates /app/node_modules)
 RUN bun install --frozen-lockfile --production
+
+# Copy built Next.js app into /app/apps/web
+COPY --from=builder /app/apps/web/.next ./apps/web/.next
+COPY --from=builder /app/apps/web/public ./apps/web/public
+COPY --from=builder /app/apps/web/src ./apps/web/src
+COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
+COPY --from=builder /app/apps/web/next.config.ts ./apps/web/next.config.ts
+COPY --from=builder /app/apps/web/postcss.config.mjs ./apps/web/postcss.config.mjs
+COPY --from=builder /app/apps/web/tsconfig.json ./apps/web/tsconfig.json
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
@@ -91,8 +84,4 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Run from apps/web dir so next start finds .next; node_modules resolution
-# walks up to /app/node_modules automatically
-WORKDIR /app/apps/web
-
-CMD ["bun", "../../node_modules/.bin/next", "start", "-p", "3000"]
+CMD ["bun", "run", "apps/web/node_modules/.bin/next", "start", "-p", "3000"]
