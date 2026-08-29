@@ -88,9 +88,9 @@ case "$ENV" in
             echo "   Set it in .env.production.local or export before running"
         fi
         
-        # Pull images from registry
+        # Pull images from registry (force fresh pull)
         echo "Pulling images from registry..."
-        docker compose -f $COMPOSE_FILE pull --ignore-cache || {
+        docker compose -f $COMPOSE_FILE pull || {
             echo "❌ Failed to pull images from registry"
             echo "   Make sure GITHUB_TOKEN is set correctly"
             exit 1
