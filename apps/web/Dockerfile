@@ -66,5 +66,5 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Standalone output has server.js at root
-CMD ["bun", "server.js"]
+# Standalone output for monorepo: server.js at apps/web/server.js
+CMD ["bun", "apps/web/server.js"]

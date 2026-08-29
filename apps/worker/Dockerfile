@@ -70,9 +70,9 @@ COPY --from=builder /app/packages/config ./packages/config
 COPY --from=builder /app/packages/jobs ./packages/jobs
 COPY --from=builder /app/packages/platform ./packages/platform
 
-# Health check
+# Worker is a BullMQ consumer — no HTTP server, use process-alive check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/ || exit 1
+  CMD pgrep -f "dist/index.mjs" > /dev/null || exit 1
 
 # Worker runs on port 3001 (same as server, but different process)
 EXPOSE 3001
