@@ -50,29 +50,28 @@ RUN bun run --filter web build
 # ── Production Stage ──────────────────────────────────────────────────────────
 FROM oven/bun:1-alpine AS production
 
-WORKDIR /app
+WORKDIR /app/apps/web
 
 RUN apk add --no-cache curl
 
-# Run from /app where node_modules is installed; .next is at /app/apps/web/.next
-WORKDIR /app
+# Copy built Next.js app (relative to WORKDIR /app/apps/web)
+COPY --from=builder /app/apps/web/.next ./.next
+COPY --from=builder /app/apps/web/public ./public
+COPY --from=builder /app/apps/web/src ./src
+COPY --from=builder /app/apps/web/package.json ./package.json
+COPY --from=builder /app/apps/web/next.config.ts ./next.config.ts
+COPY --from=builder /app/apps/web/postcss.config.mjs ./postcss.config.mjs
+COPY --from=builder /app/apps/web/tsconfig.json ./tsconfig.json
 
-# Copy workspace packages and root files
+# Copy workspace packages (bun resolves via /app/packages/)
 COPY --from=builder /app/packages ./packages
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/bun.lock ./bun.lock
 
-# Install production deps at /app (creates /app/node_modules)
+# Copy root package files
+COPY --from=builder /app/package.json ../package.json
+COPY --from=builder /app/bun.lock ../bun.lock
+
+# Install production deps (creates node_modules at /app/apps/web/)
 RUN bun install --frozen-lockfile --production
-
-# Copy built Next.js app into /app/apps/web
-COPY --from=builder /app/apps/web/.next ./apps/web/.next
-COPY --from=builder /app/apps/web/public ./apps/web/public
-COPY --from=builder /app/apps/web/src ./apps/web/src
-COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
-COPY --from=builder /app/apps/web/next.config.ts ./apps/web/next.config.ts
-COPY --from=builder /app/apps/web/postcss.config.mjs ./apps/web/postcss.config.mjs
-COPY --from=builder /app/apps/web/tsconfig.json ./apps/web/tsconfig.json
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
@@ -84,4 +83,4 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV PORT=3000
 
-CMD ["bun", "run", "apps/web/node_modules/.bin/next", "start", "-p", "3000"]
+CMD ["bun", "node_modules/.bin/next", "start", "-p", "3000"]
