@@ -14,12 +14,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: turbopackRoot,
   },
-  // Proxy API routes to the Hono server
+  // Proxy API routes to the Hono server (port 3001 inside container)
   async rewrites() {
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:3000/api/:path*",
+        destination: process.env.NODE_ENV === "production"
+          ? "http://localhost:3001/api/:path*"
+          : "http://localhost:3001/api/:path*",
       },
     ];
   },

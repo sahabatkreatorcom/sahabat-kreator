@@ -50,28 +50,28 @@ RUN bun run --filter web build
 # ── Production Stage ──────────────────────────────────────────────────────────
 FROM oven/bun:1-alpine AS production
 
-WORKDIR /app
+WORKDIR /app/apps/web
 
 RUN apk add --no-cache curl
 
-# Copy built Next.js app (use proper path resolution)
-COPY --from=builder /app/apps/web/.next/ ./apps/web/.next/
-COPY --from=builder /app/apps/web/public ./apps/web/public
-COPY --from=builder /app/apps/web/src ./apps/web/src
-COPY --from=builder /app/apps/web/package.json ./apps/web/
-COPY --from=builder /app/apps/web/next.config.ts ./apps/web/
-COPY --from=builder /app/apps/web/postcss.config.mjs ./apps/web/
-COPY --from=builder /app/apps/web/tsconfig.json ./apps/web/
+# Copy built Next.js app (path is now relative to /app/apps/web)
+COPY --from=builder /app/apps/web/.next/ ./.next/
+COPY --from=builder /app/apps/web/public ./public
+COPY --from=builder /app/apps/web/src ./src
+COPY --from=builder /app/apps/web/package.json ./package.json
+COPY --from=builder /app/apps/web/next.config.ts ./next.config.ts
+COPY --from=builder /app/apps/web/postcss.config.mjs ./postcss.config.mjs
+COPY --from=builder /app/apps/web/tsconfig.json ./tsconfig.json
 
 # Copy workspace packages (must be at /app/packages/ for bun resolution)
-COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/packages ./../../packages
 
 # Copy root package files so bun install resolves workspace properly
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/bun.lock ./
+COPY --from=builder /app/package.json ./../package.json
+COPY --from=builder /app/bun.lock ./../bun.lock
 
 # Install production dependencies from root (resolves workspace symlinks correctly)
-RUN bun install --frozen-lockfile --production
+RUN cd /app && bun install --frozen-lockfile --production
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1
@@ -82,4 +82,4 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV PORT=3000
 
-CMD ["bun", "run", "apps/web/node_modules/.bin/next", "start", "-p", "3000"]
+CMD ["bun", "run", "../../node_modules/.bin/next", "start", "-p", "3000"]
