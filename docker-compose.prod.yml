@@ -4,19 +4,19 @@
 # Stack: PostgreSQL + Redis + Server + Worker + Web
 #
 # Usage:
-#   cp .env.example .env.production
-#   # Edit .env.production with real values
-#   docker-compose -f docker-compose.prod.yml up -d --build
-#   docker-compose -f docker-compose.prod.yml logs -f server
+#   # Deploy from local build (default)
+#   docker compose -f docker-compose.prod.yml up -d
 #
-# Services:
-#   - server     : Hono API server (port 8081)
-#   - worker     : BullMQ job worker
-#   - web        : Next.js frontend (port 8080)
+#   # Deploy from GHCR (CI-pushed images)
+#   GITHUB_IMAGE=true docker compose -f docker-compose.prod.yml pull --ignore-cache
+#   docker compose -f docker-compose.prod.yml up -d
 #
-# Images are built locally from local Dockerfiles by default.
-# To pull from GHCR instead (CI-deployed images), use override:
-#   docker compose -f docker-compose.prod.yml pull server worker web
+#   # Or via deploy.sh (automatically pulls from GHCR)
+#   ./deploy.sh production
+#
+# Environment:
+#   GITHUB_TOKEN  - Required when deploying from GHCR (set in .env.production.local)
+#   IMAGE_REGISTRY - GHCR registry URL (default: ghcr.io/sahabatkreatorcom/sahabat-kreator)
 #
 # Note: Nginx is handled externally (see nginx config in repo root).
 # This compose file runs on the same host as nginx.
@@ -29,7 +29,6 @@
 #
 # Environment file: .env.production.local (DO NOT COMMIT TO GIT)
 # Copy from .env.production.local.example and fill in real values
-# Docker Compose will auto-load .env if present
 
 services:
   postgres:
@@ -67,6 +66,7 @@ services:
       - sk-network
 
   server:
+    image: ${IMAGE_REGISTRY:-ghcr.io/sahabatkreatorcom/sahabat-kreator}-server:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: Dockerfile
@@ -113,6 +113,7 @@ services:
       - ./uploads:/app/uploads
 
   worker:
+    image: ${IMAGE_REGISTRY:-ghcr.io/sahabatkreatorcom/sahabat-kreator}-worker:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: apps/worker/Dockerfile
@@ -145,6 +146,7 @@ services:
       - sk-network
 
   web:
+    image: ${IMAGE_REGISTRY:-ghcr.io/sahabatkreatorcom/sahabat-kreator}-web:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: apps/web/Dockerfile

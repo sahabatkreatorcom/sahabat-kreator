@@ -2,6 +2,16 @@
 # ====================================
 # Script untuk deploy ke VPS dengan port yang sudah tersedia
 #
+# DEPLOYMENT FLOW:
+#   1. git pull (sync source code)
+#   2. docker compose pull (ambil image terbaru dari GHCR)
+#   3. docker compose up -d (jalankan containers)
+#   4. health check
+#
+# CI/CD INTEGRATION:
+#   - GitHub Actions: lint, type check, build, push image ke GHCR
+#   - Deploy script: pull image dari GHCR, bukan build lokal
+#
 # PORT CONFIGURATION:
 #   Web (Next.js)    : 8080
 #   Server (Hono)    : 8081
@@ -13,6 +23,11 @@
 #   ./deploy.sh staging
 #   ./deploy.sh status
 #   ./deploy.sh rollback
+#
+# ENV VARS:
+#   GITHUB_TOKEN      - Required for pulling from GHCR (set in .env.production.local)
+#   IMAGE_REGISTRY    - Override default registry (default: ghcr.io/sahabatkreatorcom/sahabat-kreator)
+#   IMAGE_TAG         - Override image tag (default: latest, or commit SHA)
 
 set -e
 
@@ -38,18 +53,31 @@ echo "Deploying to $ENV ($DOMAIN)"
 echo "Port: Web=$WEB_PORT, Server=$SERVER_PORT"
 echo "================================================"
 
+# Detect current git commit for image tagging
+CURRENT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+export IMAGE_TAG="${2:-latest}"
+
 case "$ENV" in
     production|staging)
-        echo "🚀 Building and deploying..."
+        echo "🚀 Deploying from registry ($IMAGE_TAG)..."
+        
+        # Sync source code
+        echo "Syncing source code..."
+        git pull --ff-only
         
         # Stop existing containers
         echo "Stopping existing containers..."
         docker compose -f $COMPOSE_FILE down
         
-        # Build and start
-        echo "Building images..."
-        docker compose -f $COMPOSE_FILE build --no-cache
+        # Pull images from registry
+        echo "Pulling images from registry..."
+        if [ -n "$GITHUB_TOKEN" ]; then
+            echo "  Using GITHUB_TOKEN for registry authentication"
+            echo "$GITHUB_TOKEN" | docker compose -f $COMPOSE_FILE login --username sahabatkreatorcom --password-stdin 2>/dev/null || true
+        fi
+        docker compose -f $COMPOSE_FILE pull --ignore-cache
         
+        # Start services
         echo "Starting services..."
         docker compose -f $COMPOSE_FILE up -d
         
@@ -69,6 +97,11 @@ case "$ENV" in
             echo "Waiting... ($i/30)"
         done
         
+        # Verify image versions
+        echo ""
+        echo "📋 Image Versions:"
+        docker compose -f $COMPOSE_FILE ps --format "table {{.Name}}\t{{.Image}}\t{{.Status}}"
+        
         # Show status
         echo ""
         echo "📊 Service Status:"
@@ -78,6 +111,7 @@ case "$ENV" in
         echo "✅ Deployment to $DOMAIN completed!"
         echo "   Web: https://$DOMAIN"
         echo "   API: https://api.$DOMAIN"
+        echo "   Commit: $CURRENT_SHA"
         ;;
     
     status)
