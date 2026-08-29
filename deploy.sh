@@ -79,6 +79,16 @@ case "$ENV" in
         echo "Stopping existing containers..."
         docker compose -f $COMPOSE_FILE down
         
+        # Stop any old Sahabat containers from previous deployments
+        echo "Cleaning up old containers..."
+        for old in sk_server sk_worker sk_web sk_postgres sk_redis; do
+            if docker ps -a --format "{{.Names}}" | grep -q "^${old}$"; then
+                echo "  Stopping $old..."
+                docker stop $old 2>/dev/null || true
+                docker rm $old 2>/dev/null || true
+            fi
+        done
+        
         # Login to GitHub Container Registry if token available
         if [ -n "$GITHUB_TOKEN" ]; then
             echo "Logging in to GHCR..."
