@@ -71,6 +71,7 @@ export const env = createEnv({
     VAPID_PUBLIC_KEY: z.string().min(1),
 
     // ── Runtime ───────────────────────────────────────────────
+    PORT: z.string().optional(),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   },
   runtimeEnv: process.env,

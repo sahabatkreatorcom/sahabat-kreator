@@ -182,11 +182,12 @@ app.get("/", (c) => {
 export default app;
 
 // ── Start Server ──────────────────────────────────────────────────────────────
+const PORT = Number.parseInt(env.PORT ?? "3001", 10);
+
 Bun.serve({
   fetch: app.fetch,
-  port: parseInt(env.PORT || "3001"),
+  port: PORT,
   hostname: "0.0.0.0",
-  signal: process.signal("SIGTERM"),
 });
 
-console.log(`Server listening on port ${env.PORT || "3001"}`);
+console.log(`Server listening on port ${PORT}`);
