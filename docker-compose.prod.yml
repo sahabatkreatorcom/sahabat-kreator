@@ -66,7 +66,7 @@ services:
       - sk-network
 
   server:
-    image: ${IMAGE_REGISTRY:-ghcr.io/sahabatkreatorcom/sahabat-kreator}-server:${IMAGE_TAG:-latest}
+    image: ${IMAGE_REGISTRY:-ghcr.io/sahabatkreatorcom/sahabat-kreator}/server:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: Dockerfile
@@ -113,7 +113,7 @@ services:
       - ./uploads:/app/uploads
 
   worker:
-    image: ${IMAGE_REGISTRY:-ghcr.io/sahabatkreatorcom/sahabat-kreator}-worker:${IMAGE_TAG:-latest}
+    image: ${IMAGE_REGISTRY:-ghcr.io/sahabatkreatorcom/sahabat-kreator}/worker:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: apps/worker/Dockerfile
@@ -146,7 +146,7 @@ services:
       - sk-network
 
   web:
-    image: ${IMAGE_REGISTRY:-ghcr.io/sahabatkreatorcom/sahabat-kreator}-web:${IMAGE_TAG:-latest}
+    image: ${IMAGE_REGISTRY:-ghcr.io/sahabatkreatorcom/sahabat-kreator}/web:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: apps/web/Dockerfile
