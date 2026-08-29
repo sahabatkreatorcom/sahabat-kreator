@@ -11,6 +11,7 @@ const turbopackRoot = existsSync(join(workspaceRoot, "packages")) ? workspaceRoo
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
+  reactCompiler: true,
   output: "standalone",
   turbopack: {
     root: turbopackRoot,
