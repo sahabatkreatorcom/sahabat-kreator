@@ -44,5 +44,8 @@
     "tsdown": "^0.22.3",
     "typescript": "^6.0.3",
     "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "bun": ">=1.0.0"
   }
 }

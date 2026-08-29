@@ -180,3 +180,13 @@ app.get("/", (c) => {
 });
 
 export default app;
+
+// ── Start Server ──────────────────────────────────────────────────────────────
+Bun.serve({
+  fetch: app.fetch,
+  port: parseInt(env.PORT || "3001"),
+  hostname: "0.0.0.0",
+  signal: process.signal("SIGTERM"),
+});
+
+console.log(`Server listening on port ${env.PORT || "3001"}`);

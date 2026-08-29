@@ -54,21 +54,21 @@ WORKDIR /app
 
 RUN apk add --no-cache curl
 
-# Copy built Next.js app
-COPY --from=builder /app/apps/web/.next ./apps/web/.next
+# Copy built Next.js app (use proper path resolution)
+COPY --from=builder /app/apps/web/.next/ ./apps/web/.next/
 COPY --from=builder /app/apps/web/public ./apps/web/public
 COPY --from=builder /app/apps/web/src ./apps/web/src
-COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
-COPY --from=builder /app/apps/web/next.config.ts ./apps/web/next.config.ts
-COPY --from=builder /app/apps/web/postcss.config.mjs ./apps/web/postcss.config.mjs
-COPY --from=builder /app/apps/web/tsconfig.json ./apps/web/tsconfig.json
+COPY --from=builder /app/apps/web/package.json ./apps/web/
+COPY --from=builder /app/apps/web/next.config.ts ./apps/web/
+COPY --from=builder /app/apps/web/postcss.config.mjs ./apps/web/
+COPY --from=builder /app/apps/web/tsconfig.json ./apps/web/
 
 # Copy workspace packages (must be at /app/packages/ for bun resolution)
 COPY --from=builder /app/packages ./packages
 
 # Copy root package files so bun install resolves workspace properly
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/bun.lock ./bun.lock
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/bun.lock ./
 
 # Install production dependencies from root (resolves workspace symlinks correctly)
 RUN bun install --frozen-lockfile --production
@@ -82,4 +82,4 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV PORT=3000
 
-CMD ["bun", "apps/web/node_modules/.bin/next", "start", "-p", "3000"]
+CMD ["bun", "run", "apps/web/node_modules/.bin/next", "start", "-p", "3000"]

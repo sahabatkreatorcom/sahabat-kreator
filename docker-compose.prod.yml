@@ -70,6 +70,7 @@ services:
       - "8081:3001"
     environment:
       DATABASE_URL: postgresql://${PGUSER:-postgres}:${PGPASSWORD:-postgres}@postgres:5432/${PGDATABASE:-sahabatkreator}
+      PORT: 3001
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-redispassword}
