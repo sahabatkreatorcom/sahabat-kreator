@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft, ArrowRight, Check, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 interface TourStep {
@@ -23,7 +23,7 @@ const TOUR_STORAGE_KEY = "sk-onboarding-complete";
 export function OnboardingTour({ steps, isOpen, onClose, onComplete }: OnboardingTourProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [skipTour, setSkipTour] = useState(false);
+  const [skipTour, _setSkipTour] = useState(false);
 
   const highlightElement = (selector: string) => {
     const element = document.querySelector(selector);

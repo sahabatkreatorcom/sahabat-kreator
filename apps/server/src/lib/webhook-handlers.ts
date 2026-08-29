@@ -1,6 +1,6 @@
+import { randomUUID } from "node:crypto";
 import { db } from "@sahabatkreator/db";
 import { engagementItem } from "@sahabatkreator/db/schema";
-import { randomUUID } from "node:crypto";
 import type { WebhookEvent } from "./webhook-dispatcher";
 
 /**
@@ -18,7 +18,7 @@ export async function handleInstagramWebhook(event: WebhookEvent): Promise<void>
     const value = field.value as any;
     const verb = value.verb as string;
     const createdTime = value.created_time || value.parent_created_time;
-    const timestamp = createdTime ? new Date(parseInt(createdTime) * 1000) : new Date();
+    const timestamp = createdTime ? new Date(Number.parseInt(createdTime, 10) * 1000) : new Date();
 
     if (verb === "comment") {
       const from = value.from as any;
@@ -42,7 +42,7 @@ export async function handleInstagramWebhook(event: WebhookEvent): Promise<void>
       });
     }
 
-    if (verb === "mention" || (value.tag?.length > 0)) {
+    if (verb === "mention" || value.tag?.length > 0) {
       const from = value.from as any;
       await db.insert(engagementItem).values({
         id: randomUUID(),
@@ -75,9 +75,7 @@ export async function handleTikTokWebhook(event: WebhookEvent): Promise<void> {
   if (eventType === "comment.create" || eventType === "comment") {
     const comment = rawPayload.comment as any;
     const user = rawPayload.user as any;
-    const timestamp = comment.create_time
-      ? new Date(comment.create_time * 1000)
-      : new Date();
+    const timestamp = comment.create_time ? new Date(comment.create_time * 1000) : new Date();
 
     await db.insert(engagementItem).values({
       id: randomUUID(),
@@ -99,9 +97,7 @@ export async function handleTikTokWebhook(event: WebhookEvent): Promise<void> {
 
   if (eventType === "like.create" || eventType === "like") {
     const like = rawPayload.like as any;
-    const timestamp = like.create_time
-      ? new Date(like.create_time * 1000)
-      : new Date();
+    const timestamp = like.create_time ? new Date(like.create_time * 1000) : new Date();
 
     await db.insert(engagementItem).values({
       id: randomUUID(),
@@ -131,9 +127,7 @@ export async function handleYouTubeWebhook(event: WebhookEvent): Promise<void> {
   const data = rawPayload.data as any;
   if (!data) return;
 
-  const timestamp = data.snippet?.publishedAt
-    ? new Date(data.snippet.publishedAt)
-    : new Date();
+  const timestamp = data.snippet?.publishedAt ? new Date(data.snippet.publishedAt) : new Date();
 
   if (event.eventType === "youtube.commentThread.list" || event.eventType === "commentThread") {
     const comment = data.items?.[0]?.snippet?.topLevelComment?.snippet as any;

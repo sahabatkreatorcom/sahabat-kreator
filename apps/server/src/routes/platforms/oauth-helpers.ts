@@ -122,8 +122,7 @@ async function parseTokenResponse(response: Response): Promise<PlatformToken> {
   const tokenData = data as Record<string, string | number>;
   return {
     accessToken: String(tokenData.access_token || tokenData.accessToken || ""),
-    refreshToken:
-      String(tokenData.refresh_token ?? tokenData.refreshToken ?? "") || undefined,
+    refreshToken: String(tokenData.refresh_token ?? tokenData.refreshToken ?? "") || undefined,
     expiresIn: Number(tokenData.expires_in ?? tokenData.expiresIn ?? 3600),
   };
 }

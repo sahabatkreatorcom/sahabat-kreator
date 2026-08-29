@@ -265,11 +265,7 @@ export const engagementSyncWorker = new Worker<EngagementSyncJobData>(
     let itemsProcessed = 0;
 
     // Fetch comments
-    const comments = await fetchComments(
-      platform,
-      account.accessToken,
-      account.platformAccountId,
-    );
+    const comments = await fetchComments(platform, account.accessToken, account.platformAccountId);
     for (const comment of comments) {
       if (seenIds.has(comment.platformCommentId)) continue;
       await upsertEngagementItem(
@@ -283,10 +279,7 @@ export const engagementSyncWorker = new Worker<EngagementSyncJobData>(
     }
 
     // Fetch mentions
-    const mentions = await fetchMentions(
-      platform,
-      account.accessToken,
-    );
+    const mentions = await fetchMentions(platform, account.accessToken);
     for (const mention of mentions) {
       if (seenIds.has(mention.platformCommentId)) continue;
       const t = classifyType(mention, "mention");

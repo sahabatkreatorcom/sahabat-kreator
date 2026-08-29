@@ -1,7 +1,7 @@
-import { Hono } from "hono";
+import { db } from "@sahabatkreator/db";
 import { webhookLog } from "@sahabatkreator/db/schema";
 import { desc, eq } from "drizzle-orm";
-import { db } from "@sahabatkreator/db";
+import { Hono } from "hono";
 import { requireAuth } from "../lib/auth-middleware";
 import { getOrganizationId } from "../lib/context";
 
@@ -13,7 +13,7 @@ logApp.get("/logs", async (c) => {
   const organizationId = getOrganizationId(c);
   const platform = c.req.query("platform");
   const status = c.req.query("status");
-  const limit = Math.min(parseInt(c.req.query("limit") || "50"), 100);
+  const limit = Math.min(Number.parseInt(c.req.query("limit") || "50", 10), 100);
 
   const conditions = [eq(webhookLog.organizationId, organizationId)];
   if (platform) conditions.push(eq(webhookLog.platform, platform as any));
@@ -34,11 +34,7 @@ logApp.get("/logs/:id", async (c) => {
   const organizationId = getOrganizationId(c);
   const logId = c.req.param("id");
 
-  const [log] = await db
-    .select()
-    .from(webhookLog)
-    .where(eq(webhookLog.id, logId))
-    .limit(1);
+  const [log] = await db.select().from(webhookLog).where(eq(webhookLog.id, logId)).limit(1);
 
   if (!log || log.organizationId !== organizationId) {
     return c.json({ error: "Log not found" }, 404);

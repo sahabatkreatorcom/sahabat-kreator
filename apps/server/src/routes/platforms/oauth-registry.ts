@@ -37,7 +37,10 @@ export interface PlatformOAuthConfig {
   scopes: string;
   /** How to exchange the code for an access token (HTTP method + body) */
   tokenExchange: "json" | "querystring" | "form" | "bluesky";
-  profile: (accessToken: string, platform?: string) => Promise<{
+  profile: (
+    accessToken: string,
+    platform?: string,
+  ) => Promise<{
     platformId: string;
     name: string;
     username: string;

@@ -39,9 +39,6 @@ import paymentApp from "./routes/payment";
 import pillarsApp from "./routes/pillars";
 import platformIntegrationApp from "./routes/platform-integration";
 import platformApp from "./routes/platforms";
-import webhookApp from "./routes/webhooks";
-import webhookSubscriptionsApp from "./routes/webhook-subscriptions";
-import webhookLogsApp from "./routes/webhook-logs";
 // ── API Routes ──────────────────────────────────────────────────
 import postsApp from "./routes/posts";
 import pushApp from "./routes/push";
@@ -50,6 +47,9 @@ import settingsApp from "./routes/settings";
 import skApp from "./routes/sk";
 import suggestionsApp from "./routes/suggestions";
 import teamApp from "./routes/team";
+import webhookLogsApp from "./routes/webhook-logs";
+import webhookSubscriptionsApp from "./routes/webhook-subscriptions";
+import webhookApp from "./routes/webhooks";
 
 const app = new Hono();
 

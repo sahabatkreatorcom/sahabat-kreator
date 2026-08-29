@@ -145,7 +145,7 @@ export async function getInstagramAnalytics(
 
     let followers = 0;
     if (profileResponse.ok) {
-      const profileData = await profileResponse.json() as {
+      const profileData = (await profileResponse.json()) as {
         followers_count?: number;
         user_id?: string;
         id?: string;
@@ -186,9 +186,7 @@ export async function getInstagramAnalytics(
       }
     }
 
-    const engagementRate = totalReach > 0
-      ? ((totalLikes + totalComments) / totalReach) * 100
-      : 0;
+    const engagementRate = totalReach > 0 ? ((totalLikes + totalComments) / totalReach) * 100 : 0;
 
     return {
       followers,
@@ -248,7 +246,8 @@ export async function getInstagramComments(
   try {
     const mode = platform ? resolveMode(platform) : "instagram_login";
     const baseUrl = mode === "instagram_login" ? GRAPH_INSTAGRAM_URL : GRAPH_API_URL;
-    const fields = "id,text,timestamp,like_count,from{id,username,profile_picture_url},child_comment_count";
+    const fields =
+      "id,text,timestamp,like_count,from{id,username,profile_picture_url},child_comment_count";
     const url = appendAccessToken(
       mode,
       `${baseUrl}/${mediaId}/comments?limit=${limit}&fields=${fields}`,

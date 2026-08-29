@@ -97,9 +97,9 @@ case "$ENV" in
     rollback)
         echo "⚠️  Rolling back to previous version..."
         docker compose -f $COMPOSE_FILE down
-        docker pull ghcr.io/your-org/sahabat-kreator/server:previous
-        docker pull ghcr.io/your-org/sahabat-kreator/web:previous
-        docker pull ghcr.io/your-org/sahabat-kreator/worker:previous
+        docker pull ghcr.io/sahabatkreatorcom/sahabat-kreator/server:previous
+        docker pull ghcr.io/sahabatkreatorcom/sahabat-kreator/web:previous
+        docker pull ghcr.io/sahabatkreatorcom/sahabat-kreator/worker:previous
         docker compose -f $COMPOSE_FILE up -d
         echo "✅ Rollback completed!"
         ;;

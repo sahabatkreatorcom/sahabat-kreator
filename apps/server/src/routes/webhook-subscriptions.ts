@@ -1,21 +1,29 @@
 import { db } from "@sahabatkreator/db";
 import { webhookSubscription } from "@sahabatkreator/db/schema";
+import { env } from "@sahabatkreator/env/server";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 import { requireAuth } from "../lib/auth-middleware";
 import { getOrganizationId } from "../lib/context";
 import {
+  getPlatformCredential,
   getWebhookCallbackUrl,
   upsertSubscription,
-  getPlatformCredential,
 } from "../lib/webhook-helpers";
-import { env } from "@sahabatkreator/env/server";
 
 const subscriptionApp = new Hono();
 subscriptionApp.use("/*", requireAuth);
 
-const SUPPORTED_PLATFORMS = ["INSTAGRAM", "FACEBOOK", "TIKTOK", "YOUTUBE", "THREADS", "PINTEREST", "LINKEDIN"];
+const SUPPORTED_PLATFORMS = [
+  "INSTAGRAM",
+  "FACEBOOK",
+  "TIKTOK",
+  "YOUTUBE",
+  "THREADS",
+  "PINTEREST",
+  "LINKEDIN",
+];
 
 // ─── GET /api/webhooks/subscriptions ─────────────────────────────
 subscriptionApp.get("/", async (c) => {
@@ -142,9 +150,7 @@ subscriptionApp.delete("/:platform", async (c) => {
   // Platform-specific unsubscription
   // Note: These would call the respective platform APIs to remove subscriptions
 
-  await db
-    .delete(webhookSubscription)
-    .where(eq(webhookSubscription.id, sub.id));
+  await db.delete(webhookSubscription).where(eq(webhookSubscription.id, sub.id));
 
   return c.json({ success: true });
 });

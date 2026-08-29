@@ -1,19 +1,19 @@
 import { db } from "@sahabatkreator/db";
 import { socialAccount } from "@sahabatkreator/db/schema";
+import { env } from "@sahabatkreator/env/server";
 import { and, desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
-import { env } from "@sahabatkreator/env/server";
 import { requireAuth } from "../lib/auth-middleware";
 import { getOrganizationId } from "../lib/context";
+import type { PlatformToken } from "./platforms/oauth-helpers";
 import {
+  buildAuthorizationUrl,
   exchangeCodeForToken,
   getCallbackUrl,
-  buildAuthorizationUrl,
 } from "./platforms/oauth-helpers";
 import { getPlatformStrategy } from "./platforms/oauth-registry";
 import { upsertAccount } from "./platforms/profile-store";
-import type { PlatformToken } from "./platforms/oauth-helpers";
 import type { ProfileResponse } from "./platforms/types";
 
 const platformApp = new Hono();
@@ -64,7 +64,14 @@ platformApp.get("/cross-platform", async (c) => {
       try {
         const strategy = getPlatformStrategy(a.platform);
         if (!strategy.analytics || !a.accessToken) {
-          return { platform: a.platform, followers: 0, impressions: 0, engagementRate: 0, name: a.name, username: a.username };
+          return {
+            platform: a.platform,
+            followers: 0,
+            impressions: 0,
+            engagementRate: 0,
+            name: a.name,
+            username: a.username,
+          };
         }
         const metrics = await strategy.analytics(a.accessToken, a.platformAccountId, a.platform);
         return {
@@ -76,7 +83,14 @@ platformApp.get("/cross-platform", async (c) => {
           username: a.username,
         };
       } catch {
-        return { platform: a.platform, followers: 0, impressions: 0, engagementRate: 0, name: a.name, username: a.username };
+        return {
+          platform: a.platform,
+          followers: 0,
+          impressions: 0,
+          engagementRate: 0,
+          name: a.name,
+          username: a.username,
+        };
       }
     }),
   );
@@ -84,9 +98,10 @@ platformApp.get("/cross-platform", async (c) => {
   const totalFollowers = byPlatform.reduce((s, p) => s + p.followers, 0);
   const totalImpressions = byPlatform.reduce((s, p) => s + p.impressions, 0);
   const totalReach = byPlatform.reduce((s, p) => s + p.impressions, 0);
-  const avgEngagementRate = byPlatform.length > 0
-    ? byPlatform.reduce((s, p) => s + p.engagementRate, 0) / byPlatform.length
-    : 0;
+  const avgEngagementRate =
+    byPlatform.length > 0
+      ? byPlatform.reduce((s, p) => s + p.engagementRate, 0) / byPlatform.length
+      : 0;
 
   return c.json({
     stats: {
@@ -149,7 +164,13 @@ platformApp.post("/:platform/callback", async (c) => {
   const redirectUri = getCallbackUrl(baseUrl, platform);
 
   try {
-    const token = await exchangeCodeForToken(platform, body.data.code, redirectUri, clientId, clientSecret);
+    const token = await exchangeCodeForToken(
+      platform,
+      body.data.code,
+      redirectUri,
+      clientId,
+      clientSecret,
+    );
     const strategy = getPlatformStrategy(platform);
     const profile = await strategy.profile(token.accessToken, platform);
 
@@ -207,7 +228,11 @@ platformApp.get("/:platform/analytics", async (c) => {
   }
 
   try {
-    const analytics = await strategy.analytics(account.accessToken, account.platformAccountId, platform);
+    const analytics = await strategy.analytics(
+      account.accessToken,
+      account.platformAccountId,
+      platform,
+    );
     return c.json({ analytics });
   } catch (error) {
     console.error(`[Platform] ${platform} analytics error:`, error);

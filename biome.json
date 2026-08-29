@@ -20,7 +20,7 @@
     "rules": {
       "preset": "recommended",
       "correctness": {
-        "useExhaustiveDependencies": "info",
+        "useExhaustiveDependencies": "warn",
         "noUnusedVariables": "warn",
         "noUnusedFunctionParameters": "warn",
         "noInvalidUseBeforeDeclaration": "warn",
@@ -52,7 +52,8 @@
         "noExplicitAny": "warn",
         "noImplicitAnyLet": "warn",
         "useIterableCallbackReturn": "warn",
-        "noDuplicateCase": "warn"
+        "noDuplicateCase": "warn",
+        "noArrayIndexKey": "warn"
       },
       "a11y": {
         "noLabelWithoutControl": "warn",
@@ -60,7 +61,8 @@
         "noSvgWithoutTitle": "warn",
         "noStaticElementInteractions": "warn",
         "useKeyWithClickEvents": "warn",
-        "useValidAnchor": "warn"
+        "useValidAnchor": "warn",
+        "noRedundantRoles": "warn"
       },
       "performance": {
         "noImgElement": "warn"
@@ -70,10 +72,6 @@
       },
       "security": {
         "noDangerouslySetInnerHtml": "warn"
-      },
-      "correctness": {
-        "noUnusedVariables": "warn",
-        "noUnusedFunctionParameters": "warn"
       }
     }
   },

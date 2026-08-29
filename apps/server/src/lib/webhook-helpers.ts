@@ -1,7 +1,11 @@
-import { db } from "@sahabatkreator/db";
-import { globalPlatformCredential, socialAccount, webhookSubscription } from "@sahabatkreator/db/schema";
-import { eq } from "drizzle-orm";
 import crypto from "node:crypto";
+import { db } from "@sahabatkreator/db";
+import {
+  globalPlatformCredential,
+  socialAccount,
+  webhookSubscription,
+} from "@sahabatkreator/db/schema";
+import { eq } from "drizzle-orm";
 
 /**
  * Get the platform-level credential (client ID, secret, webhook token)
@@ -22,12 +26,7 @@ export async function getOrganizationAccounts(_organizationId: string, platform:
   return db
     .select()
     .from(socialAccount)
-    .where(
-      eq(
-        socialAccount.platform,
-        platform.toUpperCase() as any,
-      ),
-    )
+    .where(eq(socialAccount.platform, platform.toUpperCase() as any))
     .execute();
 }
 
@@ -39,9 +38,7 @@ export async function getSubscription(_organizationId: string, platform: string)
   return db
     .select()
     .from(webhookSubscription)
-    .where(
-      eq(webhookSubscription.platform, platformUpper as any),
-    )
+    .where(eq(webhookSubscription.platform, platformUpper as any))
     .limit(1);
 }
 
@@ -73,10 +70,7 @@ export async function upsertSubscription(
   if (existing.length > 0) {
     const sub = existing[0];
     if (!sub) return { id: crypto.randomUUID(), ...values };
-    await db
-      .update(webhookSubscription)
-      .set(values)
-      .where(eq(webhookSubscription.id, sub.id));
+    await db.update(webhookSubscription).set(values).where(eq(webhookSubscription.id, sub.id));
     return { id: sub.id, ...values };
   }
 
@@ -96,10 +90,7 @@ export function getWebhookCallbackUrl(platform: string, baseUrl: string): string
 /**
  * Verify Instagram/Facebook challenge response
  */
-export function verifyInstagramChallenge(
-  token: string | null,
-  requestBody: any,
-): boolean {
+export function verifyInstagramChallenge(token: string | null, requestBody: any): boolean {
   if (!token) return false;
   return requestBody["hub.verify_token"] === token && requestBody["hub.challenge"];
 }
@@ -123,8 +114,6 @@ export function verifyTikTokSignature(
  */
 export function isValidYouTubeWebhook(payload: any): boolean {
   return (
-    typeof payload === "object" &&
-    payload.id !== undefined &&
-    payload.subscriptionId !== undefined
+    typeof payload === "object" && payload.id !== undefined && payload.subscriptionId !== undefined
   );
 }

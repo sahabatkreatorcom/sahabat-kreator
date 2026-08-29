@@ -299,11 +299,7 @@ export const analyticsSyncWorker = new Worker<AnalyticsSyncJobData>(
     const endDate = range ? new Date(range) : now;
 
     // 1. Fetch latest metrics from platform
-    const metrics = await fetchAnalytics(
-      platform,
-      account.accessToken,
-      account.platformAccountId,
-    );
+    const metrics = await fetchAnalytics(platform, account.accessToken, account.platformAccountId);
     if (!metrics) {
       console.warn(`[AnalyticsSync] No metrics returned for ${platform}/${socialAccountId}`);
       throw new Error(`Platform returned no analytics for ${platform}`);

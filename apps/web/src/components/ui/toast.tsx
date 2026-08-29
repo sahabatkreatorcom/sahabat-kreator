@@ -95,9 +95,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <>
       {children}
-      <div
+      <section
         className="fixed right-4 bottom-24 left-4 z-50 flex flex-col gap-2 md:bottom-4 md:left-auto"
-        role="region"
         aria-label="Notifications"
         aria-live="polite"
         aria-atomic="false"
@@ -105,7 +104,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) => (
           <ToastItem key={t.id} toast={t} onClose={() => remove(t.id)} />
         ))}
-      </div>
+      </section>
     </>
   );
 }

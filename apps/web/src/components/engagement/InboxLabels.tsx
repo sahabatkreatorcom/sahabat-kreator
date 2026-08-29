@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Plus, Save, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-interface Label {
+interface InboxLabel {
   id: string;
   name: string;
   color: string;
@@ -39,7 +39,7 @@ const PRESET_COLORS = [
 ];
 
 export function InboxLabels({ onClose }: InboxLabelsProps) {
-  const [labels, setLabels] = useState<Label[]>([]);
+  const [labels, setLabels] = useState<InboxLabel[]>([]);
   const [showEditor, setShowEditor] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -50,7 +50,7 @@ export function InboxLabels({ onClose }: InboxLabelsProps) {
     if (stored) {
       setLabels(JSON.parse(stored));
     } else {
-      const defaults: Label[] = [
+      const defaults: InboxLabel[] = [
         { id: "1", name: "Prioritas", color: "#ef4444", createdAt: new Date().toISOString() },
         {
           id: "2",
@@ -66,7 +66,7 @@ export function InboxLabels({ onClose }: InboxLabelsProps) {
     }
   }, []);
 
-  const saveLabels = (data: Label[]) => {
+  const saveLabels = (data: InboxLabel[]) => {
     localStorage.setItem("sk-inbox-labels", JSON.stringify(data));
   };
 
@@ -84,7 +84,7 @@ export function InboxLabels({ onClose }: InboxLabelsProps) {
       saveLabels(updated);
       toast.success("Label diperbarui");
     } else {
-      const newLabel: Label = {
+      const newLabel: InboxLabel = {
         id: crypto.randomUUID(),
         name: name.trim(),
         color,

@@ -80,8 +80,8 @@ function getLuminance(hex: string): number {
   const rgb = hexToRgb(hex);
   if (!rgb) return 0;
 
-  const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((v) => {
-    v /= 255;
+  const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((v0) => {
+    const v = v0 / 255;
     return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
   });
 

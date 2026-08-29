@@ -19,7 +19,7 @@ export class WebhookDispatcher {
   private static handlers = new Map<string, (event: WebhookEvent) => Promise<void>>();
 
   static register(platform: string, handler: (event: WebhookEvent) => Promise<void>) {
-    this.handlers.set(platform.toUpperCase(), handler);
+    WebhookDispatcher.handlers.set(platform.toUpperCase(), handler);
   }
 
   static async dispatch(event: WebhookEvent): Promise<{ processed: boolean; error?: string }> {
@@ -38,7 +38,7 @@ export class WebhookDispatcher {
       })
       .catch((err) => console.error("[WebhookDispatcher] Failed to log:", err));
 
-    const handler = this.handlers.get(event.platform.toUpperCase());
+    const handler = WebhookDispatcher.handlers.get(event.platform.toUpperCase());
     if (!handler) {
       await db
         .update(webhookLog)

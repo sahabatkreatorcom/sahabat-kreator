@@ -14,7 +14,7 @@
  * - /{user_id}/threads_insights → engagement insights
  */
 
-import { type AccountMetrics, THREADS_API_URL, type PlatformProfile } from "./types";
+import { type AccountMetrics, type PlatformProfile, THREADS_API_URL } from "./types";
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 
@@ -123,16 +123,14 @@ export async function getThreadsAnalytics(
     const insightsUrl = `${THREADS_API_URL}/${userId}/threads_insights?metric=views,likes,replies,reposts,quotes&period=day`;
 
     const [profileRes, insightsRes] = await Promise.all([
-      fetch(profileUrl, { headers: authHeaders })
-        .then(async (r) => {
-          if (!r.ok) throw new Error(`Threads profile API returned ${r.status}`);
-          return r.json() as Promise<ThreadsUserResponse>;
-        }),
-      fetch(insightsUrl, { headers: authHeaders })
-        .then(async (r) => {
-          if (!r.ok) return { data: [] as ThreadsInsightItem[] }; // Non-fatal: insights may be unavailable
-          return r.json() as Promise<ThreadsInsightsResponse>;
-        }),
+      fetch(profileUrl, { headers: authHeaders }).then(async (r) => {
+        if (!r.ok) throw new Error(`Threads profile API returned ${r.status}`);
+        return r.json() as Promise<ThreadsUserResponse>;
+      }),
+      fetch(insightsUrl, { headers: authHeaders }).then(async (r) => {
+        if (!r.ok) return { data: [] as ThreadsInsightItem[] }; // Non-fatal: insights may be unavailable
+        return r.json() as Promise<ThreadsInsightsResponse>;
+      }),
     ]);
 
     const followers = profileRes.threads_follower_count || 0;

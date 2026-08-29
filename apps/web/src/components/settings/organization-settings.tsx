@@ -24,20 +24,6 @@ export function OrganizationSettings() {
   const [saving, setSaving] = useState(false);
   const [orgId, setOrgId] = useState<string | null>(null);
 
-  const fetchOrganization = useCallback(async () => {
-    try {
-      const res = await fetch("/api/organization/current");
-      if (res.ok) {
-        const data = await res.json();
-        setOrgId(data.organization?.id);
-        setOrgName(data.organization?.name || "");
-        fetchMembers(data.organization?.id);
-      }
-    } catch {
-      setLoading(false);
-    }
-  }, []);
-
   const fetchMembers = useCallback(async (id?: string) => {
     if (!id) return;
     try {
@@ -52,6 +38,20 @@ export function OrganizationSettings() {
       setLoading(false);
     }
   }, []);
+
+  const fetchOrganization = useCallback(async () => {
+    try {
+      const res = await fetch("/api/organization/current");
+      if (res.ok) {
+        const data = await res.json();
+        setOrgId(data.organization?.id);
+        setOrgName(data.organization?.name || "");
+        fetchMembers(data.organization?.id);
+      }
+    } catch {
+      setLoading(false);
+    }
+  }, [fetchMembers]);
 
   useEffect(() => {
     fetchOrganization();
