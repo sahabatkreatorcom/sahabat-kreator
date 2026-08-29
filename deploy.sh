@@ -48,9 +48,18 @@ else
     exit 1
 fi
 
+# Source environment file if it exists
+if [ -f ".env.production.local" ]; then
+    set -a
+    source .env.production.local
+    set +a
+    echo "📄 Loaded .env.production.local"
+fi
+
 echo "================================================"
 echo "Deploying to $ENV ($DOMAIN)"
 echo "Port: Web=$WEB_PORT, Server=$SERVER_PORT"
+echo "Image Tag: $IMAGE_TAG"
 echo "================================================"
 
 # Detect current git commit for image tagging
@@ -63,19 +72,29 @@ case "$ENV" in
         
         # Sync source code
         echo "Syncing source code..."
-        git pull --ff-only
+        git config --global --add safe.directory /opt/sahabat-kreator
+        git pull --ff-only 2>/dev/null || echo "⚠️  Git pull failed, continuing with existing code"
         
         # Stop existing containers
         echo "Stopping existing containers..."
         docker compose -f $COMPOSE_FILE down
         
+        # Login to GitHub Container Registry if token available
+        if [ -n "$GITHUB_TOKEN" ]; then
+            echo "Logging in to GHCR..."
+            echo "$GITHUB_TOKEN" | docker login ghcr.io -u sahabatkreatorcom --password-stdin
+        else
+            echo "⚠️  GITHUB_TOKEN not found in environment"
+            echo "   Set it in .env.production.local or export before running"
+        fi
+        
         # Pull images from registry
         echo "Pulling images from registry..."
-        if [ -n "$GITHUB_TOKEN" ]; then
-            echo "  Using GITHUB_TOKEN for registry authentication"
-            echo "$GITHUB_TOKEN" | docker compose -f $COMPOSE_FILE login --username sahabatkreatorcom --password-stdin 2>/dev/null || true
-        fi
-        docker compose -f $COMPOSE_FILE pull --ignore-cache
+        docker compose -f $COMPOSE_FILE pull --ignore-cache || {
+            echo "❌ Failed to pull images from registry"
+            echo "   Make sure GITHUB_TOKEN is set correctly"
+            exit 1
+        }
         
         # Start services
         echo "Starting services..."
