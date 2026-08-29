@@ -48,6 +48,11 @@ export const emailDigestQueue = new Queue("email-digest", { connection });
  */
 export const scheduledDigestQueue = new Queue("scheduled-digest", { connection });
 
+/**
+ * Post scheduler queue — polls for posts whose scheduledAt is due.
+ */
+export const schedulerQueue = new Queue("scheduler", { connection });
+
 // ── Job data types ────────────────────────────────────────────────
 
 export interface EmailJobData {
@@ -239,4 +244,5 @@ export async function closeQueues() {
   await tokenQueue.close();
   await emailDigestQueue.close();
   await scheduledDigestQueue.close();
+  await schedulerQueue.close();
 }

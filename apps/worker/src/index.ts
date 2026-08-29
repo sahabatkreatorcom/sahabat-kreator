@@ -1,4 +1,4 @@
-import { connection, type EmailJobData, type NotificationJobData } from "@sahabatkreator/jobs";
+import { connection, type EmailJobData, type NotificationJobData, schedulerQueue } from "@sahabatkreator/jobs";
 import { sendEmail } from "@sahabatkreator/jobs/resend";
 import { type Job, Worker } from "bullmq";
 
@@ -60,6 +60,7 @@ import { engagementSyncWorker } from "./jobs/engagement-sync";
 // ── Import workers ──────────────────────────────────────────────
 import { postPublisherWorker } from "./jobs/post-publisher";
 import { postSchedulerWorker } from "./jobs/post-scheduler";
+import { registerDigestSchedulers } from "./jobs/scheduled-digest-worker";
 import { scheduledDigestWorker } from "./jobs/scheduled-digest-worker";
 import { stalePostCleanupWorker } from "./jobs/stale-cleanup";
 import { tokenRefreshWorker } from "./jobs/token-refresh";
@@ -123,3 +124,23 @@ console.log("[Worker] - Engagement sync worker: processing 'engagement' queue");
 console.log("[Worker] - Token refresh worker: processing 'token' queue");
 console.log("[Worker] - Email digest worker: processing 'email-digest' queue");
 console.log("[Worker] - Scheduled digest worker: processing 'scheduled-digest' queue");
+console.log("[Worker] - Post scheduler worker: processing 'scheduler' queue");
+
+// ── Register BullMQ cron schedulers at boot ─────────────────────
+async function registerSchedulers() {
+  // Post scheduler: every minute, check for posts whose scheduledAt <= now
+  await schedulerQueue.upsertJobScheduler(
+    "post-scheduler-cron",
+    { pattern: "* * * * *" },
+    { name: "check-due-posts" },
+  );
+  console.log("[Worker] Post scheduler cron registered (*/1 * * * *)");
+
+  // Digest scheduler: daily at 08:00
+  await registerDigestSchedulers();
+}
+
+registerSchedulers().catch((err) => {
+  console.error("[Worker] Failed to register schedulers:", err);
+  // Don't exit — workers still run; schedulers will be recreated on reconnect
+});

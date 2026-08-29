@@ -83,21 +83,13 @@ FROM oven/bun:1-alpine AS web-production
 
 WORKDIR /app
 
-# Copy built Next.js app
-COPY --from=builder /app/apps/web/.next ./apps/web/.next
+RUN apk add --no-cache curl
+
+# Copy standalone output (only used deps + built app, much smaller image)
+COPY --from=builder /app/apps/web/.next/standalone/ .
+COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder /app/apps/web/public ./apps/web/public
-COPY --from=builder /app/apps/web/package.json ./apps/web/
-COPY --from=builder /app/apps/web/next.config.ts ./apps/web/
-COPY --from=builder /app/apps/web/postcss.config.mjs ./apps/web/
-COPY --from=builder /app/apps/web/tsconfig.json ./apps/web/
-COPY --from=builder /app/apps/web/src ./apps/web/src
 
-# Install production dependencies
-COPY --from=builder /app/bun.lock ./bun.lock
-COPY --from=builder /app/package.json ./package.json
-RUN bun install --frozen-lockfile --production
-
-# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1
 
@@ -105,5 +97,6 @@ EXPOSE 3000
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV PORT=3000
 
-CMD ["bun", "run", "apps/web/node_modules/.bin/next", "start", "-p", "3000"]
+CMD ["bun", "apps/web/server.js"]

@@ -172,9 +172,8 @@ scheduledDigestWorker.on("failed", (job, err) => {
 
 export async function registerDigestSchedulers() {
   // Register the cron-triggered scheduler that fires the worker periodically.
-  // We upsert a BullMQ job-scheduler so the worker picks up on its own.
   await scheduleRecurringJob(
-    { add: () => Promise.resolve({ id: "sched" } as any) } as any,
+    scheduledDigestQueue,
     "digest-scheduler",
     {},
     "0 8 * * *",
