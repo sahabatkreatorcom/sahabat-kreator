@@ -6,11 +6,6 @@
 
 "use client";
 
-import Link from "next/link";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { signIn, useSession } from "@/lib/auth-client";
 import {
   BarChart3,
   Calendar,
@@ -23,20 +18,20 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const FEATURES = [
   {
     icon: <Calendar className="h-6 w-6" />,
     title: "Jadwal Konten",
-    description:
-      "Rencanakan konten beberapa minggu ke depan dengan kalender visual drag-and-drop.",
+    description: "Rencanakan konten beberapa minggu ke depan dengan kalender visual drag-and-drop.",
   },
   {
     icon: <Sparkles className="h-6 w-6" />,
     title: "AI Caption Generator",
-    description:
-      "Buat caption menarik otomatis dengan AI yang memahami brand voice Anda.",
+    description: "Buat caption menarik otomatis dengan AI yang memahami brand voice Anda.",
   },
   {
     icon: <BarChart3 className="h-6 w-6" />,
@@ -47,14 +42,12 @@ const FEATURES = [
   {
     icon: <MessageSquare className="h-6 w-6" />,
     title: "Engagement Terpadu",
-    description:
-      "Kelola komentar, DM, dan ulasan dari semua platform dalam satu inbox.",
+    description: "Kelola komentar, DM, dan ulasan dari semua platform dalam satu inbox.",
   },
   {
     icon: <Users className="h-6 w-6" />,
     title: "Kolaborasi Tim",
-    description:
-      "Undang tim, atur peran, dan kelola akses dengan mudah untuk setiap proyek.",
+    description: "Undang tim, atur peran, dan kelola akses dengan mudah untuk setiap proyek.",
   },
   {
     icon: <Clock className="h-6 w-6" />,
@@ -101,13 +94,7 @@ const FAQ_ITEMS = [
   },
 ];
 
-function FAQAccordionItem({
-  question,
-  answer,
-}: {
-  question: string;
-  answer: string;
-}) {
+function FAQAccordionItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -117,48 +104,24 @@ function FAQAccordionItem({
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between py-4 text-left"
       >
-        <span className="font-medium text-[var(--text-primary)] text-lg">
-          {question}
-        </span>
+        <span className="font-medium text-[var(--text-primary)] text-lg">{question}</span>
         <svg
           className={`h-5 w-5 shrink-0 text-[var(--text-muted)] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={2}
+          aria-hidden="true"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M19 9l-7 7-7-7"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      {open && (
-        <p className="pb-4 text-[var(--text-muted)] leading-relaxed">{answer}</p>
-      )}
+      {open && <p className="pb-4 text-[var(--text-muted)] leading-relaxed">{answer}</p>}
     </div>
   );
 }
 
 export function LandingPage() {
-  const _router = useRouter();
-  const { data: session, isPending } = useSession();
-
-  useEffect(() => {
-    if (!isPending && session?.user) {
-      _router.replace("/dashboard");
-    }
-  }, [session, isPending, _router]);
-
-  if (isPending) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--bg-primary)]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--accent-gold)] border-t-transparent" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* ── Navigation ── */}
@@ -174,6 +137,7 @@ export function LandingPage() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 className="h-4 w-4"
+                aria-hidden="true"
               >
                 <circle cx="12" cy="12" r="10" />
                 <path d="M8 14s1.5 2 4 2 4-2 4-2" />
@@ -181,26 +145,24 @@ export function LandingPage() {
                 <line x1="15" y1="9" x2="15.01" y2="9" />
               </svg>
             </div>
-            <span className="font-bold text-lg text-gradient">
-              Sahabat Kreator
-            </span>
+            <span className="font-bold text-gradient text-lg">Sahabat Kreator</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link
               href="#features"
-              className="hidden text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors md:block"
+              className="hidden font-medium text-[var(--text-secondary)] text-sm transition-colors hover:text-[var(--text-primary)] md:block"
             >
               Fitur
             </Link>
             <Link
               href="#pricing"
-              className="hidden text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors md:block"
+              className="hidden font-medium text-[var(--text-secondary)] text-sm transition-colors hover:text-[var(--text-primary)] md:block"
             >
               Harga
             </Link>
             <Link
               href="#faq"
-              className="hidden text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors md:block"
+              className="hidden font-medium text-[var(--text-secondary)] text-sm transition-colors hover:text-[var(--text-primary)] md:block"
             >
               FAQ
             </Link>
@@ -217,15 +179,14 @@ export function LandingPage() {
       </nav>
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden px-6 pb-20 pt-16 md:pt-28">
+      <section className="relative overflow-hidden px-6 pt-16 pb-20 md:pt-28">
         <div
           className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2"
           style={{
             width: 600,
             height: 600,
             borderRadius: "50%",
-            background:
-              "radial-gradient(circle, var(--accent-gold) 0%, transparent 70%)",
+            background: "radial-gradient(circle, var(--accent-gold) 0%, transparent 70%)",
             opacity: 0.08,
           }}
         />
@@ -235,40 +196,32 @@ export function LandingPage() {
             width: 400,
             height: 400,
             borderRadius: "50%",
-            background:
-              "radial-gradient(circle, var(--accent-pink) 0%, transparent 70%)",
+            background: "radial-gradient(circle, var(--accent-pink) 0%, transparent 70%)",
             opacity: 0.06,
           }}
         />
 
         <div className="relative mx-auto max-w-4xl text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-secondary)] px-4 py-1.5 text-xs font-medium text-[var(--text-secondary)]">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-secondary)] px-4 py-1.5 font-medium text-[var(--text-secondary)] text-xs">
             <span className="inline-block h-2 w-2 rounded-full bg-[var(--success)]" />
             AI-Powered &middot; Multi-Platform &middot; Dibuat untuk Indonesia
           </div>
 
-          <h1 className="text-4xl font-extrabold leading-tight tracking-tight md:text-6xl">
-            Kelola Media Sosial{" "}
-            <span className="text-gradient">Lebih Cerdas</span>
+          <h1 className="font-extrabold text-4xl leading-tight tracking-tight md:text-6xl">
+            Kelola Media Sosial <span className="text-gradient">Lebih Cerdas</span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[var(--text-secondary)] md:text-xl">
-            Sahabat Kreator membantu kreator Indonesia menjadwalkan konten,
-            menganalisis performa, dan berkolaborasi dengan tim — semua dalam
-            satu platform.
+          <p className="mx-auto mt-6 max-w-2xl text-[var(--text-secondary)] text-lg leading-relaxed md:text-xl">
+            Sahabat Kreator membantu kreator Indonesia menjadwalkan konten, menganalisis performa,
+            dan berkolaborasi dengan tim — semua dalam satu platform.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link href="/register">
-              <Button className="h-12 rounded-full px-8 text-base">
-                Mulai Gratis
-              </Button>
+              <Button className="h-12 rounded-full px-8 text-base">Mulai Gratis</Button>
             </Link>
             <Link href="#features">
-              <Button
-                variant="secondary"
-                className="h-12 rounded-full px-8 text-base"
-              >
+              <Button variant="secondary" className="h-12 rounded-full px-8 text-base">
                 Pelajari Lebih Lanjut
               </Button>
             </Link>
@@ -277,24 +230,19 @@ export function LandingPage() {
       </section>
 
       {/* ── Platforms Strip ── */}
-      <section className="border-y border-[var(--border)] bg-[var(--bg-secondary)] py-10">
+      <section className="border-[var(--border)] border-y bg-[var(--bg-secondary)] py-10">
         <div className="mx-auto max-w-5xl px-6 text-center">
-          <p className="mb-8 text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
+          <p className="mb-8 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-widest">
             Terhubung ke Semua Platform
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
             {PLATFORMS.map((platform) => (
-              <div
-                key={platform.name}
-                className="flex flex-col items-center gap-1.5"
-              >
+              <div key={platform.name} className="flex flex-col items-center gap-1.5">
                 <Globe
                   className="h-6 w-6 text-[var(--text-muted)]"
                   style={{ color: platform.color }}
                 />
-                <span className="text-[11px] text-[var(--text-muted)]">
-                  {platform.name}
-                </span>
+                <span className="text-[11px] text-[var(--text-muted)]">{platform.name}</span>
               </div>
             ))}
           </div>
@@ -305,9 +253,8 @@ export function LandingPage() {
       <section id="features" className="px-6 py-20 md:py-28">
         <div className="mx-auto max-w-6xl">
           <div className="mb-14 text-center">
-            <h2 className="text-3xl font-bold md:text-4xl">
-              Semua yang Anda Butuhkan untuk{" "}
-              <span className="text-gradient">Media Sosial</span>
+            <h2 className="font-bold text-3xl md:text-4xl">
+              Semua yang Anda Butuhkan untuk <span className="text-gradient">Media Sosial</span>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-[var(--text-secondary)]">
               Satu platform untuk jadwal, AI, analitik, dan kolaborasi tim.
@@ -323,10 +270,8 @@ export function LandingPage() {
                 <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--accent-gold)]/10 text-[var(--accent-gold)]">
                   {feature.icon}
                 </div>
-                <h3 className="mb-2 font-semibold text-[var(--text-primary)]">
-                  {feature.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                <h3 className="mb-2 font-semibold text-[var(--text-primary)]">{feature.title}</h3>
+                <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -338,13 +283,12 @@ export function LandingPage() {
       {/* ── Pricing ── */}
       <section
         id="pricing"
-        className="border-y border-[var(--border)] bg-[var(--bg-secondary)] px-6 py-20 md:py-28"
+        className="border-[var(--border)] border-y bg-[var(--bg-secondary)] px-6 py-20 md:py-28"
       >
         <div className="mx-auto max-w-6xl">
           <div className="mb-14 text-center">
-            <h2 className="text-3xl font-bold md:text-4xl">
-              Harga{" "}
-              <span className="text-gradient">Transparan</span>
+            <h2 className="font-bold text-3xl md:text-4xl">
+              Harga <span className="text-gradient">Transparan</span>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-[var(--text-secondary)]">
               Mulai gratis, upgrade kapan saja sesuai kebutuhan.
@@ -403,28 +347,25 @@ export function LandingPage() {
                 className={`rounded-2xl border p-7 ${tier.highlight ? "border-[var(--accent-gold)] bg-[var(--bg-secondary)]" : "border-[var(--border)] bg-[var(--bg-primary)]"}`}
               >
                 {tier.highlight && (
-                  <span className="mb-3 inline-block rounded-full bg-[var(--accent-gold)]/10 px-3 py-1 text-xs font-semibold text-[var(--accent-gold)]">
+                  <span className="mb-3 inline-block rounded-full bg-[var(--accent-gold)]/10 px-3 py-1 font-semibold text-[var(--accent-gold)] text-xs">
                     Paling Populer
                   </span>
                 )}
-                <h3 className="font-bold text-[var(--text-primary)] text-lg">
-                  {tier.name}
-                </h3>
+                <h3 className="font-bold text-[var(--text-primary)] text-lg">{tier.name}</h3>
                 <div className="mt-2 flex items-baseline gap-1">
-                  <span className="font-extrabold text-[var(--text-primary)] text-3xl">
+                  <span className="font-extrabold text-3xl text-[var(--text-primary)]">
                     {tier.price}
                   </span>
-                  <span className="text-[var(--text-muted)] text-sm">
-                    {tier.period}
-                  </span>
+                  <span className="text-[var(--text-muted)] text-sm">{tier.period}</span>
                 </div>
-                <p className="mt-2 text-[var(--text-muted)] text-sm">
-                  {tier.description}
-                </p>
+                <p className="mt-2 text-[var(--text-muted)] text-sm">{tier.description}</p>
                 <ul className="mt-6 space-y-2.5">
                   {tier.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-                      <ShieldCheck className="h-4 w-4 text-[var(--accent-gold)] shrink-0" />
+                    <li
+                      key={f}
+                      className="flex items-center gap-2 text-[var(--text-secondary)] text-sm"
+                    >
+                      <ShieldCheck className="h-4 w-4 shrink-0 text-[var(--accent-gold)]" />
                       {f}
                     </li>
                   ))}
@@ -447,17 +388,11 @@ export function LandingPage() {
       <section id="faq" className="px-6 py-20 md:py-28">
         <div className="mx-auto max-w-3xl">
           <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold md:text-4xl">
-              Pertanyaan yang Sering Diajukan
-            </h2>
+            <h2 className="font-bold text-3xl md:text-4xl">Pertanyaan yang Sering Diajukan</h2>
           </div>
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] px-6">
             {FAQ_ITEMS.map((item) => (
-              <FAQAccordionItem
-                key={item.question}
-                question={item.question}
-                answer={item.answer}
-              />
+              <FAQAccordionItem key={item.question} question={item.question} answer={item.answer} />
             ))}
           </div>
         </div>
@@ -470,14 +405,10 @@ export function LandingPage() {
             Siap Meningkatkan Media Sosial Anda?
           </h2>
           <p className="mb-8 text-[var(--bg-primary)]/80 text-lg">
-            Bergabung dengan ribuan kreator Indonesia yang sudah menggunakan
-            Sahabat Kreator.
+            Bergabung dengan ribuan kreator Indonesia yang sudah menggunakan Sahabat Kreator.
           </p>
           <Link href="/register">
-            <Button
-              variant="secondary"
-              className="h-12 rounded-full px-8 text-base font-semibold"
-            >
+            <Button variant="secondary" className="h-12 rounded-full px-8 font-semibold text-base">
               Daftar Sekarang — Gratis
             </Button>
           </Link>
@@ -498,6 +429,7 @@ export function LandingPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   className="h-3.5 w-3.5"
+                  aria-hidden="true"
                 >
                   <circle cx="12" cy="12" r="10" />
                   <path d="M8 14s1.5 2 4 2 4-2 4-2" />
@@ -505,39 +437,26 @@ export function LandingPage() {
                   <line x1="15" y1="9" x2="15.01" y2="9" />
                 </svg>
               </div>
-              <span className="font-semibold text-[var(--text-primary)]">
-                Sahabat Kreator
-              </span>
+              <span className="font-semibold text-[var(--text-primary)]">Sahabat Kreator</span>
             </div>
-            <div className="flex gap-6 text-sm text-[var(--text-muted)]">
+            <div className="flex gap-6 text-[var(--text-muted)] text-sm">
               <Link href="/about" className="hover:text-[var(--text-primary)]">
                 Tentang
               </Link>
               <Link href="/faq" className="hover:text-[var(--text-primary)]">
                 FAQ
               </Link>
-              <Link
-                href="/legal/terms"
-                className="hover:text-[var(--text-primary)]"
-              >
+              <Link href="/legal/terms" className="hover:text-[var(--text-primary)]">
                 Syarat Layanan
               </Link>
-              <Link
-                href="/legal/privacy"
-                className="hover:text-[var(--text-primary)]"
-              >
+              <Link href="/legal/privacy" className="hover:text-[var(--text-primary)]">
                 Privasi
               </Link>
-              <Link
-                href="/contact"
-                className="hover:text-[var(--text-primary)]"
-              >
+              <Link href="/contact" className="hover:text-[var(--text-primary)]">
                 Kontak
               </Link>
             </div>
-            <p className="text-sm text-[var(--text-muted)]">
-              &copy; 2026 Sahabat Kreator
-            </p>
+            <p className="text-[var(--text-muted)] text-sm">&copy; 2026 Sahabat Kreator</p>
           </div>
         </div>
       </footer>

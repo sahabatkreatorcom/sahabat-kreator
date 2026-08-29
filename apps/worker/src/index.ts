@@ -1,4 +1,9 @@
-import { connection, type EmailJobData, type NotificationJobData, schedulerQueue } from "@sahabatkreator/jobs";
+import {
+  connection,
+  type EmailJobData,
+  type NotificationJobData,
+  schedulerQueue,
+} from "@sahabatkreator/jobs";
 import { sendEmail } from "@sahabatkreator/jobs/resend";
 import { type Job, Worker } from "bullmq";
 
@@ -60,8 +65,7 @@ import { engagementSyncWorker } from "./jobs/engagement-sync";
 // ── Import workers ──────────────────────────────────────────────
 import { postPublisherWorker } from "./jobs/post-publisher";
 import { postSchedulerWorker } from "./jobs/post-scheduler";
-import { registerDigestSchedulers } from "./jobs/scheduled-digest-worker";
-import { scheduledDigestWorker } from "./jobs/scheduled-digest-worker";
+import { registerDigestSchedulers, scheduledDigestWorker } from "./jobs/scheduled-digest-worker";
 import { stalePostCleanupWorker } from "./jobs/stale-cleanup";
 import { tokenRefreshWorker } from "./jobs/token-refresh";
 

@@ -20,8 +20,8 @@ import {
 import {
   connection,
   queueEmailDigest,
-  scheduleRecurringJob,
   scheduledDigestQueue,
+  scheduleRecurringJob,
 } from "@sahabatkreator/jobs";
 import { Worker } from "bullmq";
 import { and, eq } from "drizzle-orm";
@@ -177,11 +177,6 @@ scheduledDigestWorker.on("failed", (job, err) => {
 
 export async function registerDigestSchedulers() {
   // Register the cron-triggered scheduler that fires the worker periodically.
-  await scheduleRecurringJob(
-    scheduledDigestQueue,
-    "digest-scheduler",
-    {},
-    "0 8 * * *",
-  );
+  await scheduleRecurringJob(scheduledDigestQueue, "digest-scheduler", {}, "0 8 * * *");
   console.log("[ScheduledDigest] Cron scheduler registered (08:00 daily)");
 }
