@@ -91,4 +91,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV PORT=3000
 
-CMD ["bun", "apps/web/node_modules/.bin/next", "start", "-p", "3000"]
+# Run from apps/web dir so next start finds .next; node_modules resolution
+# walks up to /app/node_modules automatically
+WORKDIR /app/apps/web
+
+CMD ["bun", "../../node_modules/.bin/next", "start", "-p", "3000"]
