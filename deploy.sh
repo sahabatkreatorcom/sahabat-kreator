@@ -112,8 +112,9 @@ case "$ENV" in
         
         # Wait for postgres to be ready
         echo "Waiting for PostgreSQL to be ready..."
+        PG_DB="${PGDATABASE:-sahabatkreator}"
         for i in {1..30}; do
-            if docker exec sk_postgres pg_isready -U postgres -d sahabatkreator > /dev/null 2>&1; then
+            if docker exec sk_postgres pg_isready -U ${PGUSER:-postgres} -d "$PG_DB" > /dev/null 2>&1; then
                 echo "✅ PostgreSQL is ready!"
                 break
             fi
@@ -129,7 +130,7 @@ case "$ENV" in
         MIGRATION_FILE="packages/db/src/migrations/0000_clumsy_rafael_vega.sql"
         if [ -f "$MIGRATION_FILE" ]; then
             echo "Running database migrations..."
-            docker exec -i sk_postgres psql -U postgres -d sahabatkreator < "$MIGRATION_FILE" || echo "⚠️  Migration may have failed, check logs"
+            docker exec -i sk_postgres psql -U ${PGUSER:-postgres} -d "$PG_DB" < "$MIGRATION_FILE" || echo "⚠️  Migration may have failed, check logs"
             echo "✅ Database migrations completed"
         fi
         
