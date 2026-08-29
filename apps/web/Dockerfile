@@ -44,42 +44,30 @@ EOF
 # Build all packages first (needed for workspace deps)
 RUN bun run build
 
-# Build Next.js
+# Build Next.js (output: standalone generates .next/standalone/)
 RUN bun run --filter web build
 
 # ── Production Stage ──────────────────────────────────────────────────────────
 FROM oven/bun:1-alpine AS production
 
-WORKDIR /app/apps/web
+WORKDIR /app
 
 RUN apk add --no-cache curl
 
-# Copy built Next.js app (path is now relative to /app/apps/web)
-COPY --from=builder /app/apps/web/.next/ ./.next/
-COPY --from=builder /app/apps/web/public ./public
-COPY --from=builder /app/apps/web/src ./src
-COPY --from=builder /app/apps/web/package.json ./package.json
-COPY --from=builder /app/apps/web/next.config.ts ./next.config.ts
-COPY --from=builder /app/apps/web/postcss.config.mjs ./postcss.config.mjs
-COPY --from=builder /app/apps/web/tsconfig.json ./tsconfig.json
+# Copy standalone output (node_modules tree for only used deps)
+COPY --from=builder /app/apps/web/.next/standalone/ .
 
-# Copy workspace packages (must be at /app/packages/ for bun resolution)
-COPY --from=builder /app/packages ./../../packages
+# Copy public assets, static, and server files
+COPY --from=builder /app/apps/web/.next/standalone/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder /app/apps/web/.next/standalone/apps/web/public ./apps/web/public
 
-# Copy root package files so bun install resolves workspace properly
-COPY --from=builder /app/package.json ./../package.json
-COPY --from=builder /app/bun.lock ./../bun.lock
-
-# Install production dependencies from root (resolves workspace symlinks correctly)
-RUN cd /app && bun install --frozen-lockfile --production
+EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1
-
-EXPOSE 3000
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV PORT=3000
 
-CMD ["bun", "run", "../../node_modules/.bin/next", "start", "-p", "3000"]
+CMD ["node", "apps/web/server.js"]

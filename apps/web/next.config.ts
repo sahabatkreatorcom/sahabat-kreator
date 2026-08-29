@@ -11,6 +11,7 @@ const turbopackRoot = existsSync(join(workspaceRoot, "packages")) ? workspaceRoo
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
+  output: "standalone",
   turbopack: {
     root: turbopackRoot,
   },
@@ -19,9 +20,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: process.env.NODE_ENV === "production"
-          ? "http://localhost:3001/api/:path*"
-          : "http://localhost:3001/api/:path*",
+        destination: "http://localhost:3001/api/:path*",
       },
     ];
   },
