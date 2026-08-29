@@ -17,7 +17,12 @@ import {
   organizationSetting,
   user,
 } from "@sahabatkreator/db/schema";
-import { connection, queueEmailDigest, scheduleRecurringJob } from "@sahabatkreator/jobs";
+import {
+  connection,
+  queueEmailDigest,
+  scheduleRecurringJob,
+  scheduledDigestQueue,
+} from "@sahabatkreator/jobs";
 import { Worker } from "bullmq";
 import { and, eq } from "drizzle-orm";
 

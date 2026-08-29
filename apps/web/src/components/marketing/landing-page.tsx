@@ -7,7 +7,10 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { signIn, useSession } from "@/lib/auth-client";
 import {
   BarChart3,
   Calendar,
@@ -139,6 +142,23 @@ function FAQAccordionItem({
 }
 
 export function LandingPage() {
+  const _router = useRouter();
+  const { data: session, isPending } = useSession();
+
+  useEffect(() => {
+    if (!isPending && session?.user) {
+      _router.replace("/dashboard");
+    }
+  }, [session, isPending, _router]);
+
+  if (isPending) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[var(--bg-primary)]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--accent-gold)] border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* ── Navigation ── */}
