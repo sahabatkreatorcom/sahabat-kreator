@@ -1,8 +1,7 @@
--- Sahabat Kreator Database Initialization
--- This script runs automatically on first container startup
+-- Initialize Sahabat Kreator database
+-- Create the database if it doesn't exist
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+SELECT 'CREATE DATABASE sahabatkreator' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'sahabatkreator')\gexec
 
--- Enable pg_trgm for full-text search
-CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+-- Create the migration SQL file
+-- This will be replaced by the actual migration file

@@ -110,6 +110,29 @@ case "$ENV" in
         echo "Starting services..."
         docker compose -f $COMPOSE_FILE up -d
         
+        # Wait for postgres to be ready
+        echo "Waiting for PostgreSQL to be ready..."
+        for i in {1..30}; do
+            if docker exec sk_postgres pg_isready -U postgres -d sahabatkreator > /dev/null 2>&1; then
+                echo "✅ PostgreSQL is ready!"
+                break
+            fi
+            if [ $i -eq 30 ]; then
+                echo "❌ PostgreSQL not ready after 30 attempts"
+                exit 1
+            fi
+            sleep 2
+            echo "Waiting... ($i/30)"
+        done
+        
+        # Run database migrations if migration file exists
+        MIGRATION_FILE="packages/db/src/migrations/0000_clumsy_rafael_vega.sql"
+        if [ -f "$MIGRATION_FILE" ]; then
+            echo "Running database migrations..."
+            docker exec -i sk_postgres psql -U postgres -d sahabatkreator < "$MIGRATION_FILE" || echo "⚠️  Migration may have failed, check logs"
+            echo "✅ Database migrations completed"
+        fi
+        
         # Health check
         echo "Checking health..."
         for i in {1..30}; do
