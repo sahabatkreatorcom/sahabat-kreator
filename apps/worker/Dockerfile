@@ -73,7 +73,7 @@ COPY --from=builder /app/packages/platform ./packages/platform
 # Worker is a long-running BullMQ consumer — verify process is alive via file stamp
 # A sidecar script touches /tmp/worker-alive every 30s; absence means stale process
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD [ "!" , "-f" , "/tmp/worker-alive" ] || exit 1
+  CMD sh -c 'test -f /tmp/worker-alive' || exit 1
 
 EXPOSE 3001
 
