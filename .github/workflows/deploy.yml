@@ -2,7 +2,7 @@ name: Deploy to VPS
 
 on:
   workflow_run:
-    workflows: ["Build Docker Images"]
+    workflows: ["CI"]
     types:
       - completed
   workflow_dispatch:
@@ -23,7 +23,7 @@ env:
 
 jobs:
   deploy:
-    name: Deploy to VPS
+    name: Deploy to ${{ github.event.inputs.environment || 'production' }}
     runs-on: ubuntu-latest
     if: >
       github.event_name == 'workflow_dispatch' ||
