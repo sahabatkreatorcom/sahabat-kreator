@@ -22,10 +22,11 @@
 # This compose file runs on the same host as nginx.
 # Nginx proxies to port 8080 (web) and 8081 (server).
 #
-# PORT USAGE (server already running):
-#   3000, 3001, 3002, 3100, 3200 - IN USE
-#   6379 (Redis), 5432 (Postgres) - IN USE
-#   New ports: 8080 (Web), 8081 (Server)
+# DOMAIN: app.sahabatkreator.com (primary) → api.app.sahabatkreator.com
+#
+# PORT USAGE (check before deploying):
+#   8080 (Web), 8081 (Server) - NEW ports for this stack
+#   Existing: 3000-3002, 3100, 3200, 5432, 6379 may be in use by other projects
 #
 # Environment file: .env.production.local (DO NOT COMMIT TO GIT)
 # Copy from .env.production.local.example and fill in real values
@@ -82,10 +83,10 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-redispassword}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://api.sahabatkreator.com}
-      CORS_ORIGIN: ${CORS_ORIGIN:-https://sahabatkreator.com}
-      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://sahabatkreator.com}
-      NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-https://api.sahabatkreator.com}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://api.app.sahabatkreator.com}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://app.sahabatkreator.com}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://app.sahabatkreator.com}
+      NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-https://api.app.sahabatkreator.com}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
       SUMOPOD_API_KEY: ${SUMOPOD_API_KEY:-}
@@ -155,8 +156,18 @@ services:
     ports:
       - "8080:3000"
     environment:
-      NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-https://api.sahabatkreator.com}
+      # Database & Auth (needed for SSR)
+      DATABASE_URL: postgresql://${PGUSER:-postgres}:${PGPASSWORD:-postgres}@postgres:5432/${PGDATABASE:-sahabatkreator}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://api.app.sahabatkreator.com}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://app.sahabatkreator.com}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://app.sahabatkreator.com}
+      NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-https://api.app.sahabatkreator.com}
+      # VAPID Keys
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
       NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${NEXT_PUBLIC_VAPID_PUBLIC_KEY:-}
+      # Runtime
       NEXT_TELEMETRY_DISABLED: "1"
       NODE_ENV: production
       PORT: 3000
