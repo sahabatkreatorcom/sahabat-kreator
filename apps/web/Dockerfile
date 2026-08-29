@@ -91,4 +91,4 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV PORT=3000
 
-CMD ["bun", "run", "apps/web/node_modules/.bin/next", "start", "-p", "3000"]
+CMD ["bun", "apps/web/node_modules/.bin/next", "start", "-p", "3000"]

@@ -77,4 +77,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
 # Worker runs on port 3001 (same as server, but different process)
 EXPOSE 3001
 
-CMD ["bun", "run", "apps/worker/src/index.ts"]
+CMD ["bun", "apps/worker/dist/index.mjs"]

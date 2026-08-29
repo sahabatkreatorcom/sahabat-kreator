@@ -76,7 +76,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
 
 EXPOSE 3001
 
-CMD ["bun", "run", "apps/server/src/index.ts"]
+CMD ["bun", "apps/server/dist/index.mjs"]
 
 # ── Web (Next.js) Production Stage ───────────────────────────────────────────
 FROM oven/bun:1-alpine AS web-production
