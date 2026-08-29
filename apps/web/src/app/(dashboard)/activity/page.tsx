@@ -151,7 +151,7 @@ export default function ActivityPage() {
 
   useEffect(() => {
     fetchLogs();
-  }, []);
+  }, [fetchLogs]);
 
   async function fetchLogs() {
     setLoading(true);

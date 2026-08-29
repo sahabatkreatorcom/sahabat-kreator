@@ -8,12 +8,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { organization, user } from "./auth";
-import {
-  engagementItemTypeEnum,
-  notificationTypeEnum,
-  platformEnum,
-  sentimentEnum,
-} from "./enum";
+import { engagementItemTypeEnum, notificationTypeEnum, platformEnum, sentimentEnum } from "./enum";
 
 // ── Media ──────────────────────────────────────────────────────────
 export const media = pgTable(
@@ -55,10 +50,7 @@ export const calendarNote = pgTable(
   (table) => [
     index("calendar_note_org_idx").on(table.organizationId),
     index("calendar_note_date_idx").on(table.date),
-    index("calendar_note_org_date_idx").on(
-      table.organizationId,
-      table.date,
-    ),
+    index("calendar_note_org_date_idx").on(table.organizationId, table.date),
   ],
 );
 
@@ -85,10 +77,7 @@ export const notification = pgTable(
     index("notification_is_read_idx").on(table.isRead),
     index("notification_created_idx").on(table.createdAt),
     index("notification_user_read_idx").on(table.userId, table.isRead),
-    index("notification_org_read_idx").on(
-      table.organizationId,
-      table.isRead,
-    ),
+    index("notification_org_read_idx").on(table.organizationId, table.isRead),
   ],
 );
 
@@ -107,10 +96,7 @@ export const organizationSetting = pgTable(
   (table) => [
     index("org_setting_org_idx").on(table.organizationId),
     index("org_setting_key_idx").on(table.key),
-    uniqueIndex("org_setting_org_key_uidx").on(
-      table.organizationId,
-      table.key,
-    ),
+    uniqueIndex("org_setting_org_key_uidx").on(table.organizationId, table.key),
   ],
 );
 
@@ -142,9 +128,6 @@ export const engagementItem = pgTable(
     index("engagement_type_idx").on(table.type),
     index("engagement_platform_idx").on(table.platform),
     index("engagement_unread_idx").on(table.isRead),
-    index("engagement_org_read_idx").on(
-      table.organizationId,
-      table.isRead,
-    ),
+    index("engagement_org_read_idx").on(table.organizationId, table.isRead),
   ],
 );

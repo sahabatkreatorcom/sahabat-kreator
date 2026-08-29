@@ -1,8 +1,8 @@
-import { connection, queuePostPublish } from "@sahabatkreator/jobs";
 import { db } from "@sahabatkreator/db";
 import { post } from "@sahabatkreator/db/schema";
-import { eq, and, gte, isNull, lte } from "drizzle-orm";
+import { connection, queuePostPublish } from "@sahabatkreator/jobs";
 import { Worker } from "bullmq";
+import { and, eq, isNull, lte } from "drizzle-orm";
 
 /**
  * Post Scheduler Worker
@@ -28,11 +28,7 @@ export const postSchedulerWorker = new Worker(
       })
       .from(post)
       .where(
-        and(
-          eq(post.status, "SCHEDULED"),
-          isNull(post.publishedAt),
-          lte(post.scheduledAt, now),
-        ),
+        and(eq(post.status, "SCHEDULED"), isNull(post.publishedAt), lte(post.scheduledAt, now)),
       );
 
     console.log(`[Scheduler] Found ${pendingPosts.length} posts to publish`);

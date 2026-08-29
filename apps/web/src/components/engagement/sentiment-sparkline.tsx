@@ -38,20 +38,19 @@ export function SentimentSparkline({ data, className }: SentimentSparklineProps)
           strokeLinecap="round"
           strokeLinejoin="round"
           points={points.join(" ")}
-          className={cn(
-            trend >= 0 ? "text-green-500" : "text-red-500"
-          )}
+          className={cn(trend >= 0 ? "text-green-500" : "text-red-500")}
         />
       </svg>
       <span
         className={cn(
-          "text-xs font-medium",
+          "font-medium text-xs",
           trend > 0 && "text-green-500",
           trend < 0 && "text-red-500",
-          trend === 0 && "text-[var(--text-muted)]"
+          trend === 0 && "text-[var(--text-muted)]",
         )}
       >
-        {trend > 0 ? "+" : ""}{trend}
+        {trend > 0 ? "+" : ""}
+        {trend}
       </span>
     </div>
   );

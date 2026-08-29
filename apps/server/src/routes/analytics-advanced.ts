@@ -1,9 +1,9 @@
 import { db } from "@sahabatkreator/db";
 import { engagementItem, post } from "@sahabatkreator/db/schema";
+import { env } from "@sahabatkreator/env/server";
 import { and, count, eq, gte, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
-import { env } from "@sahabatkreator/env/server";
 import { requireAuth } from "../lib/auth-middleware";
 import { getOrganizationId } from "../lib/context";
 
@@ -138,11 +138,7 @@ analyticsAdvancedApp.post("/report/share", async (c) => {
 analyticsAdvancedApp.get("/report/:id", async (c) => {
   const reportId = c.req.param("id");
 
-  const [report] = await db
-    .select()
-    .from(post)
-    .where(eq(post.id, reportId))
-    .limit(1);
+  const [report] = await db.select().from(post).where(eq(post.id, reportId)).limit(1);
 
   if (!report) return c.json({ error: "Report not found" }, 404);
 
@@ -192,12 +188,20 @@ analyticsAdvancedApp.get("/daily-snapshot", async (c) => {
   const publishedPosts = await db
     .select({ count: count() })
     .from(post)
-    .where(and(eq(post.organizationId, organizationId), eq(post.status, "PUBLISHED"), gte(post.createdAt, since)));
+    .where(
+      and(
+        eq(post.organizationId, organizationId),
+        eq(post.status, "PUBLISHED"),
+        gte(post.createdAt, since),
+      ),
+    );
 
   const engagementCount = await db
     .select({ count: count() })
     .from(engagementItem)
-    .where(and(eq(engagementItem.organizationId, organizationId), gte(engagementItem.createdAt, since)));
+    .where(
+      and(eq(engagementItem.organizationId, organizationId), gte(engagementItem.createdAt, since)),
+    );
 
   const positiveSentiment = await db
     .select({ count: count() })

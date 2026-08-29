@@ -1,19 +1,9 @@
 "use client";
 
+import { BarChart3, Check, Copy, Download, Eye, FileText, Share2, Users } from "lucide-react";
 import { useState } from "react";
-import {
-  CalendarDays,
-  Download,
-  Share2,
-  Copy,
-  Check,
-  FileText,
-  BarChart3,
-  Users,
-  Eye,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -22,14 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 type DateRange = "7d" | "30d" | "90d";
@@ -70,32 +52,33 @@ export function ShareableReport({ onGenerate }: ShareableReportProps) {
     alert("Fitur unduh PDF akan terhubung ke backend saat tersedia.");
   };
 
-  const reportSections: { key: ReportType; label: string; icon: React.ReactNode; desc: string }[] = [
-    {
-      key: "overview",
-      label: "Ringkasan",
-      icon: <BarChart3 className="h-4 w-4" />,
-      desc: "Metrik utama lintas platform",
-    },
-    {
-      key: "engagement",
-      label: "Engagement",
-      icon: <Users className="h-4 w-4" />,
-      desc: "Interaksi dan keterlibatan audiens",
-    },
-    {
-      key: "audience",
-      label: "Audiens",
-      icon: <Eye className="h-4 w-4" />,
-      desc: "Demografi dan jangkauan",
-    },
-    {
-      key: "content",
-      label: "Konten",
-      icon: <FileText className="h-4 w-4" />,
-      desc: "Performa konten dan hashtag",
-    },
-  ];
+  const reportSections: { key: ReportType; label: string; icon: React.ReactNode; desc: string }[] =
+    [
+      {
+        key: "overview",
+        label: "Ringkasan",
+        icon: <BarChart3 className="h-4 w-4" />,
+        desc: "Metrik utama lintas platform",
+      },
+      {
+        key: "engagement",
+        label: "Engagement",
+        icon: <Users className="h-4 w-4" />,
+        desc: "Interaksi dan keterlibatan audiens",
+      },
+      {
+        key: "audience",
+        label: "Audiens",
+        icon: <Eye className="h-4 w-4" />,
+        desc: "Demografi dan jangkauan",
+      },
+      {
+        key: "content",
+        label: "Konten",
+        icon: <FileText className="h-4 w-4" />,
+        desc: "Performa konten dan hashtag",
+      },
+    ];
 
   return (
     <>
@@ -119,7 +102,7 @@ export function ShareableReport({ onGenerate }: ShareableReportProps) {
           <div className="space-y-4">
             {/* Date Range */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Rentang Waktu</label>
+              <label className="font-medium text-sm">Rentang Waktu</label>
               <div className="flex gap-2">
                 {(["7d", "30d", "90d"] as DateRange[]).map((r) => (
                   <button
@@ -127,7 +110,7 @@ export function ShareableReport({ onGenerate }: ShareableReportProps) {
                     type="button"
                     onClick={() => setRange(r)}
                     className={cn(
-                      "flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
+                      "flex-1 rounded-lg border px-3 py-2 font-medium text-sm transition-colors",
                       range === r
                         ? "border-[var(--accent-gold)] bg-[var(--accent-gold)]/15 text-[var(--accent-gold)]"
                         : "border-[var(--border)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:border-[var(--accent-gold)]/50",
@@ -141,7 +124,7 @@ export function ShareableReport({ onGenerate }: ShareableReportProps) {
 
             {/* Platforms */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Platform</label>
+              <label className="font-medium text-sm">Platform</label>
               <div className="flex flex-wrap gap-2">
                 {[
                   { key: "instagram", label: "Instagram", color: "#E1306C" },
@@ -156,13 +139,11 @@ export function ShareableReport({ onGenerate }: ShareableReportProps) {
                     type="button"
                     onClick={() =>
                       setPlatforms((prev) =>
-                        prev.includes(p.key)
-                          ? prev.filter((x) => x !== p.key)
-                          : [...prev, p.key],
+                        prev.includes(p.key) ? prev.filter((x) => x !== p.key) : [...prev, p.key],
                       )
                     }
                     className={cn(
-                      "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
+                      "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 font-medium text-xs transition-all",
                       platforms.includes(p.key)
                         ? "border-[var(--accent-gold)] bg-[var(--accent-gold)]/15"
                         : "border-[var(--border)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)]",
@@ -170,7 +151,9 @@ export function ShareableReport({ onGenerate }: ShareableReportProps) {
                   >
                     <span
                       className="h-2.5 w-2.5 rounded-full"
-                      style={{ backgroundColor: platforms.includes(p.key) ? p.color : "var(--border)" }}
+                      style={{
+                        backgroundColor: platforms.includes(p.key) ? p.color : "var(--border)",
+                      }}
                     />
                     {p.label}
                   </button>
@@ -180,7 +163,7 @@ export function ShareableReport({ onGenerate }: ShareableReportProps) {
 
             {/* Report Type */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Tipe Laporan</label>
+              <label className="font-medium text-sm">Tipe Laporan</label>
               <div className="grid grid-cols-2 gap-2">
                 {reportSections.map((s) => (
                   <button
@@ -195,10 +178,19 @@ export function ShareableReport({ onGenerate }: ShareableReportProps) {
                     )}
                   >
                     <div className="flex items-center gap-2">
-                      <span className={cn(type === s.key ? "text-[var(--accent-gold)]" : "text-[var(--text-muted)]")}>
+                      <span
+                        className={cn(
+                          type === s.key ? "text-[var(--accent-gold)]" : "text-[var(--text-muted)]",
+                        )}
+                      >
                         {s.icon}
                       </span>
-                      <span className={cn("font-medium text-sm", type === s.key ? "text-[var(--accent-gold)]" : "")}>
+                      <span
+                        className={cn(
+                          "font-medium text-sm",
+                          type === s.key ? "text-[var(--accent-gold)]" : "",
+                        )}
+                      >
                         {s.label}
                       </span>
                     </div>
@@ -232,12 +224,13 @@ export function ShareableReport({ onGenerate }: ShareableReportProps) {
           {reportLink && (
             <Card className="mt-2 border-[var(--accent-gold)]/30">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-sm">
                   <Check className="h-4 w-4 text-green-500" />
                   Laporan Siap
                 </CardTitle>
                 <CardDescription>
-                  {range === "7d" ? "7 hari" : range === "30d" ? "30 hari" : "90 hari"} · {platforms.join(", ")} · {type}
+                  {range === "7d" ? "7 hari" : range === "30d" ? "30 hari" : "90 hari"} ·{" "}
+                  {platforms.join(", ")} · {type}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -245,7 +238,7 @@ export function ShareableReport({ onGenerate }: ShareableReportProps) {
                   <input
                     readOnly
                     value={reportLink}
-                    className="flex-1 rounded-md border border-[var(--border)] bg-[var(--bg-tertiary)] px-3 py-1.5 text-xs text-[var(--text-muted)]"
+                    className="flex-1 rounded-md border border-[var(--border)] bg-[var(--bg-tertiary)] px-3 py-1.5 text-[var(--text-muted)] text-xs"
                   />
                   <Button size="sm" variant="secondary" onClick={handleCopy}>
                     {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -253,7 +246,12 @@ export function ShareableReport({ onGenerate }: ShareableReportProps) {
                   </Button>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="secondary" onClick={handleDownloadPDF} className="flex-1 gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={handleDownloadPDF}
+                    className="flex-1 gap-2"
+                  >
                     <Download className="h-3.5 w-3.5" />
                     Unduh PDF
                   </Button>

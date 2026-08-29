@@ -9,7 +9,9 @@ const adminAdvancedApp = new Hono();
 
 adminAdvancedApp.use("/*", requireAuth);
 adminAdvancedApp.use("/*", async (c, next) => {
-  const session = (c as unknown as { get: (key: string) => unknown }).get("session") as { user?: { role?: string } } | null;
+  const session = (c as unknown as { get: (key: string) => unknown }).get("session") as {
+    user?: { role?: string };
+  } | null;
   const role = session?.user?.role;
   if (role !== "superadmin") {
     return c.json({ error: "Forbidden: Super admin only" }, 403);
@@ -22,10 +24,38 @@ adminAdvancedApp.get("/plans", async (c) => {
   // TODO: integrate with sompot-pay for plan management
   return c.json({
     plans: [
-      { id: "FREE", name: "Free", price: 0, maxMembers: 2, maxPostsPerMonth: 30, features: ["Basic scheduling", "1 social account per platform"] },
-      { id: "PRO", name: "Pro", price: 99000, maxMembers: 5, maxPostsPerMonth: 100, features: ["All Free features", "AI caption assistant", "Advanced analytics"] },
-      { id: "BUSINESS", name: "Business", price: 249000, maxMembers: 10, maxPostsPerMonth: -1, features: ["All Pro features", "Team collaboration", "Priority support"] },
-      { id: "ENTERPRISE", name: "Enterprise", price: 0, maxMembers: -1, maxPostsPerMonth: -1, features: ["All Business features", "Custom integrations", "Dedicated support"] },
+      {
+        id: "FREE",
+        name: "Free",
+        price: 0,
+        maxMembers: 2,
+        maxPostsPerMonth: 30,
+        features: ["Basic scheduling", "1 social account per platform"],
+      },
+      {
+        id: "PRO",
+        name: "Pro",
+        price: 99000,
+        maxMembers: 5,
+        maxPostsPerMonth: 100,
+        features: ["All Free features", "AI caption assistant", "Advanced analytics"],
+      },
+      {
+        id: "BUSINESS",
+        name: "Business",
+        price: 249000,
+        maxMembers: 10,
+        maxPostsPerMonth: -1,
+        features: ["All Pro features", "Team collaboration", "Priority support"],
+      },
+      {
+        id: "ENTERPRISE",
+        name: "Enterprise",
+        price: 0,
+        maxMembers: -1,
+        maxPostsPerMonth: -1,
+        features: ["All Business features", "Custom integrations", "Dedicated support"],
+      },
     ],
   });
 });

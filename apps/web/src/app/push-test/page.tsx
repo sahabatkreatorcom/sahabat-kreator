@@ -6,11 +6,11 @@ import { toast } from "sonner";
 import {
   getVapidPublicKey,
   isPushSupported,
+  type PushSubscription,
   sendPushNotification,
   storeSubscription,
   subscribeUser,
   unsubscribeUser,
-  type PushSubscription,
 } from "@/lib/push-notifications";
 
 export default function PushTestPage() {
@@ -87,15 +87,19 @@ export default function PushTestPage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-6 p-6">
-      <h1 className="text-xl font-bold">Pengujian Push Notification</h1>
+      <h1 className="font-bold text-xl">Pengujian Push Notification</h1>
 
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] p-4 space-y-3">
+      <div className="space-y-3 rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] p-4">
         <div className="flex items-center gap-2">
           <Bell className="h-4 w-4 text-[var(--text-muted)]" />
           <span className="font-semibold text-sm">Status Push</span>
         </div>
 
-        <StatusRow label="Browser mendukung Push" value={isSupported ? "Ya" : "Tidak"} ok={isSupported} />
+        <StatusRow
+          label="Browser mendukung Push"
+          value={isSupported ? "Ya" : "Tidak"}
+          ok={isSupported}
+        />
         <StatusRow
           label="Izin notifikasi diberikan"
           value={isPermissionGranted ? "Ya" : "Tidak"}
@@ -116,7 +120,7 @@ export default function PushTestPage() {
             disabled={loading || !isSupported}
             className="rounded-lg bg-[var(--accent-gold)] px-4 py-2.5 font-semibold text-sm text-white hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin inline mr-2" /> : null}
+            {loading ? <Loader2 className="mr-2 inline h-4 w-4 animate-spin" /> : null}
             Aktifkan Notifikasi
           </button>
         )}
@@ -128,7 +132,7 @@ export default function PushTestPage() {
             disabled={loading}
             className="rounded-lg bg-[var(--accent-gold)] px-4 py-2.5 font-semibold text-sm text-white hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin inline mr-2" /> : null}
+            {loading ? <Loader2 className="mr-2 inline h-4 w-4 animate-spin" /> : null}
             Berlangganan Push
           </button>
         )}
@@ -141,14 +145,14 @@ export default function PushTestPage() {
               disabled={loading}
               className="rounded-lg border border-[var(--border)] px-4 py-2.5 font-semibold text-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50"
             >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin inline mr-2" /> : null}
+              {loading ? <Loader2 className="mr-2 inline h-4 w-4 animate-spin" /> : null}
               Kirim Test Push
             </button>
             <button
               type="button"
               onClick={handleUnsubscribe}
               disabled={loading}
-              className="rounded-lg border border-red-500/30 px-4 py-2.5 font-semibold text-sm text-red-400 hover:bg-red-500/10 disabled:opacity-50"
+              className="rounded-lg border border-red-500/30 px-4 py-2.5 font-semibold text-red-400 text-sm hover:bg-red-500/10 disabled:opacity-50"
             >
               Hentikan Berlangganan
             </button>
@@ -170,7 +174,7 @@ function StatusRow({ label, value, ok }: { label: string; value: string; ok: boo
       <span className="text-[var(--text-secondary)] text-sm">{label}</span>
       <span
         className={
-          "rounded-full px-2 py-0.5 text-xs font-medium " +
+          "rounded-full px-2 py-0.5 font-medium text-xs" +
           (ok
             ? "bg-[var(--success-light)] text-[var(--success)]"
             : "bg-[var(--error-light)] text-[var(--error)]")

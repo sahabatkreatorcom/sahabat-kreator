@@ -1,11 +1,12 @@
 "use client";
 
+import { Calendar, Clock, Eye, Mail, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Mail, Plus, Trash2, Calendar, Clock, Eye } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -14,16 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 type Frequency = "daily" | "weekly" | "monthly";
@@ -148,18 +141,29 @@ export function EmailReport({ schedules = [], onAdd, onRemove }: EmailReportProp
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">{s.frequency === "daily" ? "Harian" : s.frequency === "weekly" ? "Mingguan" : "Bulanan"}</span>
+                    <span className="font-medium text-sm">
+                      {s.frequency === "daily"
+                        ? "Harian"
+                        : s.frequency === "weekly"
+                          ? "Mingguan"
+                          : "Bulanan"}
+                    </span>
                     <Badge variant={s.enabled ? "success" : "secondary"}>
                       {s.enabled ? "Aktif" : "Nonaktif"}
                     </Badge>
                   </div>
-                  <p className="text-[var(--text-muted)] text-xs mt-0.5">
+                  <p className="mt-0.5 text-[var(--text-muted)] text-xs">
                     {s.recipients.map((r) => r.email).join(", ")}
                   </p>
                   {s.nextSend && (
-                    <p className="text-[var(--text-muted)] text-xs mt-0.5">
-                      <Calendar className="inline h-3 w-3 mr-1" />
-                      Pengiriman berikutnya: {new Date(s.nextSend).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                    <p className="mt-0.5 text-[var(--text-muted)] text-xs">
+                      <Calendar className="mr-1 inline h-3 w-3" />
+                      Pengiriman berikutnya:{" "}
+                      {new Date(s.nextSend).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </p>
                   )}
                 </div>
@@ -214,10 +218,17 @@ export function EmailReport({ schedules = [], onAdd, onRemove }: EmailReportProp
                     )}
                   >
                     {getFrequencyIcon(f)}
-                    <span className={cn("font-medium text-sm", frequency === f ? "text-[var(--accent-gold)]" : "")}>
+                    <span
+                      className={cn(
+                        "font-medium text-sm",
+                        frequency === f ? "text-[var(--accent-gold)]" : "",
+                      )}
+                    >
                       {FREQUENCY_LABELS[f]}
                     </span>
-                    <span className="text-[var(--text-muted)] text-[10px]">{FREQUENCY_DAYS[f]}</span>
+                    <span className="text-[10px] text-[var(--text-muted)]">
+                      {FREQUENCY_DAYS[f]}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -228,7 +239,10 @@ export function EmailReport({ schedules = [], onAdd, onRemove }: EmailReportProp
               <Label>Platform</Label>
               <div className="flex flex-wrap gap-2">
                 {PLATFORM_OPTIONS.map((p) => (
-                  <label key={p.value} className="flex cursor-pointer items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--bg-tertiary)] px-3 py-1.5 text-xs">
+                  <label
+                    key={p.value}
+                    className="flex cursor-pointer items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--bg-tertiary)] px-3 py-1.5 text-xs"
+                  >
                     <Checkbox
                       checked={platforms.includes(p.value)}
                       onCheckedChange={() => togglePlatform(p.value)}
@@ -244,15 +258,23 @@ export function EmailReport({ schedules = [], onAdd, onRemove }: EmailReportProp
               <Label>Penerima</Label>
               <div className="space-y-2">
                 {recipients.map((r) => (
-                  <div key={r.id} className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-tertiary)] px-3 py-2">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-gold)]/20 text-xs font-medium text-[var(--accent-gold)]">
+                  <div
+                    key={r.id}
+                    className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-tertiary)] px-3 py-2"
+                  >
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-gold)]/20 font-medium text-[var(--accent-gold)] text-xs">
                       {r.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-medium">{r.name}</p>
-                      <p className="truncate text-[var(--text-muted)] text-[10px]">{r.email}</p>
+                      <p className="truncate font-medium text-xs">{r.name}</p>
+                      <p className="truncate text-[10px] text-[var(--text-muted)]">{r.email}</p>
                     </div>
-                    <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeRecipient(r.id)}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-6 w-6"
+                      onClick={() => removeRecipient(r.id)}
+                    >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -291,8 +313,18 @@ export function EmailReport({ schedules = [], onAdd, onRemove }: EmailReportProp
                     📊 Laporan Mingguan — Sahabat Kreator
                   </p>
                   <p className="text-[var(--text-secondary)]">
-                    Periode: {new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })} —{" "}
-                    {new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+                    Periode:{" "}
+                    {new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}{" "}
+                    —{" "}
+                    {new Date().toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
                   </p>
                   <div className="grid grid-cols-3 gap-2 pt-2">
                     <div>

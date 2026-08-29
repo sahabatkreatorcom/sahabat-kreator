@@ -1,9 +1,4 @@
-import {
-  index,
-  pgTable,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { organization, user } from "./auth";
 
 // ── Push Subscription ────────────────────────────────────────────────
@@ -14,10 +9,9 @@ export const pushSubscription = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    organizationId: text("organization_id").references(
-      () => organization.id,
-      { onDelete: "cascade" },
-    ),
+    organizationId: text("organization_id").references(() => organization.id, {
+      onDelete: "cascade",
+    }),
     endpoint: text("endpoint").notNull().unique(),
     p256dh: text("p256dh").notNull(),
     auth: text("auth").notNull(),

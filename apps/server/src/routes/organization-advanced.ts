@@ -27,7 +27,11 @@ orgAdvancedApp.get("/roles", async (c) => {
 
   const parsed = roles.map((r) => {
     const roleId = r.key.replace("custom_role:", "");
-    let data: { name: string; permissions: string[]; color: string } = { name: roleId, permissions: [], color: "#6366f1" };
+    let data: { name: string; permissions: string[]; color: string } = {
+      name: roleId,
+      permissions: [],
+      color: "#6366f1",
+    };
     try {
       data = JSON.parse(r.value);
     } catch {
@@ -100,7 +104,9 @@ orgAdvancedApp.put("/roles/:id", async (c) => {
   const [existing] = await db
     .select()
     .from(organizationSetting)
-    .where(and(eq(organizationSetting.organizationId, organizationId), eq(organizationSetting.key, key)));
+    .where(
+      and(eq(organizationSetting.organizationId, organizationId), eq(organizationSetting.key, key)),
+    );
 
   if (!existing) return c.json({ error: "Role not found" }, 404);
 
@@ -119,7 +125,9 @@ orgAdvancedApp.put("/roles/:id", async (c) => {
   await db
     .update(organizationSetting)
     .set({ value: JSON.stringify(updated), updatedAt: new Date() })
-    .where(and(eq(organizationSetting.organizationId, organizationId), eq(organizationSetting.key, key)));
+    .where(
+      and(eq(organizationSetting.organizationId, organizationId), eq(organizationSetting.key, key)),
+    );
 
   return c.json({ success: true, id: roleId, role: updated });
 });
@@ -132,7 +140,9 @@ orgAdvancedApp.delete("/roles/:id", async (c) => {
 
   const result = await db
     .delete(organizationSetting)
-    .where(and(eq(organizationSetting.organizationId, organizationId), eq(organizationSetting.key, key)));
+    .where(
+      and(eq(organizationSetting.organizationId, organizationId), eq(organizationSetting.key, key)),
+    );
 
   if (!result) return c.json({ error: "Role not found" }, 404);
   return c.json({ success: true });
@@ -202,7 +212,12 @@ orgAdvancedApp.get("/brand-voice", async (c) => {
   const [setting] = await db
     .select()
     .from(organizationSetting)
-    .where(and(eq(organizationSetting.organizationId, organizationId), eq(organizationSetting.key, "brand_voice")));
+    .where(
+      and(
+        eq(organizationSetting.organizationId, organizationId),
+        eq(organizationSetting.key, "brand_voice"),
+      ),
+    );
 
   if (!setting) {
     return c.json({ hasProfile: false });
@@ -218,7 +233,9 @@ orgAdvancedApp.get("/brand-voice", async (c) => {
 
 // POST /api/org-advanced/brand-voice
 const brandVoiceSchema = z.object({
-  tone: z.enum(["professional", "casual", "friendly", "humorous", "educational", "inspirational"]).optional(),
+  tone: z
+    .enum(["professional", "casual", "friendly", "humorous", "educational", "inspirational"])
+    .optional(),
   voice: z.string().optional(),
   bannedPhrases: z.array(z.string()).optional(),
   preferredTopics: z.array(z.string()).optional(),

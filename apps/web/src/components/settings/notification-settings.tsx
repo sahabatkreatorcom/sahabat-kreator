@@ -14,13 +14,33 @@ interface NotificationOption {
 }
 
 const NOTIFICATION_OPTIONS: NotificationOption[] = [
-  { id: "post_scheduled", label: "Post Terjadwal", description: "Notifikasi saat post berhasil dijadwalkan" },
-  { id: "post_published", label: "Post Dipublikasikan", description: "Notifikasi saat post berhasil dipublikasikan" },
-  { id: "post_failed", label: "Post Gagal", description: "Notifikasi saat post gagal dipublikasikan" },
-  { id: "engagement_new", label: "Engagement Baru", description: "Komentar, mention, atau DM baru" },
+  {
+    id: "post_scheduled",
+    label: "Post Terjadwal",
+    description: "Notifikasi saat post berhasil dijadwalkan",
+  },
+  {
+    id: "post_published",
+    label: "Post Dipublikasikan",
+    description: "Notifikasi saat post berhasil dipublikasikan",
+  },
+  {
+    id: "post_failed",
+    label: "Post Gagal",
+    description: "Notifikasi saat post gagal dipublikasikan",
+  },
+  {
+    id: "engagement_new",
+    label: "Engagement Baru",
+    description: "Komentar, mention, atau DM baru",
+  },
   { id: "team_mentions", label: "Tim Mention", description: "Saat Anda di-mention dalam tim" },
   { id: "weekly_report", label: "Laporan Mingguan", description: "Ringkasan analytics mingguan" },
-  { id: "subscription_expiry", label: "Kadaluarsa Langganan", description: "Pengingat sebelum langganan berakhir" },
+  {
+    id: "subscription_expiry",
+    label: "Kadaluarsa Langganan",
+    description: "Pengingat sebelum langganan berakhir",
+  },
   { id: "ai_suggestions", label: "Saran AI", description: "Saran konten dari AI" },
 ];
 

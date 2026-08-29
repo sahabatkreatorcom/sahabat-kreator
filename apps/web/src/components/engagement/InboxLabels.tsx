@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Save, Trash2, X } from "lucide-react";
+import { Plus, Save, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,12 @@ export function InboxLabels({ onClose }: InboxLabelsProps) {
     } else {
       const defaults: Label[] = [
         { id: "1", name: "Prioritas", color: "#ef4444", createdAt: new Date().toISOString() },
-        { id: "2", name: "Butuh Tindak Lanjut", color: "#f97316", createdAt: new Date().toISOString() },
+        {
+          id: "2",
+          name: "Butuh Tindak Lanjut",
+          color: "#f97316",
+          createdAt: new Date().toISOString(),
+        },
         { id: "3", name: "Sudah Dibaca", color: "#3b82f6", createdAt: new Date().toISOString() },
         { id: "4", name: "Spam", color: "#6b7280", createdAt: new Date().toISOString() },
       ];
@@ -109,14 +114,20 @@ export function InboxLabels({ onClose }: InboxLabelsProps) {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Kelola Label</DialogTitle>
-          <DialogDescription>
-            Buat label untuk mengorganisir percakapan di inbox
-          </DialogDescription>
+          <DialogDescription>Buat label untuk mengorganisir percakapan di inbox</DialogDescription>
         </DialogHeader>
 
         <div className="flex items-center justify-between">
           <span className="text-[var(--text-muted)] text-sm">{labels.length} label</span>
-          <Button size="sm" onClick={() => { setShowEditor(true); setEditingId(null); setName(""); setColor(PRESET_COLORS[0]); }}>
+          <Button
+            size="sm"
+            onClick={() => {
+              setShowEditor(true);
+              setEditingId(null);
+              setName("");
+              setColor(PRESET_COLORS[0]);
+            }}
+          >
             <Plus className="mr-1.5 h-3.5 w-3.5" />
             Label Baru
           </Button>
@@ -143,7 +154,9 @@ export function InboxLabels({ onClose }: InboxLabelsProps) {
                     onClick={() => setColor(c)}
                     className={cn(
                       "h-7 w-7 rounded-full transition-all",
-                      color === c ? "ring-2 ring-offset-2 ring-[var(--accent-gold)]" : "hover:scale-110",
+                      color === c
+                        ? "ring-2 ring-[var(--accent-gold)] ring-offset-2"
+                        : "hover:scale-110",
                     )}
                     style={{ backgroundColor: c }}
                   />
@@ -163,7 +176,7 @@ export function InboxLabels({ onClose }: InboxLabelsProps) {
         )}
 
         {/* Labels list */}
-        <div className="max-h-60 overflow-y-auto space-y-1.5">
+        <div className="max-h-60 space-y-1.5 overflow-y-auto">
           {labels.map((label) => (
             <div
               key={label.id}
@@ -173,7 +186,7 @@ export function InboxLabels({ onClose }: InboxLabelsProps) {
                 className="h-4 w-4 shrink-0 rounded-full"
                 style={{ backgroundColor: label.color }}
               />
-              <span className="flex-1 text-sm font-medium">{label.name}</span>
+              <span className="flex-1 font-medium text-sm">{label.name}</span>
               <div className="hidden shrink-0 items-center gap-1 group-hover:flex">
                 <Button
                   variant="ghost"

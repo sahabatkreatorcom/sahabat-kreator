@@ -9,12 +9,12 @@
  * - Persists the report record in email_report table
  */
 
+import { db } from "@sahabatkreator/db";
+import { emailReport, organization, postAnalytics } from "@sahabatkreator/db/schema";
 import { connection, type EmailDigestJobData } from "@sahabatkreator/jobs";
 import { sendEmail } from "@sahabatkreator/jobs/resend";
-import { db } from "@sahabatkreator/db";
-import { socialAccount, postAnalytics, analyticsPeriodSnapshot, emailReport, organization, member } from "@sahabatkreator/db/schema";
-import { eq, and, gte, lt } from "drizzle-orm";
 import { type Job, Worker } from "bullmq";
+import { and, eq, gte, lt } from "drizzle-orm";
 
 // ── Report renderer ──────────────────────────────────────────────────
 
@@ -23,9 +23,17 @@ function renderDigestHtml(
   periodType: string,
   periodStart: string,
   periodEnd: string,
-  stats: { views: number; likes: number; comments: number; shares: number; growthViews?: number; growthLikes?: number; growthComments?: number },
+  stats: {
+    views: number;
+    likes: number;
+    comments: number;
+    shares: number;
+    growthViews?: number;
+    growthLikes?: number;
+    growthComments?: number;
+  },
 ): string {
-  const growthBadge = (value?: number, label: string = "") => {
+  const growthBadge = (value?: number, label = "") => {
     if (value === undefined) return "";
     const color = value >= 0 ? "#16a34a" : "#dc2626";
     const arrow = value >= 0 ? "↑" : "↓";
@@ -44,7 +52,7 @@ function renderDigestHtml(
     <table style="width:100%;border-collapse:collapse;margin-top:20px">
       <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#555">👁 Total Views</td>
           <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700">${stats.views.toLocaleString()}</td>
-          <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right">${growthBadge(stats.growthViews, 'vs lalu')}</td></tr>
+          <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right">${growthBadge(stats.growthViews, "vs lalu")}</td></tr>
       <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#555">❤️ Likes</td>
           <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700">${stats.likes.toLocaleString()}</td>
           <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right">${growthBadge(stats.growthLikes)}</td></tr>
@@ -77,7 +85,13 @@ async function getPeriodStats(
   orgId: string,
   periodStart: Date,
   periodEnd: Date,
-): Promise<{ views: number; likes: number; comments: number; shares: number; previous?: { views: number; likes: number; comments: number } }> {
+): Promise<{
+  views: number;
+  likes: number;
+  comments: number;
+  shares: number;
+  previous?: { views: number; likes: number; comments: number };
+}> {
   const rows = await db
     .select({
       views: postAnalytics.views,
@@ -86,7 +100,13 @@ async function getPeriodStats(
       shares: postAnalytics.shares,
     })
     .from(postAnalytics)
-    .where(and(eq(postAnalytics.organizationId, orgId), gte(postAnalytics.date, periodStart), lt(postAnalytics.date, periodEnd)));
+    .where(
+      and(
+        eq(postAnalytics.organizationId, orgId),
+        gte(postAnalytics.date, periodStart),
+        lt(postAnalytics.date, periodEnd),
+      ),
+    );
 
   const agg = rows.reduce(
     (acc, r) => ({
@@ -109,10 +129,20 @@ async function getPeriodStats(
       comments: postAnalytics.comments,
     })
     .from(postAnalytics)
-    .where(and(eq(postAnalytics.organizationId, orgId), gte(postAnalytics.date, prevStart), lt(postAnalytics.date, prevEnd)));
+    .where(
+      and(
+        eq(postAnalytics.organizationId, orgId),
+        gte(postAnalytics.date, prevStart),
+        lt(postAnalytics.date, prevEnd),
+      ),
+    );
 
   const prev = prevRows.reduce(
-    (acc, r) => ({ views: acc.views + r.views, likes: acc.likes + r.likes, comments: acc.comments + r.comments }),
+    (acc, r) => ({
+      views: acc.views + r.views,
+      likes: acc.likes + r.likes,
+      comments: acc.comments + r.comments,
+    }),
     { views: 0, likes: 0, comments: 0 },
   );
 
@@ -128,7 +158,8 @@ function fmtDate(d: Date): string {
 export const emailDigestWorker = new Worker<EmailDigestJobData>(
   "email-digest",
   async (job: Job<EmailDigestJobData>) => {
-    const { organizationId, recipientEmail, periodType, periodStart, periodEnd, reportId } = job.data;
+    const { organizationId, recipientEmail, periodType, periodStart, periodEnd, reportId } =
+      job.data;
     console.log(`[EmailDigest] job=${job.id} org=${organizationId} period=${periodType}`);
 
     const start = new Date(periodStart);
@@ -143,9 +174,17 @@ export const emailDigestWorker = new Worker<EmailDigestJobData>(
     const stats = await getPeriodStats(organizationId, start, end);
 
     // Compute growth percentages
-    const growthViews = stats.previous ? Math.round(((stats.views - stats.previous.views) / Math.max(stats.previous.views, 1)) * 100) : undefined;
-    const growthLikes = stats.previous ? Math.round(((stats.likes - stats.previous.likes) / Math.max(stats.previous.likes, 1)) * 100) : undefined;
-    const growthComments = stats.previous ? Math.round(((stats.comments - stats.previous.comments) / Math.max(stats.previous.comments, 1)) * 100) : undefined;
+    const growthViews = stats.previous
+      ? Math.round(((stats.views - stats.previous.views) / Math.max(stats.previous.views, 1)) * 100)
+      : undefined;
+    const growthLikes = stats.previous
+      ? Math.round(((stats.likes - stats.previous.likes) / Math.max(stats.previous.likes, 1)) * 100)
+      : undefined;
+    const growthComments = stats.previous
+      ? Math.round(
+          ((stats.comments - stats.previous.comments) / Math.max(stats.previous.comments, 1)) * 100,
+        )
+      : undefined;
 
     const html = renderDigestHtml(
       org?.name ?? organizationId,
@@ -179,7 +218,12 @@ export const emailDigestWorker = new Worker<EmailDigestJobData>(
       .returning();
 
     console.log(`[EmailDigest] Report ${report[0]?.id} sent to ${recipientEmail}`);
-    return { sent: true, reportId: report[0]?.id, to: recipientEmail, timestamp: new Date().toISOString() };
+    return {
+      sent: true,
+      reportId: report[0]?.id,
+      to: recipientEmail,
+      timestamp: new Date().toISOString(),
+    };
   },
   {
     connection,

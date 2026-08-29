@@ -4,8 +4,6 @@
  */
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import {
   ArrowLeft,
   BarChart3,
@@ -14,15 +12,16 @@ import {
   Eye,
   Heart,
   Share2,
-  TrendingUp,
   TrendingDown,
-  Users,
+  TrendingUp,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 // Mock data for demonstration (in real app, fetch from API)
 const MOCK_REPORTS: Record<string, SharedReport> = {
@@ -50,9 +49,30 @@ const MOCK_REPORTS: Record<string, SharedReport> = {
       { platform: "facebook", followers: 1823, engagementRate: 2.1, color: "#1877F2" },
     ],
     topPosts: [
-      { caption: "Tips bisnis online untuk UMKM 🚀", likes: 234, comments: 18, shares: 45, platform: "instagram", date: "2024-01-15" },
-      { caption: "Behind the scene produksi konten", likes: 189, comments: 12, shares: 23, platform: "tiktok", date: "2024-01-14" },
-      { caption: "Tutorial edit video dengan CapCut", likes: 156, comments: 8, shares: 31, platform: "youtube", date: "2024-01-12" },
+      {
+        caption: "Tips bisnis online untuk UMKM 🚀",
+        likes: 234,
+        comments: 18,
+        shares: 45,
+        platform: "instagram",
+        date: "2024-01-15",
+      },
+      {
+        caption: "Behind the scene produksi konten",
+        likes: 189,
+        comments: 12,
+        shares: 23,
+        platform: "tiktok",
+        date: "2024-01-14",
+      },
+      {
+        caption: "Tutorial edit video dengan CapCut",
+        likes: 156,
+        comments: 8,
+        shares: 31,
+        platform: "youtube",
+        date: "2024-01-12",
+      },
     ],
   },
 };
@@ -91,7 +111,7 @@ interface SharedReport {
 }
 
 export default function ShareReportPage() {
-  const params = useParams<{ id: string }>();
+  const _params = useParams<{ id: string }>();
   const [report, setReport] = useState<SharedReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -100,10 +120,10 @@ export default function ShareReportPage() {
     // In production, this would fetch from API
     // For demo, use the demo report
     setTimeout(() => {
-      setReport(MOCK_REPORTS["demo"] || null);
+      setReport(MOCK_REPORTS.demo || null);
       setLoading(false);
     }, 500);
-  }, [params.id]);
+  }, []);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -118,7 +138,7 @@ export default function ShareReportPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="spinner-gradient" />
           <p className="text-[var(--text-muted)] text-sm">Memuat laporan...</p>
@@ -129,13 +149,13 @@ export default function ShareReportPage() {
 
   if (!report) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <BarChart3 className="h-16 w-16 text-[var(--text-muted)] opacity-50 mb-4" />
-        <h1 className="font-semibold text-xl mb-2">Laporan Tidak Ditemukan</h1>
-        <p className="text-[var(--text-secondary)] text-sm mb-6">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
+        <BarChart3 className="mb-4 h-16 w-16 text-[var(--text-muted)] opacity-50" />
+        <h1 className="mb-2 font-semibold text-xl">Laporan Tidak Ditemukan</h1>
+        <p className="mb-6 text-[var(--text-secondary)] text-sm">
           Laporan ini mungkin sudah tidak aktif atau dihapus.
         </p>
-          <Button onClick={() => {}}>Kembali ke Dashboard</Button>
+        <Button onClick={() => {}}>Kembali ke Dashboard</Button>
       </div>
     );
   }
@@ -148,7 +168,7 @@ export default function ShareReportPage() {
       <div className="flex items-center justify-between">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors text-sm"
+          className="flex items-center gap-2 text-[var(--text-muted)] text-sm transition-colors hover:text-[var(--text-primary)]"
         >
           <ArrowLeft className="h-4 w-4" />
           Kembali
@@ -169,24 +189,34 @@ export default function ShareReportPage() {
       <div className="card p-6">
         <div className="flex items-start justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="mb-2 flex items-center gap-2">
               <Badge className="bg-[var(--accent-gold)]/20 text-[var(--accent-gold)]">
-                <BarChart3 className="h-3 w-3 mr-1" />
+                <BarChart3 className="mr-1 h-3 w-3" />
                 Analitik
               </Badge>
               <span className="text-[var(--text-muted)] text-xs">
-                {new Date(report.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+                {new Date(report.createdAt).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
               </span>
             </div>
-            <h1 className="font-bold text-2xl mb-1">{report.title}</h1>
+            <h1 className="mb-1 font-bold text-2xl">{report.title}</h1>
             <p className="text-[var(--text-secondary)]">{report.subtitle}</p>
           </div>
           <div className="text-right">
             <p className="text-[var(--text-muted)] text-xs">Total Followers</p>
             <p className="font-bold text-2xl">{m.totalFollowers.toLocaleString()}</p>
-            <div className={cn("flex items-center justify-end gap-1 text-xs", m.followersChange >= 0 ? "text-green-500" : "text-red-500")}>
+            <div
+              className={cn(
+                "flex items-center justify-end gap-1 text-xs",
+                m.followersChange >= 0 ? "text-green-500" : "text-red-500",
+              )}
+            >
               <TrendingUp className="h-3 w-3" />
-              {m.followersChange >= 0 ? "+" : ""}{m.followersChange.toLocaleString()}
+              {m.followersChange >= 0 ? "+" : ""}
+              {m.followersChange.toLocaleString()}
             </div>
           </div>
         </div>
@@ -230,24 +260,24 @@ export default function ShareReportPage() {
 
       {/* Platform Performance */}
       <div className="card p-6">
-        <h2 className="font-semibold mb-4">Performa Per Platform</h2>
+        <h2 className="mb-4 font-semibold">Performa Per Platform</h2>
         <div className="space-y-4">
           {report.platforms.map((platform) => (
             <div key={platform.platform} className="flex items-center gap-4">
               <div
-                className="h-10 w-10 rounded-lg flex items-center justify-center font-bold text-white text-sm"
+                className="flex h-10 w-10 items-center justify-center rounded-lg font-bold text-sm text-white"
                 style={{ backgroundColor: platform.color }}
               >
                 {platform.platform.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
+                <div className="mb-1 flex items-center justify-between">
                   <span className="font-medium capitalize">{platform.platform}</span>
                   <span className="text-[var(--text-muted)] text-sm">
                     {platform.followers.toLocaleString()} followers
                   </span>
                 </div>
-                <div className="h-2 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
+                <div className="h-2 overflow-hidden rounded-full bg-[var(--bg-tertiary)]">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{
@@ -257,7 +287,7 @@ export default function ShareReportPage() {
                   />
                 </div>
               </div>
-              <div className="text-right min-w-[80px]">
+              <div className="min-w-[80px] text-right">
                 <p className="font-semibold">{platform.engagementRate}%</p>
                 <p className="text-[var(--text-muted)] text-xs">Engagement</p>
               </div>
@@ -268,20 +298,24 @@ export default function ShareReportPage() {
 
       {/* Top Performing Posts */}
       <div className="card p-6">
-        <h2 className="font-semibold mb-4">Top Postingan</h2>
+        <h2 className="mb-4 font-semibold">Top Postingan</h2>
         <div className="space-y-4">
           {report.topPosts.map((post, index) => (
             <div
               key={index}
-              className="flex items-center gap-4 p-4 rounded-lg bg-[var(--bg-secondary)]"
+              className="flex items-center gap-4 rounded-lg bg-[var(--bg-secondary)] p-4"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent-gold)]/20 font-bold text-[var(--accent-gold)] text-sm">
                 {index + 1}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm truncate">{post.caption}</p>
-                <p className="text-[var(--text-muted)] text-xs mt-0.5">
-                  {new Date(post.date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })} · {post.platform}
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-sm">{post.caption}</p>
+                <p className="mt-0.5 text-[var(--text-muted)] text-xs">
+                  {new Date(post.date).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "short",
+                  })}{" "}
+                  · {post.platform}
                 </p>
               </div>
               <div className="flex items-center gap-6 text-sm">

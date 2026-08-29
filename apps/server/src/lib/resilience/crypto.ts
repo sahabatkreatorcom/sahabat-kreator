@@ -5,7 +5,7 @@
  * Adapted for Sahabat Kreator (sk_ prefix replaced, no NIST warning needed)
  */
 
-import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
+import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 16;
@@ -16,18 +16,16 @@ const TAG_LENGTH = 16;
  * Key must be 32 bytes (256 bits) for AES-256.
  */
 function getEncryptionKey(): Buffer {
-    const key = process.env.ENCRYPTION_KEY;
-    if (!key) {
-        throw new Error("ENCRYPTION_KEY environment variable is not set");
-    }
-    // Accept either raw 32-byte key or base64-encoded key
-    const keyBuffer = Buffer.from(key, "base64");
-    if (keyBuffer.length !== 32) {
-        throw new Error(
-            "ENCRYPTION_KEY must be 32 bytes (use: openssl rand -base64 32)",
-        );
-    }
-    return keyBuffer;
+  const key = process.env.ENCRYPTION_KEY;
+  if (!key) {
+    throw new Error("ENCRYPTION_KEY environment variable is not set");
+  }
+  // Accept either raw 32-byte key or base64-encoded key
+  const keyBuffer = Buffer.from(key, "base64");
+  if (keyBuffer.length !== 32) {
+    throw new Error("ENCRYPTION_KEY must be 32 bytes (use: openssl rand -base64 32)");
+  }
+  return keyBuffer;
 }
 
 /**
@@ -35,19 +33,16 @@ function getEncryptionKey(): Buffer {
  * Returns base64-encoded string: IV (16 bytes) + Ciphertext + AuthTag (16 bytes)
  */
 export function encrypt(plaintext: string): string {
-    const key = getEncryptionKey();
-    const iv = randomBytes(IV_LENGTH);
-    const cipher = createCipheriv(ALGORITHM, key, iv);
+  const key = getEncryptionKey();
+  const iv = randomBytes(IV_LENGTH);
+  const cipher = createCipheriv(ALGORITHM, key, iv);
 
-    const encrypted = Buffer.concat([
-        cipher.update(plaintext, "utf8"),
-        cipher.final(),
-    ]);
-    const tag = cipher.getAuthTag();
+  const encrypted = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
+  const tag = cipher.getAuthTag();
 
-    // Combine: IV + ciphertext + tag
-    const combined = Buffer.concat([iv, encrypted, tag]);
-    return combined.toString("base64");
+  // Combine: IV + ciphertext + tag
+  const combined = Buffer.concat([iv, encrypted, tag]);
+  return combined.toString("base64");
 }
 
 /**
@@ -55,23 +50,20 @@ export function encrypt(plaintext: string): string {
  * Expects base64-encoded string: IV + Ciphertext + AuthTag
  */
 export function decrypt(ciphertext: string): string {
-    const key = getEncryptionKey();
-    const combined = Buffer.from(ciphertext, "base64");
+  const key = getEncryptionKey();
+  const combined = Buffer.from(ciphertext, "base64");
 
-    // Extract components
-    const iv = combined.subarray(0, IV_LENGTH);
-    const tag = combined.subarray(combined.length - TAG_LENGTH);
-    const encrypted = combined.subarray(IV_LENGTH, combined.length - TAG_LENGTH);
+  // Extract components
+  const iv = combined.subarray(0, IV_LENGTH);
+  const tag = combined.subarray(combined.length - TAG_LENGTH);
+  const encrypted = combined.subarray(IV_LENGTH, combined.length - TAG_LENGTH);
 
-    const decipher = createDecipheriv(ALGORITHM, key, iv);
-    decipher.setAuthTag(tag);
+  const decipher = createDecipheriv(ALGORITHM, key, iv);
+  decipher.setAuthTag(tag);
 
-    const decrypted = Buffer.concat([
-        decipher.update(encrypted),
-        decipher.final(),
-    ]);
+  const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
 
-    return decrypted.toString("utf8");
+  return decrypted.toString("utf8");
 }
 
 /**
@@ -79,8 +71,8 @@ export function decrypt(ciphertext: string): string {
  * Example: "my-secret-key" -> "********-key"
  */
 export function maskSecret(secret: string): string {
-    if (secret.length <= 4) {
-        return "****";
-    }
-    return "****" + secret.slice(-4);
+  if (secret.length <= 4) {
+    return "****";
+  }
+  return `****${secret.slice(-4)}`;
 }

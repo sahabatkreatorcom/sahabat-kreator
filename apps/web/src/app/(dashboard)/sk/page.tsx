@@ -1,24 +1,30 @@
 "use client";
 
 import {
+  AlertCircle,
   Bot,
   Check,
   ChevronDown,
   ChevronUp,
-  Trash2,
+  Lightbulb,
+  Loader2,
+  MessageSquare,
   RefreshCw,
   Send,
   Sparkles,
-  AlertCircle,
-  Loader2,
-  MessageSquare,
-  Lightbulb,
   Target,
+  Trash2,
   Trophy,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { skApi, type SKChatMessage, type SKChatSession, type SKReport, type SKRecommendation } from "@/lib/api-client";
+import {
+  type SKChatMessage,
+  type SKChatSession,
+  type SKRecommendation,
+  type SKReport,
+  skApi,
+} from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
 const PRIORITY_COLORS = {
@@ -41,10 +47,11 @@ const CATEGORY_COLORS = {
 
 function ScoreBadge({ score }: { score: number | null }) {
   if (score === null) return null;
-  const color =
-    score >= 80 ? "text-green-500" : score >= 60 ? "text-amber-500" : "text-red-500";
+  const color = score >= 80 ? "text-green-500" : score >= 60 ? "text-amber-500" : "text-red-500";
   return (
-    <div className={cn("flex items-center gap-2 rounded-lg bg-[var(--bg-tertiary)] px-3 py-2", color)}>
+    <div
+      className={cn("flex items-center gap-2 rounded-lg bg-[var(--bg-tertiary)] px-3 py-2", color)}
+    >
       <Trophy className="h-4 w-4" />
       <span className="font-semibold text-sm">Skor: {score}/100</span>
     </div>
@@ -57,17 +64,34 @@ function RecommendationCard({ rec }: { rec: SKRecommendation }) {
   return (
     <div className="card space-y-3 p-4">
       <div className="flex items-start gap-3">
-        <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", PRIORITY_COLORS[rec.priority])}>
-          {rec.priority === "HIGH" ? <AlertCircle className="h-4 w-4" /> : rec.priority === "MEDIUM" ? <Target className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+        <div
+          className={cn(
+            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+            PRIORITY_COLORS[rec.priority],
+          )}
+        >
+          {rec.priority === "HIGH" ? (
+            <AlertCircle className="h-4 w-4" />
+          ) : rec.priority === "MEDIUM" ? (
+            <Target className="h-4 w-4" />
+          ) : (
+            <Check className="h-4 w-4" />
+          )}
         </div>
         <div className="flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex flex-wrap items-center gap-2">
             <h4 className="font-semibold text-sm">{rec.title}</h4>
-            <span className={cn("rounded px-2 py-0.5 text-xs font-medium", CATEGORY_COLORS[rec.category as keyof typeof CATEGORY_COLORS] || "bg-gray-500/10 text-gray-500")}>
+            <span
+              className={cn(
+                "rounded px-2 py-0.5 font-medium text-xs",
+                CATEGORY_COLORS[rec.category as keyof typeof CATEGORY_COLORS] ||
+                  "bg-gray-500/10 text-gray-500",
+              )}
+            >
               {rec.category.replace("_", " ")}
             </span>
             {rec.platform && (
-              <span className="rounded px-2 py-0.5 text-xs bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
+              <span className="rounded bg-[var(--bg-tertiary)] px-2 py-0.5 text-[var(--text-secondary)] text-xs">
                 {rec.platform}
               </span>
             )}
@@ -87,9 +111,9 @@ function RecommendationCard({ rec }: { rec: SKRecommendation }) {
 
       {expanded && (
         <div className="space-y-2 pl-11">
-          <p className="text-sm text-[var(--text-secondary)]">{rec.advice}</p>
+          <p className="text-[var(--text-secondary)] text-sm">{rec.advice}</p>
           {rec.rationale && (
-            <p className="text-xs text-[var(--text-muted)] italic">{rec.rationale}</p>
+            <p className="text-[var(--text-muted)] text-xs italic">{rec.rationale}</p>
           )}
         </div>
       )}
@@ -105,9 +129,15 @@ function ReportCard({ report, onGenerate }: { report: SKReport; onGenerate: () =
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <h3 className="font-semibold">{report.title}</h3>
-          <p className="text-[var(--text-secondary)] text-xs line-clamp-2">{report.summary}</p>
+          <p className="line-clamp-2 text-[var(--text-secondary)] text-xs">{report.summary}</p>
           <div className="flex items-center gap-2 text-[var(--text-muted)] text-xs">
-            <span>{new Date(report.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}</span>
+            <span>
+              {new Date(report.createdAt).toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}
+            </span>
             <span>·</span>
             <span>{report.trigger}</span>
           </div>
@@ -119,21 +149,21 @@ function ReportCard({ report, onGenerate }: { report: SKReport; onGenerate: () =
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="text-xs text-[var(--accent-gold)] hover:underline"
+          className="text-[var(--accent-gold)] text-xs hover:underline"
         >
           {expanded ? "Sembunyikan" : "Lihat detail"}
         </button>
         <button
           type="button"
           onClick={onGenerate}
-          className="ml-auto flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+          className="ml-auto flex items-center gap-1 text-[var(--text-muted)] text-xs hover:text-[var(--text-primary)]"
         >
           <RefreshCw className="h-3 w-3" /> Generate Ulang
         </button>
       </div>
 
       {expanded && report.recommendations && report.recommendations.length > 0 && (
-        <div className="space-y-2 pt-2 border-t border-[var(--border)]">
+        <div className="space-y-2 border-[var(--border)] border-t pt-2">
           {report.recommendations.slice(0, 5).map((rec) => (
             <RecommendationCard key={rec.id} rec={rec as SKRecommendation} />
           ))}
@@ -147,25 +177,32 @@ function ChatMessage({ message }: { message: SKChatMessage }) {
   const isUser = message.role === "USER";
   return (
     <div className={cn("flex gap-3", isUser ? "flex-row-reverse" : "")}>
-      <div className={cn(
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-        isUser ? "bg-[var(--accent-gold)]" : "bg-[var(--bg-tertiary)]"
-      )}>
+      <div
+        className={cn(
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+          isUser ? "bg-[var(--accent-gold)]" : "bg-[var(--bg-tertiary)]",
+        )}
+      >
         {isUser ? (
-          <span className="text-xs font-semibold text-white">Anda</span>
+          <span className="font-semibold text-white text-xs">Anda</span>
         ) : (
           <Bot className="h-4 w-4 text-[var(--accent-gold)]" />
         )}
       </div>
-      <div className={cn(
-        "max-w-[80%] rounded-xl px-4 py-3 text-sm",
-        isUser
-          ? "bg-[var(--accent-gold)] text-white"
-          : "bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
-      )}>
+      <div
+        className={cn(
+          "max-w-[80%] rounded-xl px-4 py-3 text-sm",
+          isUser
+            ? "bg-[var(--accent-gold)] text-white"
+            : "bg-[var(--bg-tertiary)] text-[var(--text-primary)]",
+        )}
+      >
         <p className="whitespace-pre-wrap">{message.content}</p>
         <p className={cn("mt-1 text-xs", isUser ? "text-white/70" : "text-[var(--text-muted)]")}>
-          {new Date(message.createdAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+          {new Date(message.createdAt).toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </p>
       </div>
     </div>
@@ -174,7 +211,10 @@ function ChatMessage({ message }: { message: SKChatMessage }) {
 
 export default function SKPage() {
   const [activeTab, setActiveTab] = useState<"chat" | "reports">("chat");
-  const [reports, setReports] = useState<{ latest: SKReport | null; history: SKReport[] }>({ latest: null, history: [] });
+  const [reports, setReports] = useState<{ latest: SKReport | null; history: SKReport[] }>({
+    latest: null,
+    history: [],
+  });
   const [sessions, setSessions] = useState<SKChatSession[]>([]);
   const [currentSession, setCurrentSession] = useState<SKChatSession | null>(null);
   const [messages, setMessages] = useState<SKChatMessage[]>([]);
@@ -186,11 +226,11 @@ export default function SKPage() {
   useEffect(() => {
     loadReports();
     loadSessions();
-  }, []);
+  }, [loadReports, loadSessions]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, []);
 
   async function loadReports() {
     const res = await skApi.getReports();
@@ -276,14 +316,16 @@ export default function SKPage() {
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border)] p-4">
+      <div className="flex items-center justify-between border-[var(--border)] border-b p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--accent-gold)]/10">
             <Bot className="h-5 w-5 text-[var(--accent-gold)]" />
           </div>
           <div>
             <h1 className="font-semibold text-xl">SK Coach</h1>
-            <p className="text-[var(--text-secondary)] text-xs">Pelatih media sosial AI untuk organisasi Anda</p>
+            <p className="text-[var(--text-secondary)] text-xs">
+              Pelatih media sosial AI untuk organisasi Anda
+            </p>
           </div>
         </div>
 
@@ -292,7 +334,7 @@ export default function SKPage() {
             type="button"
             onClick={handleGenerate}
             disabled={isGenerating}
-            className="flex items-center gap-2 rounded-lg bg-[var(--accent-gold)] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-[var(--accent-gold)] px-4 py-2 font-medium text-sm text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {isGenerating ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -305,15 +347,15 @@ export default function SKPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-[var(--border)]">
+      <div className="flex border-[var(--border)] border-b">
         <button
           type="button"
           onClick={() => setActiveTab("chat")}
           className={cn(
-            "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors",
+            "flex items-center gap-2 border-b-2 px-4 py-3 font-medium text-sm transition-colors",
             activeTab === "chat"
               ? "border-[var(--accent-gold)] text-[var(--accent-gold)]"
-              : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]",
           )}
         >
           <MessageSquare className="h-4 w-4" />
@@ -328,10 +370,10 @@ export default function SKPage() {
           type="button"
           onClick={() => setActiveTab("reports")}
           className={cn(
-            "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors",
+            "flex items-center gap-2 border-b-2 px-4 py-3 font-medium text-sm transition-colors",
             activeTab === "reports"
               ? "border-[var(--accent-gold)] text-[var(--accent-gold)]"
-              : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]",
           )}
         >
           <Lightbulb className="h-4 w-4" />
@@ -349,11 +391,11 @@ export default function SKPage() {
         {activeTab === "chat" && (
           <div className="flex h-full">
             {/* Sessions List */}
-            <div className="w-64 border-r border-[var(--border)] overflow-y-auto p-3">
+            <div className="w-64 overflow-y-auto border-[var(--border)] border-r p-3">
               <button
                 type="button"
                 onClick={handleNewChat}
-                className="mb-3 flex w-full items-center gap-2 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-sm text-[var(--text-muted)] hover:border-[var(--accent-gold)] hover:text-[var(--accent-gold)]"
+                className="mb-3 flex w-full items-center gap-2 rounded-lg border border-[var(--border)] border-dashed px-3 py-2 text-[var(--text-muted)] text-sm hover:border-[var(--accent-gold)] hover:text-[var(--accent-gold)]"
               >
                 <MessageSquare className="h-4 w-4" />
                 Chat Baru
@@ -369,7 +411,7 @@ export default function SKPage() {
                         "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors",
                         currentSession?.id === session.id
                           ? "bg-[var(--accent-gold)]/10 text-[var(--accent-gold)]"
-                          : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
+                          : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]",
                       )}
                     >
                       <MessageSquare className="h-4 w-4 shrink-0" />
@@ -381,7 +423,7 @@ export default function SKPage() {
                         e.stopPropagation();
                         handleDeleteSession(session.id);
                       }}
-                      className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-1 text-[var(--text-muted)] opacity-0 group-hover:opacity-100 hover:text-red-500"
+                      className="absolute top-1/2 right-1 -translate-y-1/2 rounded p-1 text-[var(--text-muted)] opacity-0 hover:text-red-500 group-hover:opacity-100"
                     >
                       <Trash2 className="h-3 w-3" />
                     </button>
@@ -405,7 +447,7 @@ export default function SKPage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="flex-1 space-y-4 overflow-y-auto p-4">
                   {messages.map((msg) => (
                     <ChatMessage key={msg.id} message={msg} />
                   ))}
@@ -416,7 +458,9 @@ export default function SKPage() {
                       </div>
                       <div className="flex items-center gap-2 rounded-xl bg-[var(--bg-tertiary)] px-4 py-3">
                         <Loader2 className="h-4 w-4 animate-spin text-[var(--accent-gold)]" />
-                        <span className="text-sm text-[var(--text-muted)]">SK sedang berpikir...</span>
+                        <span className="text-[var(--text-muted)] text-sm">
+                          SK sedang berpikir...
+                        </span>
                       </div>
                     </div>
                   )}
@@ -424,7 +468,7 @@ export default function SKPage() {
                 </div>
               )}
 
-              <div className="border-t border-[var(--border)] p-4">
+              <div className="border-[var(--border)] border-t p-4">
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -432,14 +476,14 @@ export default function SKPage() {
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
                     placeholder="Ketik pesan Anda..."
-                    className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-4 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-gold)]/50"
+                    className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-4 py-2 text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-gold)]/50"
                     disabled={isChatting}
                   />
                   <button
                     type="button"
                     onClick={handleSend}
                     disabled={!inputMessage.trim() || isChatting}
-                    className="flex items-center gap-2 rounded-lg bg-[var(--accent-gold)] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-lg bg-[var(--accent-gold)] px-4 py-2 font-medium text-sm text-white transition-opacity hover:opacity-90 disabled:opacity-50"
                   >
                     <Send className="h-4 w-4" />
                     Kirim
@@ -451,14 +495,14 @@ export default function SKPage() {
         )}
 
         {activeTab === "reports" && (
-          <div className="p-4 space-y-4 overflow-y-auto h-full">
-            {reports.latest && (
-              <ReportCard report={reports.latest} onGenerate={handleGenerate} />
-            )}
+          <div className="h-full space-y-4 overflow-y-auto p-4">
+            {reports.latest && <ReportCard report={reports.latest} onGenerate={handleGenerate} />}
 
             {reports.history.length > 0 && (
               <div>
-                <h2 className="mb-3 font-semibold text-sm text-[var(--text-muted)]">Riwayat Laporan</h2>
+                <h2 className="mb-3 font-semibold text-[var(--text-muted)] text-sm">
+                  Riwayat Laporan
+                </h2>
                 <div className="space-y-3">
                   {reports.history.slice(1).map((report) => (
                     <ReportCard key={report.id} report={report} onGenerate={handleGenerate} />

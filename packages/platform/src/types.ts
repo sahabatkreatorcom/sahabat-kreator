@@ -1,13 +1,26 @@
 /**
  * Shared types and constants for all platform adapters.
- * Defined here to avoid circular dependencies via the index file.
+ *
+ * Host routing (Meta official):
+ * - graph.facebook.com   → Facebook Graph API + Instagram API (INSTAGRAM_PAGE = FB-connected)
+ * - graph.instagram.com  → Instagram API standalone (INSTAGRAM = no FB Page required)
+ * - graph.threads.net    → Threads API (separate domain entirely)
  */
 
-export const GRAPH_API_URL = "https://graph.facebook.com/v18.0";
-export const META_API_VERSION = "v18.0";
+export const META_API_VERSION = "v26.0";
+export const GRAPH_API_URL = `https://graph.facebook.com/${META_API_VERSION}`;
+/** Instagram standalone API — no Facebook Page required */
+export const GRAPH_INSTAGRAM_URL = `https://graph.instagram.com/${META_API_VERSION}`;
+export const THREADS_API_URL = "https://graph.threads.net/v1.0";
 export const TIKTOK_API_URL = "https://open.tiktokapis.com/v2";
 export const YOUTUBE_DATA_API_URL = "https://www.googleapis.com/youtube/v3";
 export const YOUTUBE_ANALYTICS_API_URL = "https://youtubeanalytics.googleapis.com/v2";
+
+/** Which Instagram connection mode is in use.
+ *  - "facebook_login"     → INSTAGRAM_PAGE (requires FB Page, uses graph.facebook.com)
+ *  - "instagram_login"    → INSTAGRAM    (standalone, uses graph.instagram.com)
+ */
+export type InstagramConnectMode = "facebook_login" | "instagram_login";
 
 export interface PlatformProfile {
   platformId: string;

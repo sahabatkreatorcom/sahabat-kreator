@@ -1,6 +1,19 @@
 "use client";
 
-import { Bell, Building2, Check, CreditCard, Globe, Key, Link, Loader2, LogOut, Palette, Shield, User } from "lucide-react";
+import {
+  Bell,
+  Building2,
+  Check,
+  CreditCard,
+  Globe,
+  Key,
+  Link,
+  Loader2,
+  LogOut,
+  Palette,
+  Shield,
+  User,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BillingSettings } from "@/components/billing/billing-settings";
@@ -12,7 +25,15 @@ import { accountsApi } from "@/lib/api-client";
 import { signOut, useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
-type SettingsTab = "profile" | "security" | "billing" | "notifications" | "appearance" | "accounts" | "brand" | "organization";
+type SettingsTab =
+  | "profile"
+  | "security"
+  | "billing"
+  | "notifications"
+  | "appearance"
+  | "accounts"
+  | "brand"
+  | "organization";
 
 const PLATFORMS = [
   { id: "instagram", name: "Instagram", color: "bg-pink-500" },
@@ -221,9 +242,7 @@ export default function SettingsPage() {
                                 platform.color,
                               )}
                             >
-                              <span className="font-bold text-sm">
-                                {platform.name.charAt(0)}
-                              </span>
+                              <span className="font-bold text-sm">{platform.name.charAt(0)}</span>
                             </div>
                             <div>
                               <p className="font-medium text-sm">{platform.name}</p>
@@ -276,7 +295,7 @@ export default function SettingsPage() {
                         key={voice}
                         onClick={() => setBrandVoice(voice)}
                         className={cn(
-                          "rounded-lg border px-4 py-3 text-sm transition-all capitalize",
+                          "rounded-lg border px-4 py-3 text-sm capitalize transition-all",
                           brandVoice === voice
                             ? "border-[var(--accent-gold)] bg-[var(--accent-gold-light)] text-[var(--accent-gold)]"
                             : "border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-[var(--accent-gold)]",
@@ -296,7 +315,7 @@ export default function SettingsPage() {
                         key={tone}
                         onClick={() => setBrandTone(tone)}
                         className={cn(
-                          "rounded-lg border px-4 py-3 text-sm transition-all capitalize",
+                          "rounded-lg border px-4 py-3 text-sm capitalize transition-all",
                           brandTone === tone
                             ? "border-[var(--accent-gold)] bg-[var(--accent-gold-light)] text-[var(--accent-gold)]"
                             : "border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-[var(--accent-gold)]",
@@ -331,9 +350,7 @@ export default function SettingsPage() {
           )}
 
           {/* Organization Tab */}
-          {activeTab === "organization" && (
-            <OrganizationAdvancedUI />
-          )}
+          {activeTab === "organization" && <OrganizationAdvancedUI />}
 
           {/* Security Tab */}
           {activeTab === "security" && (
@@ -365,7 +382,9 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between border-[var(--border-light)] border-b py-2">
                     <div>
                       <p className="font-medium text-sm">Password</p>
-                      <p className="text-[var(--text-muted)] text-xs">Terakhir diubah 30 hari lalu</p>
+                      <p className="text-[var(--text-muted)] text-xs">
+                        Terakhir diubah 30 hari lalu
+                      </p>
                     </div>
                     <Button variant="secondary" size="sm">
                       Ubah
@@ -425,11 +444,31 @@ export default function SettingsPage() {
               <h2 className="mb-4 font-semibold text-lg">Preferensi Notifikasi</h2>
               <div className="space-y-4">
                 {[
-                  { label: "Notifikasi Email", desc: "Terima pembaruan via email", defaultChecked: true },
-                  { label: "Notifikasi Push", desc: "Notifikasi browser real-time", defaultChecked: true },
-                  { label: "Post Terjadwal", desc: "Pengingat saat post akan dipublikasikan", defaultChecked: true },
-                  { label: "Pembaruan Produk", desc: "Info fitur baru dan pembaruan", defaultChecked: false },
-                  { label: "Newsletter", desc: "Tips dan trik konten mingguan", defaultChecked: false },
+                  {
+                    label: "Notifikasi Email",
+                    desc: "Terima pembaruan via email",
+                    defaultChecked: true,
+                  },
+                  {
+                    label: "Notifikasi Push",
+                    desc: "Notifikasi browser real-time",
+                    defaultChecked: true,
+                  },
+                  {
+                    label: "Post Terjadwal",
+                    desc: "Pengingat saat post akan dipublikasikan",
+                    defaultChecked: true,
+                  },
+                  {
+                    label: "Pembaruan Produk",
+                    desc: "Info fitur baru dan pembaruan",
+                    defaultChecked: false,
+                  },
+                  {
+                    label: "Newsletter",
+                    desc: "Tips dan trik konten mingguan",
+                    defaultChecked: false,
+                  },
                 ].map((pref) => (
                   <div
                     key={pref.label}
@@ -440,7 +479,11 @@ export default function SettingsPage() {
                       <p className="text-[var(--text-muted)] text-xs">{pref.desc}</p>
                     </div>
                     <label className="relative inline-flex cursor-pointer items-center">
-                      <input type="checkbox" defaultChecked={pref.defaultChecked} className="peer sr-only" />
+                      <input
+                        type="checkbox"
+                        defaultChecked={pref.defaultChecked}
+                        className="peer sr-only"
+                      />
                       <div className="peer h-6 w-11 rounded-full bg-[var(--bg-tertiary)] after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-[var(--accent-gold)] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none" />
                     </label>
                   </div>
@@ -474,7 +517,9 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between py-2">
                   <div>
                     <p className="font-medium text-sm">Kompak</p>
-                    <p className="text-[var(--text-muted)] text-xs">Tampilan padat untuk layar kecil</p>
+                    <p className="text-[var(--text-muted)] text-xs">
+                      Tampilan padat untuk layar kecil
+                    </p>
                   </div>
                   <label className="relative inline-flex cursor-pointer items-center">
                     <input type="checkbox" className="peer sr-only" />

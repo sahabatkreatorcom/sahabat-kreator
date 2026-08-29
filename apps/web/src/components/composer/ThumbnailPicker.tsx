@@ -17,12 +17,17 @@ interface ThumbnailPickerProps {
   previewUrl?: string;
 }
 
-export function ThumbnailPicker({ thumbnails, currentCoverId, onSelect, previewUrl }: ThumbnailPickerProps) {
+export function ThumbnailPicker({
+  thumbnails,
+  currentCoverId,
+  onSelect,
+  previewUrl,
+}: ThumbnailPickerProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   if (thumbnails.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border)] py-8">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-[var(--border)] border-dashed py-8">
         <p className="text-[var(--text-muted)] text-sm">Belum ada thumbnail</p>
       </div>
     );
@@ -32,13 +37,9 @@ export function ThumbnailPicker({ thumbnails, currentCoverId, onSelect, previewU
     <div className="space-y-4">
       {/* Preview */}
       {previewUrl && (
-        <div className="rounded-lg overflow-hidden border border-[var(--border)] bg-[var(--bg-secondary)]">
+        <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)]">
           <div className="relative aspect-[4/5] w-full overflow-hidden">
-            <img
-              src={previewUrl}
-              alt="Preview"
-              className="h-full w-full object-cover"
-            />
+            <img src={previewUrl} alt="Preview" className="h-full w-full object-cover" />
             <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5">
               <Pin className="h-3 w-3 text-[var(--accent-gold)]" />
               <span className="text-white text-xs">Cover Preview</span>
@@ -49,7 +50,7 @@ export function ThumbnailPicker({ thumbnails, currentCoverId, onSelect, previewU
 
       {/* Grid */}
       <div>
-        <p className="mb-2 font-medium text-xs text-[var(--text-muted)]">
+        <p className="mb-2 font-medium text-[var(--text-muted)] text-xs">
           Pilih thumbnail utama ({thumbnails.length} gambar)
         </p>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -79,7 +80,7 @@ export function ThumbnailPicker({ thumbnails, currentCoverId, onSelect, previewU
                   <div className="absolute inset-0 flex items-center justify-center bg-black/40">
                     <div className="flex items-center gap-1 rounded-full bg-[var(--accent-gold)] px-2 py-0.5">
                       <Check className="h-3 w-3 text-white" />
-                      <span className="text-white text-xs font-medium">Cover</span>
+                      <span className="font-medium text-white text-xs">Cover</span>
                     </div>
                   </div>
                 )}
@@ -92,8 +93,8 @@ export function ThumbnailPicker({ thumbnails, currentCoverId, onSelect, previewU
                 )}
 
                 {/* Name */}
-                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-1">
-                  <p className="truncate text-white text-[10px]">{thumb.name}</p>
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-1">
+                  <p className="truncate text-[10px] text-white">{thumb.name}</p>
                 </div>
               </button>
             );

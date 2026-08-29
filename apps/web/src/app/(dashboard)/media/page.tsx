@@ -6,7 +6,6 @@ import {
   Grid3X3,
   Image as ImageIcon,
   List as ListIcon,
-  Loader2,
   Music,
   Search,
   Trash2,
@@ -170,8 +169,8 @@ export default function MediaPage() {
     }
   };
 
-  const totalSize = mediaItems.reduce((s, i) => {
-    const bytes = Number.parseInt(i.fileSize as unknown as string) || 0;
+  const _totalSize = mediaItems.reduce((s, i) => {
+    const bytes = Number.parseInt(i.fileSize as unknown as string, 10) || 0;
     return s + bytes;
   }, 0);
 

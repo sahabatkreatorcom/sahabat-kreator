@@ -1,8 +1,7 @@
 "use client";
 
-import { Loader2, MessageSquare, Reply, Star } from "lucide-react";
+import { Loader2, Reply } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -59,7 +58,11 @@ export function CommentCard({ item, onMarkRead, onReply }: CommentCardProps) {
                   item.sentiment === "negative" && "bg-red-500/20 text-red-500",
                 )}
               >
-                {item.sentiment === "positive" ? "Positif" : item.sentiment === "negative" ? "Negatif" : "Netral"}
+                {item.sentiment === "positive"
+                  ? "Positif"
+                  : item.sentiment === "negative"
+                    ? "Negatif"
+                    : "Netral"}
               </span>
             )}
             <span className="text-[var(--text-muted)] text-xs">
@@ -75,16 +78,28 @@ export function CommentCard({ item, onMarkRead, onReply }: CommentCardProps) {
           <p className="text-[var(--text-primary)] text-sm">{item.content}</p>
 
           {item.postCaption && (
-            <p className="text-[var(--text-muted)] text-xs italic">di post: "{item.postCaption.slice(0, 60)}..."</p>
+            <p className="text-[var(--text-muted)] text-xs italic">
+              di post: "{item.postCaption.slice(0, 60)}..."
+            </p>
           )}
 
           <div className="flex items-center gap-2 pt-1">
             {!item.isRead && (
-              <Button variant="ghost" size="sm" onClick={() => onMarkRead(item.id)} className="h-7 text-xs">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onMarkRead(item.id)}
+                className="h-7 text-xs"
+              >
                 Tandai dibaca
               </Button>
             )}
-            <Button variant="ghost" size="sm" onClick={() => setReplyOpen(!replyOpen)} className="h-7 gap-1 text-xs">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setReplyOpen(!replyOpen)}
+              className="h-7 gap-1 text-xs"
+            >
               <Reply className="h-3 w-3" />
               Balas
             </Button>

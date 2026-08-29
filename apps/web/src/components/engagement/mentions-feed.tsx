@@ -1,12 +1,12 @@
 "use client";
 
 import { AtSign, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { engagementApi } from "@/lib/api-client";
 import type { EngagementItem } from "@/lib/api-client";
+import { engagementApi } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
 interface MentionsFeedProps {
@@ -18,11 +18,7 @@ export function MentionsFeed({ platform, onRefresh }: MentionsFeedProps) {
   const [mentions, setMentions] = useState<EngagementItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchMentions();
-  }, [platform]);
-
-  const fetchMentions = async () => {
+  const fetchMentions = useCallback(async () => {
     setLoading(true);
     try {
       const params: Record<string, string> = { type: "mention" };
@@ -39,14 +35,16 @@ export function MentionsFeed({ platform, onRefresh }: MentionsFeedProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [platform]);
+
+  useEffect(() => {
+    fetchMentions();
+  }, [fetchMentions]);
 
   const handleMarkRead = async (id: string) => {
     try {
       await engagementApi.markRead(id);
-      setMentions((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, isRead: true } : m))
-      );
+      setMentions((prev) => prev.map((m) => (m.id === id ? { ...m, isRead: true } : m)));
     } catch {
       toast.error("Gagal menandai dibaca");
     }

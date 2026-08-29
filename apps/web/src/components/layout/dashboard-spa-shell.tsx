@@ -11,22 +11,22 @@ export { SPANavProvider, useSPANavigation } from "./spa-nav-context";
  * Setiap halaman di-load sekali saja saat pertama kali dikunjungi.
  */
 const lazyViews: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  '/calendar': lazy(() => import('@/app/(dashboard)/calendar/page')),
-  '/compose': lazy(() => import('@/app/(dashboard)/compose/page')),
-  '/media': lazy(() => import('@/app/(dashboard)/media/page')),
-  '/analytics': lazy(() => import('@/app/(dashboard)/analytics/page')),
-  '/dashboard': lazy(() => import('@/app/(dashboard)/dashboard/page')),
-  '/engagement': lazy(() => import('@/app/(dashboard)/engagement/page')),
-  '/team': lazy(() => import('@/app/(dashboard)/team/page')),
-  '/activity': lazy(() => import('@/app/(dashboard)/activity/page')),
-  '/settings': lazy(() => import('@/app/(dashboard)/settings/page')),
-  '/security': lazy(() => import('@/app/(dashboard)/security/page')),
-  '/billing': lazy(() => import('@/app/(dashboard)/billing/page')),
-  '/sk': lazy(() => import('@/app/(dashboard)/ai-suggestions/page')),
-  '/pillars': lazy(() => import('@/app/(dashboard)/pillars/page')),
-  '/hashtags': lazy(() => import('@/app/(dashboard)/hashtags/page')),
-  '/competitors': lazy(() => import('@/app/(dashboard)/competitors/page')),
-  '/suggestions': lazy(() => import('@/app/(dashboard)/suggestions/page')),
+  "/calendar": lazy(() => import("@/app/(dashboard)/calendar/page")),
+  "/compose": lazy(() => import("@/app/(dashboard)/compose/page")),
+  "/media": lazy(() => import("@/app/(dashboard)/media/page")),
+  "/analytics": lazy(() => import("@/app/(dashboard)/analytics/page")),
+  "/dashboard": lazy(() => import("@/app/(dashboard)/dashboard/page")),
+  "/engagement": lazy(() => import("@/app/(dashboard)/engagement/page")),
+  "/team": lazy(() => import("@/app/(dashboard)/team/page")),
+  "/activity": lazy(() => import("@/app/(dashboard)/activity/page")),
+  "/settings": lazy(() => import("@/app/(dashboard)/settings/page")),
+  "/security": lazy(() => import("@/app/(dashboard)/security/page")),
+  "/billing": lazy(() => import("@/app/(dashboard)/billing/page")),
+  "/sk": lazy(() => import("@/app/(dashboard)/ai-suggestions/page")),
+  "/pillars": lazy(() => import("@/app/(dashboard)/pillars/page")),
+  "/hashtags": lazy(() => import("@/app/(dashboard)/hashtags/page")),
+  "/competitors": lazy(() => import("@/app/(dashboard)/competitors/page")),
+  "/suggestions": lazy(() => import("@/app/(dashboard)/suggestions/page")),
 };
 
 function ViewSkeleton() {
@@ -79,7 +79,7 @@ export function DashboardSPAShell({ children }: DashboardSPAShellProps) {
       <ActiveView route={currentPath}>{children}</ActiveView>
     </div>
   ) : (
-    <>{children}</>
+    children
   );
 }
 

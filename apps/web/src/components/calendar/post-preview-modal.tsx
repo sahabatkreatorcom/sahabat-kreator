@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Clock, Edit, ExternalLink, Trash2, X } from "lucide-react";
+import { Calendar, Edit, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -38,13 +38,22 @@ const TYPE_LABELS: Record<string, string> = {
   VIDEO: "Video",
 };
 
-export function PostPreviewModal({ isOpen, onClose, post, onEdit, onDelete }: PostPreviewModalProps) {
+export function PostPreviewModal({
+  isOpen,
+  onClose,
+  post,
+  onEdit,
+  onDelete,
+}: PostPreviewModalProps) {
   if (!isOpen || !post) return null;
 
   const statusConfig = STATUS_CONFIG[post.status] || STATUS_CONFIG.DRAFT;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      onClick={onClose}
+    >
       <div
         className="mx-4 w-full max-w-lg rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
@@ -70,7 +79,9 @@ export function PostPreviewModal({ isOpen, onClose, post, onEdit, onDelete }: Po
 
         {/* Status & Type */}
         <div className="mb-4 flex items-center gap-2">
-          <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", statusConfig.className)}>
+          <span
+            className={cn("rounded-full px-2 py-0.5 font-medium text-xs", statusConfig.className)}
+          >
             {statusConfig.label}
           </span>
           <span className="rounded-full bg-[var(--bg-secondary)] px-2 py-0.5 text-xs">
@@ -87,7 +98,10 @@ export function PostPreviewModal({ isOpen, onClose, post, onEdit, onDelete }: Po
         {post.media && post.media.length > 0 && (
           <div className="mb-4 grid grid-cols-2 gap-2">
             {post.media.slice(0, 4).map((m, i) => (
-              <div key={i} className="relative aspect-square overflow-hidden rounded-lg bg-[var(--bg-secondary)]">
+              <div
+                key={i}
+                className="relative aspect-square overflow-hidden rounded-lg bg-[var(--bg-secondary)]"
+              >
                 {m.media.type.startsWith("image/") ? (
                   <img src={m.media.url} alt="" className="h-full w-full object-cover" />
                 ) : (

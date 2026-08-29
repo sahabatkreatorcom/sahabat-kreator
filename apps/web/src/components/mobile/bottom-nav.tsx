@@ -24,7 +24,7 @@ const navItems: NavItem[] = [
 ];
 
 export function MobileBottomNav() {
-  const pathname = typeof window !== "undefined" ? window.location.pathname : "";
+  const _pathname = typeof window !== "undefined" ? window.location.pathname : "";
   const { navigateTo, currentPath } = useSPANavigation();
 
   // Fetch badge counts (same API as sidebar)

@@ -63,9 +63,17 @@ const FAQ_DATA: FAQItem[] = [
   },
 ];
 
-function FAQAccordionItem({ item, isOpen, onToggle }: { item: FAQItem; isOpen: boolean; onToggle: () => void }) {
+function FAQAccordionItem({
+  item,
+  isOpen,
+  onToggle,
+}: {
+  item: FAQItem;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
   return (
-    <div className="border-b border-[var(--border)]">
+    <div className="border-[var(--border)] border-b">
       <button
         onClick={onToggle}
         className="flex w-full items-center justify-between py-4 text-left"
@@ -92,7 +100,7 @@ export default function FAQPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* Header */}
-      <header className="border-b border-[var(--border)]">
+      <header className="border-[var(--border)] border-b">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
             <ArrowLeft className="h-5 w-5" />
@@ -142,7 +150,7 @@ export default function FAQPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[var(--border)] py-8">
+      <footer className="border-[var(--border)] border-t py-8">
         <div className="mx-auto max-w-4xl px-6 text-center text-[var(--text-muted)] text-sm">
           <p>&copy; 2026 Sahabat Kreator. Hak cipta dilindungi.</p>
         </div>

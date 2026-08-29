@@ -163,7 +163,10 @@ export async function queueAnalyticsSync(data: AnalyticsSyncJobData, options?: {
   });
 }
 
-export async function queueEngagementSync(data: EngagementSyncJobData, options?: { delay?: number }) {
+export async function queueEngagementSync(
+  data: EngagementSyncJobData,
+  options?: { delay?: number },
+) {
   return engagementQueue.add("sync-engagement", data, {
     delay: options?.delay,
     attempts: 2,

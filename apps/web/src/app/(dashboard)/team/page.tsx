@@ -1,17 +1,6 @@
 "use client";
 
-import {
-  AlertCircle,
-  Check,
-  Loader2,
-  Mail,
-  MoreVertical,
-  RefreshCcw,
-  Shield,
-  User,
-  UserPlus,
-  X,
-} from "lucide-react";
+import { Loader2, Mail, RefreshCcw, Shield, UserPlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { type TeamInvitation, type TeamMember, teamApi } from "@/lib/api-client";
@@ -50,14 +39,14 @@ export default function TeamPage() {
   const [isInviting, setIsInviting] = useState(false);
   const [inviteError, setInviteError] = useState("");
 
-  const currentUserId = (session?.user as any)?.id;
+  const _currentUserId = (session?.user as any)?.id;
   const currentMember = members.find((m) => m.isCurrentUser);
   const currentUserRole = currentMember?.role ?? "viewer";
   const isAdmin = currentUserRole === "admin";
 
   useEffect(() => {
     fetchMembers();
-  }, []);
+  }, [fetchMembers]);
 
   async function fetchMembers() {
     setLoading(true);
@@ -75,7 +64,7 @@ export default function TeamPage() {
     e.preventDefault();
     setInviteError("");
 
-    if (!inviteEmail || !inviteEmail.includes("@")) {
+    if (!inviteEmail?.includes("@")) {
       setInviteError("Masukkan email yang valid");
       return;
     }

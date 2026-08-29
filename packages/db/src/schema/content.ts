@@ -55,9 +55,6 @@ export const hashtagCollection = pgTable(
   (table) => [
     index("hashtag_collection_org_idx").on(table.organizationId),
     index("hashtag_collection_category_idx").on(table.category),
-    uniqueIndex("hashtag_collection_org_name_uidx").on(
-      table.organizationId,
-      table.name,
-    ),
+    uniqueIndex("hashtag_collection_org_name_uidx").on(table.organizationId, table.name),
   ],
 );

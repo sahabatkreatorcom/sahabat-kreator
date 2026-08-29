@@ -1,6 +1,6 @@
 "use client";
 
-import { Brain, Loader2, RefreshCcw, TrendingUp, AlertCircle, Lightbulb } from "lucide-react";
+import { AlertCircle, Brain, Lightbulb, Loader2, RefreshCcw, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,10 +17,6 @@ export function AiInsightsPanel() {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    fetchInsights();
-  }, []);
 
   const fetchInsights = async () => {
     setLoading(true);
@@ -40,7 +36,8 @@ export function AiInsightsPanel() {
           newInsights.push({
             type: "tip",
             title: "Mulai Berposting",
-            description: "Anda belum memiliki post dalam 30 hari terakhir. Mulai buat konten untuk meningkatkan engagement!",
+            description:
+              "Anda belum memiliki post dalam 30 hari terakhir. Mulai buat konten untuk meningkatkan engagement!",
           });
         } else if (failed > 0) {
           newInsights.push({
@@ -82,6 +79,10 @@ export function AiInsightsPanel() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchInsights();
+  }, [fetchInsights]);
 
   const handleRefresh = async () => {
     setRefreshing(true);

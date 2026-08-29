@@ -7,11 +7,11 @@
  * - Moves permanently failed posts (FAILED older than 1 hour, no retry budget) to the dead-letter queue (a separate archival table)
  */
 
-import { connection } from "@sahabatkreator/jobs";
 import { db } from "@sahabatkreator/db";
 import { post, publishError } from "@sahabatkreator/db/schema";
-import { eq, and, lt, isNull, gte, sql } from "drizzle-orm";
+import { connection } from "@sahabatkreator/jobs";
 import { Worker } from "bullmq";
+import { and, eq, lt, sql } from "drizzle-orm";
 
 const STUCK_THRESHOLD_MS = 30 * 60 * 1000; // 30 minutes
 const FAILED_ARCHIVE_THRESHOLD_MS = 60 * 60 * 1000; // 1 hour
@@ -26,7 +26,12 @@ export const stalePostCleanupWorker = new Worker(
 
     // ── 1. Reset PUBLISHING posts stuck beyond threshold ────────────
     const stuckPosts = await db
-      .select({ id: post.id, organizationId: post.organizationId, socialAccountId: post.socialAccountId, platformPostId: post.platformPostId })
+      .select({
+        id: post.id,
+        organizationId: post.organizationId,
+        socialAccountId: post.socialAccountId,
+        platformPostId: post.platformPostId,
+      })
       .from(post)
       .where(and(eq(post.status, "PUBLISHING"), lt(post.updatedAt, stuckCutoff)));
 
@@ -88,10 +93,7 @@ export const stalePostCleanupWorker = new Worker(
         });
       }
 
-      await db
-        .update(post)
-        .set({ status: "ARCHIVED", updatedAt: now })
-        .where(eq(post.id, p.id));
+      await db.update(post).set({ status: "ARCHIVED", updatedAt: now }).where(eq(post.id, p.id));
 
       console.log(`[Cleanup] Archived failed post ${p.id}`);
     }

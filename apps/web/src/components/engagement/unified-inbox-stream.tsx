@@ -1,11 +1,11 @@
 "use client";
 
 import { Loader2, MessageSquare, RefreshCcw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { engagementApi } from "@/lib/api-client";
 import type { EngagementItem } from "@/lib/api-client";
+import { engagementApi } from "@/lib/api-client";
 import { CommentCard } from "./comment-card";
 
 interface UnifiedInboxStreamProps {
@@ -18,11 +18,7 @@ export function UnifiedInboxStream({ filter, platform }: UnifiedInboxStreamProps
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
 
-  useEffect(() => {
-    fetchItems();
-  }, [filter, platform]);
-
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     setLoading(true);
     try {
       const params: Record<string, string> = {};
@@ -40,14 +36,16 @@ export function UnifiedInboxStream({ filter, platform }: UnifiedInboxStreamProps
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter, platform]);
+
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
 
   const handleMarkRead = async (id: string) => {
     try {
       await engagementApi.markRead(id);
-      setItems((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, isRead: true } : item)),
-      );
+      setItems((prev) => prev.map((item) => (item.id === id ? { ...item, isRead: true } : item)));
     } catch {
       toast.error("Gagal menandai dibaca");
     }
@@ -98,14 +96,20 @@ export function UnifiedInboxStream({ filter, platform }: UnifiedInboxStreamProps
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-[var(--text-muted)] text-sm">{items.length} item</p>
-        <Button variant="secondary" size="sm" onClick={handleSync} disabled={syncing} className="gap-2">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={handleSync}
+          disabled={syncing}
+          className="gap-2"
+        >
           <RefreshCcw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
           Sinkronkan
         </Button>
       </div>
 
       {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border)] py-12">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-[var(--border)] border-dashed py-12">
           <MessageSquare className="mb-3 h-10 w-10 text-[var(--text-muted)]" />
           <p className="font-medium text-[var(--text-muted)]">Inbox kosong</p>
           <p className="text-[var(--text-muted)] text-sm">Belum ada engagement baru</p>

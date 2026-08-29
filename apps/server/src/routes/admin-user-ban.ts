@@ -12,7 +12,7 @@ adminUserBanApp.use("/*", requireAuth);
 adminUserBanApp.use("/*", async (c, next) => {
   const userId = getUserId(c);
   if (!userId) return c.json({ error: "Unauthorized" }, 401);
-  
+
   const [currentUser] = await db.select().from(user).where(eq(user.id, userId)).limit(1);
   if (currentUser?.role !== "superadmin") {
     return c.json({ error: "Forbidden: Super admin only" }, 403);
@@ -60,11 +60,14 @@ adminUserBanApp.post("/:id", async (c) => {
 
   const expiresAt = parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : null;
 
-  await db.update(user).set({
-    banned: true,
-    banReason: parsed.data.reason,
-    banExpires: expiresAt,
-  }).where(eq(user.id, targetUserId));
+  await db
+    .update(user)
+    .set({
+      banned: true,
+      banReason: parsed.data.reason,
+      banExpires: expiresAt,
+    })
+    .where(eq(user.id, targetUserId));
 
   return c.json({
     success: true,
@@ -84,11 +87,14 @@ adminUserBanApp.post("/:id", async (c) => {
 adminUserBanApp.post("/:id/unban", async (c) => {
   const targetUserId = c.req.param("id");
 
-  await db.update(user).set({
-    banned: false,
-    banReason: null,
-    banExpires: null,
-  }).where(eq(user.id, targetUserId));
+  await db
+    .update(user)
+    .set({
+      banned: false,
+      banReason: null,
+      banExpires: null,
+    })
+    .where(eq(user.id, targetUserId));
 
   return c.json({ success: true, message: "User unbanned" });
 });

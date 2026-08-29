@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Save, Trash2, X } from "lucide-react";
+import { Plus, Save, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -22,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 // In-memory canned replies store — replace with API calls in production
@@ -49,12 +49,6 @@ export function CannedReply({ onInsert, onClose, open }: CannedReplyProps) {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Umum");
 
-  useEffect(() => {
-    if (open) {
-      loadReplies();
-    }
-  }, [open]);
-
   const loadReplies = () => {
     const stored = localStorage.getItem("sk-canned-replies");
     if (stored) {
@@ -71,21 +65,24 @@ export function CannedReply({ onInsert, onClose, open }: CannedReplyProps) {
         {
           id: "2",
           title: "Info Promo",
-          content: "Halo! Saat ini kami sedang menjalankan promo spesial. Untuk info lebih lanjut, silakan cek link di bio ya! 🎉",
+          content:
+            "Halo! Saat ini kami sedang menjalankan promo spesial. Untuk info lebih lanjut, silakan cek link di bio ya! 🎉",
           category: "Marketing",
           createdAt: new Date().toISOString(),
         },
         {
           id: "3",
           title: "Balas Pertanyaan",
-          content: "Terima kasih telah menghubungi kami! Tim kami akan segera menindaklanjuti pertanyaan Anda. Mohon tunggu ya.",
+          content:
+            "Terima kasih telah menghubungi kami! Tim kami akan segera menindaklanjuti pertanyaan Anda. Mohon tunggu ya.",
           category: "Support",
           createdAt: new Date().toISOString(),
         },
         {
           id: "4",
           title: "Call to Action",
-          content: "Tertarik? Yuk langsung kunjungi website kami atau hubungi CS untuk info lebih lanjut! 🚀",
+          content:
+            "Tertarik? Yuk langsung kunjungi website kami atau hubungi CS untuk info lebih lanjut! 🚀",
           category: "Penjualan",
           createdAt: new Date().toISOString(),
         },
@@ -94,6 +91,12 @@ export function CannedReply({ onInsert, onClose, open }: CannedReplyProps) {
       localStorage.setItem("sk-canned-replies", JSON.stringify(defaults));
     }
   };
+
+  useEffect(() => {
+    if (open) {
+      loadReplies();
+    }
+  }, [open, loadReplies]);
 
   const saveReplies = (data: CannedReply[]) => {
     localStorage.setItem("sk-canned-replies", JSON.stringify(data));
@@ -150,14 +153,23 @@ export function CannedReply({ onInsert, onClose, open }: CannedReplyProps) {
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Balasan Cepat</DialogTitle>
-          <DialogDescription>
-            Pilih balasan yang sudah disimpan atau buat baru
-          </DialogDescription>
+          <DialogDescription>Pilih balasan yang sudah disimpan atau buat baru</DialogDescription>
         </DialogHeader>
 
         <div className="flex items-center justify-between">
-          <span className="text-[var(--text-muted)] text-sm">{replies.length} balasan tersimpan</span>
-          <Button size="sm" onClick={() => { setShowEditor(true); setEditingId(null); setTitle(""); setContent(""); setCategory("Umum"); }}>
+          <span className="text-[var(--text-muted)] text-sm">
+            {replies.length} balasan tersimpan
+          </span>
+          <Button
+            size="sm"
+            onClick={() => {
+              setShowEditor(true);
+              setEditingId(null);
+              setTitle("");
+              setContent("");
+              setCategory("Umum");
+            }}
+          >
             <Plus className="mr-1.5 h-3.5 w-3.5" />
             Baru
           </Button>
@@ -214,10 +226,10 @@ export function CannedReply({ onInsert, onClose, open }: CannedReplyProps) {
         )}
 
         {/* List */}
-        <div className="max-h-60 overflow-y-auto space-y-4">
+        <div className="max-h-60 space-y-4 overflow-y-auto">
           {grouped.map(({ category, items }) => (
             <div key={category}>
-              <p className="mb-1.5 font-medium text-xs text-[var(--text-muted)] uppercase tracking-wide">
+              <p className="mb-1.5 font-medium text-[var(--text-muted)] text-xs uppercase tracking-wide">
                 {category}
               </p>
               <div className="space-y-1.5">

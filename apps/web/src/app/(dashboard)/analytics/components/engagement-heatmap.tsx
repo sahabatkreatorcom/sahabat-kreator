@@ -33,7 +33,9 @@ export function EngagementHeatmap({ data = [] }: EngagementHeatmapProps) {
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <p className="py-4 text-center text-[var(--text-muted)] text-sm">Belum ada data aktivitas</p>
+          <p className="py-4 text-center text-[var(--text-muted)] text-sm">
+            Belum ada data aktivitas
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <div className="min-w-[300px]">
@@ -77,7 +79,9 @@ export function EngagementHeatmap({ data = [] }: EngagementHeatmapProps) {
                   <div
                     key={level}
                     className={`h-3 w-3 rounded-sm ${
-                      level === 0 ? "bg-[var(--bg-secondary)]" : `bg-[var(--accent-gold)]/${level * 100}`
+                      level === 0
+                        ? "bg-[var(--bg-secondary)]"
+                        : `bg-[var(--accent-gold)]/${level * 100}`
                     }`}
                   />
                 ))}

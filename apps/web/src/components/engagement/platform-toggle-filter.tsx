@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -9,6 +8,7 @@ import {
   TwitterIcon,
   YoutubeIcon,
 } from "@/components/ui/platform-icons";
+import { cn } from "@/lib/utils";
 
 interface PlatformToggleFilterProps {
   activePlatform: string;
@@ -25,7 +25,10 @@ const PLATFORMS = [
   { id: "linkedin", label: "LinkedIn", Icon: LinkedinIcon },
 ];
 
-export function PlatformToggleFilter({ activePlatform, onPlatformChange }: PlatformToggleFilterProps) {
+export function PlatformToggleFilter({
+  activePlatform,
+  onPlatformChange,
+}: PlatformToggleFilterProps) {
   return (
     <div className="flex gap-1 rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] p-1">
       {PLATFORMS.map((platform) => {

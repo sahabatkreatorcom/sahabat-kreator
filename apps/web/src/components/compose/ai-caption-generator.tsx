@@ -13,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { aiCaptionApi } from "@/lib/api-client";
-import { cn } from "@/lib/utils";
 
 interface AiCaptionGeneratorProps {
   onApplyCaption: (caption: string) => void;
@@ -236,11 +235,7 @@ export function AiCaptionGenerator({
                 onClick={handleImprove}
                 disabled={isImproving || !improveInstruction.trim()}
               >
-                {isImproving ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Perbaiki"
-                )}
+                {isImproving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Perbaiki"}
               </Button>
             </div>
 

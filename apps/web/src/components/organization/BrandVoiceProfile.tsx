@@ -1,21 +1,20 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
 import {
-  Upload,
-  FileText,
-  CheckCircle,
-  XCircle,
-  Loader2,
   Brain,
-  TrendingUp,
-  Sparkles,
+  CheckCircle,
   Edit3,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+  FileText,
+  Loader2,
+  Sparkles,
+  TrendingUp,
+  Upload,
+  XCircle,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface BrandTrait {
   name: string;
@@ -32,27 +31,27 @@ interface BrandProfile {
 }
 
 const DEFAULT_PROFILE: BrandProfile = {
-  voice: 'profesional',
-  tone: 'ramah',
+  voice: "profesional",
+  tone: "ramah",
   traits: [
-    { name: 'Professional', score: 75, description: 'Gaya bahasa formal namun mudah dipahami' },
-    { name: 'Friendly', score: 68, description: 'Sentuhan personal yang hangat' },
-    { name: 'Informative', score: 82, description: 'Berisi edukasi dan tips bermanfaat' },
-    { name: 'Persuasive', score: 45, description: 'Mengajak tanpa memaksa' },
-    { name: 'Humorous', score: 30, description: 'Sedikit sentuhan humor' },
+    { name: "Professional", score: 75, description: "Gaya bahasa formal namun mudah dipahami" },
+    { name: "Friendly", score: 68, description: "Sentuhan personal yang hangat" },
+    { name: "Informative", score: 82, description: "Berisi edukasi dan tips bermanfaat" },
+    { name: "Persuasive", score: 45, description: "Mengajak tanpa memaksa" },
+    { name: "Humorous", score: 30, description: "Sedikit sentuhan humor" },
   ],
   sampleCount: 0,
-  lastUpdated: '-',
+  lastUpdated: "-",
 };
 
-const VOICE_OPTIONS = ['profesional', 'kasual', 'formal', 'lucu', 'inspiratif', 'edukatif'];
-const TONE_OPTIONS = ['ramah', 'serius', 'motivational', 'humoris', 'santai', 'berwibawa'];
+const VOICE_OPTIONS = ["profesional", "kasual", "formal", "lucu", "inspiratif", "edukatif"];
+const TONE_OPTIONS = ["ramah", "serius", "motivational", "humoris", "santai", "berwibawa"];
 
 export function BrandVoiceProfile() {
   const [profile, setProfile] = useState<BrandProfile>(DEFAULT_PROFILE);
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
-  const [previewText, setPreviewText] = useState('');
+  const [previewText, setPreviewText] = useState("");
   const [previewScore, setPreviewScore] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editVoice, setEditVoice] = useState(profile.voice);
@@ -65,17 +64,17 @@ export function BrandVoiceProfile() {
     setUploading(true);
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
-      const res = await fetch('/api/brand/upload', {
-        method: 'POST',
+      const res = await fetch("/api/brand/upload", {
+        method: "POST",
         body: formData,
       });
 
-      if (!res.ok) throw new Error('Upload failed');
-      toast.success('Brand guidelines berhasil diupload');
+      if (!res.ok) throw new Error("Upload failed");
+      toast.success("Brand guidelines berhasil diupload");
     } catch {
-      toast.error('Gagal mengupload file');
+      toast.error("Gagal mengupload file");
     } finally {
       setUploading(false);
     }
@@ -84,41 +83,41 @@ export function BrandVoiceProfile() {
   const analyzeBrandVoice = async () => {
     setAnalyzing(true);
     try {
-      const res = await fetch('/api/brand/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/brand/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ voice: editVoice, tone: editTone }),
       });
 
-      if (!res.ok) throw new Error('Analysis failed');
+      if (!res.ok) throw new Error("Analysis failed");
       const data = await res.json();
       setProfile(data.profile);
       setAnalyzing(false);
       setIsEditing(false);
-      toast.success('Profil brand voice diperbarui');
+      toast.success("Profil brand voice diperbarui");
     } catch {
-      toast.error('Gagal menganalisis brand voice');
+      toast.error("Gagal menganalisis brand voice");
       setAnalyzing(false);
     }
   };
 
   const scoreContent = async () => {
     if (!previewText.trim()) {
-      toast.error('Masukkan teks terlebih dahulu');
+      toast.error("Masukkan teks terlebih dahulu");
       return;
     }
     try {
-      const res = await fetch('/api/brand/score', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/brand/score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: previewText }),
       });
-      if (!res.ok) throw new Error('Score failed');
+      if (!res.ok) throw new Error("Score failed");
       const data = await res.json();
       setPreviewScore(data.score);
-      toast.success('Konten dianalisis');
+      toast.success("Konten dianalisis");
     } catch {
-      toast.error('Gagal menganalisis konten');
+      toast.error("Gagal menganalisis konten");
     }
   };
 
@@ -140,24 +139,24 @@ export function BrandVoiceProfile() {
           </div>
           <Button variant="secondary" size="sm" onClick={() => setIsEditing(!isEditing)}>
             <Edit3 className="h-3.5 w-3.5" />
-            {isEditing ? 'Tutup' : 'Edit'}
+            {isEditing ? "Tutup" : "Edit"}
           </Button>
         </div>
 
         {isEditing ? (
           <div className="space-y-4">
             <div>
-              <label className="mb-2 block text-sm font-medium">Brand Voice</label>
+              <label className="mb-2 block font-medium text-sm">Brand Voice</label>
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                 {VOICE_OPTIONS.map((v) => (
                   <button
                     key={v}
                     onClick={() => setEditVoice(v)}
                     className={cn(
-                      'rounded-lg border px-3 py-2 text-sm transition-all capitalize',
+                      "rounded-lg border px-3 py-2 text-sm capitalize transition-all",
                       editVoice === v
-                        ? 'border-[var(--accent-gold)] bg-[var(--accent-gold)]/10 text-[var(--accent-gold)]'
-                        : 'border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-[var(--accent-gold)]',
+                        ? "border-[var(--accent-gold)] bg-[var(--accent-gold)]/10 text-[var(--accent-gold)]"
+                        : "border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-[var(--accent-gold)]",
                     )}
                   >
                     {v}
@@ -167,17 +166,17 @@ export function BrandVoiceProfile() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium">Brand Tone</label>
+              <label className="mb-2 block font-medium text-sm">Brand Tone</label>
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                 {TONE_OPTIONS.map((t) => (
                   <button
                     key={t}
                     onClick={() => setEditTone(t)}
                     className={cn(
-                      'rounded-lg border px-3 py-2 text-sm transition-all capitalize',
+                      "rounded-lg border px-3 py-2 text-sm capitalize transition-all",
                       editTone === t
-                        ? 'border-[var(--accent-gold)] bg-[var(--accent-gold)]/10 text-[var(--accent-gold)]'
-                        : 'border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-[var(--accent-gold)]',
+                        ? "border-[var(--accent-gold)] bg-[var(--accent-gold)]/10 text-[var(--accent-gold)]"
+                        : "border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-[var(--accent-gold)]",
                     )}
                   >
                     {t}
@@ -236,11 +235,11 @@ export function BrandVoiceProfile() {
 
       {/* Upload Guidelines */}
       <div className="card p-6">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="mb-4 flex items-center gap-2">
           <FileText className="h-5 w-5 text-[var(--accent-gold)]" />
           <h3 className="font-semibold">Upload Brand Guidelines</h3>
         </div>
-        <div className="border-2 border-dashed border-[var(--border)] rounded-xl p-8 text-center">
+        <div className="rounded-xl border-2 border-[var(--border)] border-dashed p-8 text-center">
           <input
             type="file"
             accept=".pdf,.doc,.docx,.txt"
@@ -252,8 +251,8 @@ export function BrandVoiceProfile() {
           <label
             htmlFor="brand-upload"
             className={cn(
-              'cursor-pointer inline-flex flex-col items-center gap-3',
-              uploading && 'pointer-events-none opacity-50',
+              "inline-flex cursor-pointer flex-col items-center gap-3",
+              uploading && "pointer-events-none opacity-50",
             )}
           >
             <Upload className="h-10 w-10 text-[var(--text-muted)]" />
@@ -273,7 +272,7 @@ export function BrandVoiceProfile() {
 
       {/* Content Scorer */}
       <div className="card p-6">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="mb-4 flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-[var(--accent-gold)]" />
           <h3 className="font-semibold">Skor Kecocokan Konten</h3>
         </div>
@@ -286,7 +285,7 @@ export function BrandVoiceProfile() {
           onChange={(e) => setPreviewText(e.target.value)}
           placeholder="Tempel caption atau konten di sini untuk dianalisis..."
           rows={4}
-          className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm resize-none mb-3"
+          className="mb-3 w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm"
         />
 
         <div className="flex items-center gap-3">
@@ -296,25 +295,35 @@ export function BrandVoiceProfile() {
           </Button>
 
           {previewScore !== null && (
-            <div className={cn(
-              'flex items-center gap-2 rounded-lg px-3 py-2',
-              previewScore >= 70 ? 'bg-[var(--success)]/10' :
-              previewScore >= 40 ? 'bg-[var(--warning)]/10' :
-              'bg-[var(--error)]/10',
-            )}>
+            <div
+              className={cn(
+                "flex items-center gap-2 rounded-lg px-3 py-2",
+                previewScore >= 70
+                  ? "bg-[var(--success)]/10"
+                  : previewScore >= 40
+                    ? "bg-[var(--warning)]/10"
+                    : "bg-[var(--error)]/10",
+              )}
+            >
               {previewScore >= 70 ? (
                 <CheckCircle className="h-5 w-5 text-[var(--success)]" />
               ) : previewScore >= 40 ? (
-                <span className="h-5 w-5 flex items-center justify-center text-[var(--warning)] font-bold">~</span>
+                <span className="flex h-5 w-5 items-center justify-center font-bold text-[var(--warning)]">
+                  ~
+                </span>
               ) : (
                 <XCircle className="h-5 w-5 text-[var(--error)]" />
               )}
-              <span className={cn(
-                'font-bold',
-                previewScore >= 70 ? 'text-[var(--success)]' :
-                previewScore >= 40 ? 'text-[var(--warning)]' :
-                'text-[var(--error)]',
-              )}>
+              <span
+                className={cn(
+                  "font-bold",
+                  previewScore >= 70
+                    ? "text-[var(--success)]"
+                    : previewScore >= 40
+                      ? "text-[var(--warning)]"
+                      : "text-[var(--error)]",
+                )}
+              >
                 {previewScore}% cocok
               </span>
             </div>

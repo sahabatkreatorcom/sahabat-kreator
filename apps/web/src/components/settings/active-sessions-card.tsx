@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2, Monitor, Smartphone, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,11 +20,7 @@ export function ActiveSessionsCard() {
   const [loading, setLoading] = useState(true);
   const [revoking, setRevoking] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchSessions();
-  }, []);
-
-  const fetchSessions = async () => {
+  const fetchSessions = useCallback(async () => {
     try {
       const res = await fetch("/api/user/sessions");
       if (res.ok) {
@@ -36,7 +32,11 @@ export function ActiveSessionsCard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
 
   const handleRevoke = async (sessionId: string) => {
     setRevoking(sessionId);
@@ -91,8 +91,17 @@ export function ActiveSessionsCard() {
             <CardDescription>Kelola perangkat yang login ke akun Anda</CardDescription>
           </div>
           {sessions.length > 1 && (
-            <Button variant="danger" size="sm" onClick={handleRevokeAll} disabled={revoking === "all"}>
-              {revoking === "all" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Cabut Semua Sesi Lain"}
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={handleRevokeAll}
+              disabled={revoking === "all"}
+            >
+              {revoking === "all" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Cabut Semua Sesi Lain"
+              )}
             </Button>
           )}
         </div>

@@ -1,20 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import {
-  Plus,
-  Edit3,
-  Trash2,
-  Copy,
-  Hash,
-  Tag,
-  Search,
-  X,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { Copy, Edit3, Hash, Plus, Search, Tag, Trash2, X } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface Template {
   id: string;
@@ -26,64 +16,69 @@ interface Template {
   createdAt: string;
 }
 
-const CATEGORIES = ['Promosi', 'Edukasi', 'Engagement', 'Brand Awareness', 'Sale', 'Lainnya'];
+const CATEGORIES = ["Promosi", "Edukasi", "Engagement", "Brand Awareness", "Sale", "Lainnya"];
 
 const INITIAL_TEMPLATES: Template[] = [
   {
-    id: 't1',
-    name: 'Promo Hari Ini',
-    content: '🔥 Promo Spesial Hari Ini!\n\nDapatkan diskon hingga 50% untuk semua produk pilihan. Berlaku sampai tengah malam!\n\n🛒 Klik link di bio untuk pemesanan\n\n#diskon #promo #hariini',
-    category: 'Promosi',
-    tags: ['promo', 'diskon'],
+    id: "t1",
+    name: "Promo Hari Ini",
+    content:
+      "🔥 Promo Spesial Hari Ini!\n\nDapatkan diskon hingga 50% untuk semua produk pilihan. Berlaku sampai tengah malam!\n\n🛒 Klik link di bio untuk pemesanan\n\n#diskon #promo #hariini",
+    category: "Promosi",
+    tags: ["promo", "diskon"],
     usageCount: 24,
-    createdAt: '2024-01-15',
+    createdAt: "2024-01-15",
   },
   {
-    id: 't2',
-    name: 'Tips Harian',
-    content: '💡 Tips Harian:\n\nCara meningkatkan engagement di media sosial:\n1. Posting konsisten\n2. Gunakan hashtag relevan\n3. Reply komentar\n\nSimpan postingan ini! 📌',
-    category: 'Edukasi',
-    tags: ['tips', 'edukasi'],
+    id: "t2",
+    name: "Tips Harian",
+    content:
+      "💡 Tips Harian:\n\nCara meningkatkan engagement di media sosial:\n1. Posting konsisten\n2. Gunakan hashtag relevan\n3. Reply komentar\n\nSimpan postingan ini! 📌",
+    category: "Edukasi",
+    tags: ["tips", "edukasi"],
     usageCount: 18,
-    createdAt: '2024-01-20',
+    createdAt: "2024-01-20",
   },
   {
-    id: 't3',
-    name: 'Behind The Scene',
-    content: '🎬 Behind The Scene hari ini!\n\nLihat proses pembuatan konten kami. Kerja keras di balik layar 💪\n\nTag teman yang perlu lihat ini!',
-    category: 'Engagement',
-    tags: ['bts', 'konten'],
+    id: "t3",
+    name: "Behind The Scene",
+    content:
+      "🎬 Behind The Scene hari ini!\n\nLihat proses pembuatan konten kami. Kerja keras di balik layar 💪\n\nTag teman yang perlu lihat ini!",
+    category: "Engagement",
+    tags: ["bts", "konten"],
     usageCount: 12,
-    createdAt: '2024-02-01',
+    createdAt: "2024-02-01",
   },
 ];
 
 export function Templates() {
   const [templates, setTemplates] = useState<Template[]>(INITIAL_TEMPLATES);
-  const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', content: '', category: 'Promosi', tags: '' });
-  const [tagInput, setTagInput] = useState('');
+  const [form, setForm] = useState({ name: "", content: "", category: "Promosi", tags: "" });
+  const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
 
   const filtered = templates.filter((t) => {
-    const matchSearch = !search || t.name.toLowerCase().includes(search.toLowerCase()) ||
+    const matchSearch =
+      !search ||
+      t.name.toLowerCase().includes(search.toLowerCase()) ||
       t.content.toLowerCase().includes(search.toLowerCase());
     const matchCategory = !categoryFilter || t.category === categoryFilter;
     return matchSearch && matchCategory;
   });
 
   const openCreate = () => {
-    setForm({ name: '', content: '', category: 'Promosi', tags: '' });
+    setForm({ name: "", content: "", category: "Promosi", tags: "" });
     setTags([]);
     setEditingId(null);
     setShowCreateModal(true);
   };
 
   const openEdit = (t: Template) => {
-    setForm({ name: t.name, content: t.content, category: t.category, tags: t.tags.join(', ') });
+    setForm({ name: t.name, content: t.content, category: t.category, tags: t.tags.join(", ") });
     setTags([...t.tags]);
     setEditingId(t.id);
     setShowCreateModal(true);
@@ -93,7 +88,7 @@ export function Templates() {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
       setTags((prev) => [...prev, tagInput.trim()]);
     }
-    setTagInput('');
+    setTagInput("");
   };
 
   const removeTag = (tag: string) => {
@@ -102,42 +97,42 @@ export function Templates() {
 
   const handleSave = async () => {
     if (!form.name.trim() || !form.content.trim()) {
-      toast.error('Nama dan konten template wajib diisi');
+      toast.error("Nama dan konten template wajib diisi");
       return;
     }
     try {
-      const res = await fetch(`/api/templates${editingId ? `/${editingId}` : ''}`, {
-        method: editingId ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch(`/api/templates${editingId ? `/${editingId}` : ""}`, {
+        method: editingId ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
           tags,
           id: editingId,
         }),
       });
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) throw new Error("Failed");
       setShowCreateModal(false);
-      toast.success(editingId ? 'Template diperbarui' : 'Template dibuat');
+      toast.success(editingId ? "Template diperbarui" : "Template dibuat");
     } catch {
-      toast.error('Gagal menyimpan template');
+      toast.error("Gagal menyimpan template");
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Hapus template ini?')) return;
+    if (!confirm("Hapus template ini?")) return;
     try {
-      const res = await fetch(`/api/templates/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/templates/${id}`, { method: "DELETE" });
       if (res.ok) {
         setTemplates((prev) => prev.filter((t) => t.id !== id));
-        toast.success('Template dihapus');
+        toast.success("Template dihapus");
       }
     } catch {
-      toast.error('Gagal menghapus');
+      toast.error("Gagal menghapus");
     }
   };
 
-  const handleUseInComposer = (template: Template) => {
-    toast.success('Template disalin ke composer');
+  const handleUseInComposer = (_template: Template) => {
+    toast.success("Template disalin ke composer");
     // In real app, this would navigate to composer with pre-filled content
   };
 
@@ -159,7 +154,7 @@ export function Templates() {
       <div className="card p-4">
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]" />
+            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]" />
             <Input
               placeholder="Cari template..."
               value={search}
@@ -174,7 +169,9 @@ export function Templates() {
           >
             <option value="">Semua Kategori</option>
             {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
         </div>
@@ -194,7 +191,7 @@ export function Templates() {
               <div className="mb-3 flex items-start justify-between">
                 <div className="flex-1">
                   <h3 className="font-semibold">{template.name}</h3>
-                  <span className="inline-block rounded-full bg-[var(--accent-gold)]/10 px-2 py-0.5 text-xs text-[var(--accent-gold)]">
+                  <span className="inline-block rounded-full bg-[var(--accent-gold)]/10 px-2 py-0.5 text-[var(--accent-gold)] text-xs">
                     {template.category}
                   </span>
                 </div>
@@ -215,7 +212,7 @@ export function Templates() {
               </div>
 
               <div className="mb-3 flex-1">
-                <p className="whitespace-pre-wrap text-[var(--text-secondary)] text-sm line-clamp-4">
+                <p className="line-clamp-4 whitespace-pre-wrap text-[var(--text-secondary)] text-sm">
                   {template.content}
                 </p>
               </div>
@@ -223,7 +220,10 @@ export function Templates() {
               {template.tags.length > 0 && (
                 <div className="mb-3 flex flex-wrap gap-1">
                   {template.tags.map((tag) => (
-                    <span key={tag} className="flex items-center gap-1 rounded bg-[var(--bg-tertiary)] px-2 py-0.5 text-xs text-[var(--text-muted)]">
+                    <span
+                      key={tag}
+                      className="flex items-center gap-1 rounded bg-[var(--bg-tertiary)] px-2 py-0.5 text-[var(--text-muted)] text-xs"
+                    >
                       <Hash className="h-3 w-3" />
                       {tag}
                     </span>
@@ -231,13 +231,13 @@ export function Templates() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between border-t border-[var(--border)] pt-3 text-xs text-[var(--text-muted)]">
+              <div className="flex items-center justify-between border-[var(--border)] border-t pt-3 text-[var(--text-muted)] text-xs">
                 <span>Dipakai {template.usageCount}x</span>
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(template.content);
-                      toast.success('Caption disalin');
+                      toast.success("Caption disalin");
                     }}
                     className="flex items-center gap-1 hover:text-[var(--text-primary)]"
                   >
@@ -261,17 +261,18 @@ export function Templates() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-lg rounded-xl bg-[var(--bg-primary)] p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-semibold">
-                {editingId ? 'Edit Template' : 'Template Baru'}
-              </h2>
-              <button onClick={() => setShowCreateModal(false)} className="rounded p-1 hover:bg-[var(--bg-tertiary)]">
+              <h2 className="font-semibold">{editingId ? "Edit Template" : "Template Baru"}</h2>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="rounded p-1 hover:bg-[var(--bg-tertiary)]"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="mb-1 block text-sm font-medium">Nama Template</label>
+                <label className="mb-1 block font-medium text-sm">Nama Template</label>
                 <Input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -280,34 +281,39 @@ export function Templates() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Kategori</label>
+                <label className="mb-1 block font-medium text-sm">Kategori</label>
                 <select
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
                   className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm"
                 >
                   {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Caption</label>
+                <label className="mb-1 block font-medium text-sm">Caption</label>
                 <textarea
                   value={form.content}
                   onChange={(e) => setForm({ ...form, content: e.target.value })}
                   placeholder="Tulis caption di sini..."
                   rows={6}
-                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm resize-none"
+                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Tags</label>
-                <div className="flex flex-wrap gap-1 mb-2">
+                <label className="mb-1 block font-medium text-sm">Tags</label>
+                <div className="mb-2 flex flex-wrap gap-1">
                   {tags.map((tag) => (
-                    <span key={tag} className="flex items-center gap-1 rounded bg-[var(--accent-gold)]/10 px-2 py-0.5 text-xs text-[var(--accent-gold)]">
+                    <span
+                      key={tag}
+                      className="flex items-center gap-1 rounded bg-[var(--accent-gold)]/10 px-2 py-0.5 text-[var(--accent-gold)] text-xs"
+                    >
                       {tag}
                       <button onClick={() => removeTag(tag)} className="ml-0.5 hover:opacity-70">
                         <X className="h-3 w-3" />
@@ -320,10 +326,12 @@ export function Templates() {
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     placeholder="Tambah tag..."
-                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
                     className="flex-1"
                   />
-                  <Button variant="secondary" size="sm" onClick={addTag}>Tambah</Button>
+                  <Button variant="secondary" size="sm" onClick={addTag}>
+                    Tambah
+                  </Button>
                 </div>
               </div>
             </div>
@@ -333,7 +341,7 @@ export function Templates() {
                 Batal
               </Button>
               <Button size="sm" onClick={handleSave}>
-                {editingId ? 'Simpan Perubahan' : 'Buat Template'}
+                {editingId ? "Simpan Perubahan" : "Buat Template"}
               </Button>
             </div>
           </div>

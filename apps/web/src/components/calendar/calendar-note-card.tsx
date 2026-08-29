@@ -30,14 +30,24 @@ export function CalendarNoteCard({ note, onEdit, onDelete }: CalendarNoteCardPro
       <div className="mb-1 flex items-center gap-1">
         <StickyNote className="h-3 w-3 text-[var(--text-muted)]" />
         <span className="text-[var(--text-muted)] text-xs">Catatan</span>
-        <div className="ml-auto flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="ml-auto flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           {onEdit && (
-            <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => onEdit(note.id)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-5 w-5 p-0"
+              onClick={() => onEdit(note.id)}
+            >
               <Edit className="h-3 w-3" />
             </Button>
           )}
           {onDelete && (
-            <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => onDelete(note.id)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-5 w-5 p-0"
+              onClick={() => onDelete(note.id)}
+            >
               <Trash2 className="h-3 w-3" />
             </Button>
           )}

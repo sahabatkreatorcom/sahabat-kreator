@@ -100,7 +100,11 @@ platformIntegrationApp.get("/playlists", async (c) => {
 
   const parsed = playlists.map((r) => {
     const playlistId = r.key.replace("playlist:", "");
-    let data: { name: string; platform: string; playlistId: string } = { name: playlistId, platform: "unknown", playlistId: "" };
+    let data: { name: string; platform: string; playlistId: string } = {
+      name: playlistId,
+      platform: "unknown",
+      playlistId: "",
+    };
     try {
       data = JSON.parse(r.value);
     } catch {}
@@ -228,9 +232,28 @@ platformIntegrationApp.post("/boards", async (c) => {
 
 // GET /api/platform-integration/health/:platform
 platformIntegrationApp.get("/health/:platform", async (c) => {
-  const platform = c.req.param("platform").toUpperCase() as "INSTAGRAM" | "FACEBOOK" | "TIKTOK" | "YOUTUBE" | "PINTEREST" | "LINKEDIN" | "BLUESKY" | "THREADS" | "GOOGLE_BUSINESS";
+  const platform = c.req.param("platform").toUpperCase() as
+    | "INSTAGRAM"
+    | "FACEBOOK"
+    | "TIKTOK"
+    | "YOUTUBE"
+    | "PINTEREST"
+    | "LINKEDIN"
+    | "BLUESKY"
+    | "THREADS"
+    | "GOOGLE_BUSINESS";
 
-  const validPlatforms = ["INSTAGRAM", "FACEBOOK", "TIKTOK", "YOUTUBE", "PINTEREST", "LINKEDIN", "BLUESKY", "THREADS", "GOOGLE_BUSINESS"];
+  const validPlatforms = [
+    "INSTAGRAM",
+    "FACEBOOK",
+    "TIKTOK",
+    "YOUTUBE",
+    "PINTEREST",
+    "LINKEDIN",
+    "BLUESKY",
+    "THREADS",
+    "GOOGLE_BUSINESS",
+  ];
   if (!validPlatforms.includes(platform)) {
     return c.json({ error: "Invalid platform" }, 400);
   }

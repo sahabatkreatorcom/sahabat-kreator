@@ -2,7 +2,6 @@
 
 import { Loader2, Reply, Star } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,7 +35,10 @@ export function ReviewCard({ item, onMarkRead, onReply }: ReviewCardProps) {
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={cn("h-4 w-4", star <= rating ? "fill-yellow-500 text-yellow-500" : "text-gray-300")}
+            className={cn(
+              "h-4 w-4",
+              star <= rating ? "fill-yellow-500 text-yellow-500" : "text-gray-300",
+            )}
           />
         ))}
       </div>
@@ -85,17 +87,31 @@ export function ReviewCard({ item, onMarkRead, onReply }: ReviewCardProps) {
                 item.sentiment === "negative" && "bg-red-500/20 text-red-500",
               )}
             >
-              {item.sentiment === "positive" ? "Positif" : item.sentiment === "negative" ? "Negatif" : "Netral"}
+              {item.sentiment === "positive"
+                ? "Positif"
+                : item.sentiment === "negative"
+                  ? "Negatif"
+                  : "Netral"}
             </span>
           )}
 
           <div className="flex items-center gap-2 pt-1">
             {!item.isRead && (
-              <Button variant="ghost" size="sm" onClick={() => onMarkRead(item.id)} className="h-7 text-xs">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onMarkRead(item.id)}
+                className="h-7 text-xs"
+              >
                 Tandai dibaca
               </Button>
             )}
-            <Button variant="ghost" size="sm" onClick={() => setReplyOpen(!replyOpen)} className="h-7 gap-1 text-xs">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setReplyOpen(!replyOpen)}
+              className="h-7 gap-1 text-xs"
+            >
               <Reply className="h-3 w-3" />
               Balas
             </Button>

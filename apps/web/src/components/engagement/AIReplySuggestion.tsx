@@ -16,7 +16,12 @@ interface AIReplySuggestionProps {
   className?: string;
 }
 
-export function AIReplySuggestion({ comment, platform, onInsert, className }: AIReplySuggestionProps) {
+export function AIReplySuggestion({
+  comment,
+  platform,
+  onInsert,
+  className,
+}: AIReplySuggestionProps) {
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [tone, setTone] = useState<Tone>("sopan");
@@ -29,7 +34,14 @@ export function AIReplySuggestion({ comment, platform, onInsert, className }: AI
     try {
       const res = await aiAssistApi.generateReply(comment, {
         platform,
-        tone: tone === "kasual" ? "casual" : tone === "profesional" ? "professional" : tone === "humoris" ? "humorous" : "professional",
+        tone:
+          tone === "kasual"
+            ? "casual"
+            : tone === "profesional"
+              ? "professional"
+              : tone === "humoris"
+                ? "humorous"
+                : "professional",
       });
       if (res.ok) {
         setSuggestion(res.data.reply);
@@ -69,13 +81,13 @@ export function AIReplySuggestion({ comment, platform, onInsert, className }: AI
       {/* Tone selector */}
       <div className="flex items-center gap-1.5">
         <Sparkles className="h-3.5 w-3.5 text-[var(--accent-gold)]" />
-        <span className="font-medium text-xs text-[var(--text-muted)]">Nada:</span>
+        <span className="font-medium text-[var(--text-muted)] text-xs">Nada:</span>
         {tones.map((t) => (
           <button
             key={t.id}
             onClick={() => setTone(t.id)}
             className={cn(
-              "rounded-md px-2 py-0.5 text-xs font-medium transition-colors",
+              "rounded-md px-2 py-0.5 font-medium text-xs transition-colors",
               tone === t.id
                 ? "bg-[var(--accent-gold)] text-white"
                 : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--accent-gold-light)]",
@@ -116,7 +128,11 @@ export function AIReplySuggestion({ comment, platform, onInsert, className }: AI
               onClick={() => handleCopy(suggestion, "copy")}
               className="gap-1.5"
             >
-              {copiedId === "copy" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {copiedId === "copy" ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
               Salin
             </Button>
             <Button
@@ -134,7 +150,7 @@ export function AIReplySuggestion({ comment, platform, onInsert, className }: AI
       {/* History */}
       {history.length > 1 && (
         <div>
-          <p className="mb-1.5 font-medium text-xs text-[var(--text-muted)]">Riwayat</p>
+          <p className="mb-1.5 font-medium text-[var(--text-muted)] text-xs">Riwayat</p>
           <div className="space-y-1.5">
             {history.slice(1).map((h, idx) => (
               <button
@@ -145,10 +161,11 @@ export function AIReplySuggestion({ comment, platform, onInsert, className }: AI
                 }}
                 className="flex w-full items-start gap-2 rounded-lg border border-[var(--border)] p-2 text-left transition-colors hover:border-[var(--accent-gold)]/50 hover:bg-[var(--accent-gold-light)]/30"
               >
-                <div className="flex-1 min-w-0">
-                  <p className="truncate text-xs text-[var(--text-secondary)]">{h.text}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[var(--text-secondary)] text-xs">{h.text}</p>
                   <p className="mt-0.5 text-[var(--text-muted)] text-xs">
-                    {h.tone} · {new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                    {h.tone} ·{" "}
+                    {new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
                   </p>
                 </div>
                 <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--accent-gold)]" />

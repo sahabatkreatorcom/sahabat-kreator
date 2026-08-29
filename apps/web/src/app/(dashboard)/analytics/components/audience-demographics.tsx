@@ -38,7 +38,9 @@ export function AudienceDemographics({ platforms = [] }: AudienceDemographicsPro
       </CardHeader>
       <CardContent>
         {platforms.length === 0 ? (
-          <p className="py-4 text-center text-[var(--text-muted)] text-sm">Belum ada data platform</p>
+          <p className="py-4 text-center text-[var(--text-muted)] text-sm">
+            Belum ada data platform
+          </p>
         ) : (
           <div className="space-y-4">
             {/* Bar Chart */}

@@ -21,12 +21,14 @@ interface RescheduleModalProps {
 
 export function RescheduleModal({ isOpen, onClose, post, onSuccess }: RescheduleModalProps) {
   const [date, setDate] = useState(
-    post?.scheduledAt ? new Date(post.scheduledAt).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10)
+    post?.scheduledAt
+      ? new Date(post.scheduledAt).toISOString().slice(0, 10)
+      : new Date().toISOString().slice(0, 10),
   );
   const [time, setTime] = useState(
     post?.scheduledAt
       ? `${String(new Date(post.scheduledAt).getHours()).padStart(2, "0")}:${String(new Date(post.scheduledAt).getMinutes()).padStart(2, "0")}`
-      : "09:00"
+      : "09:00",
   );
   const [loading, setLoading] = useState(false);
 
@@ -53,7 +55,10 @@ export function RescheduleModal({ isOpen, onClose, post, onSuccess }: Reschedule
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      onClick={onClose}
+    >
       <div
         className="mx-4 w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}

@@ -3,18 +3,14 @@ import { organizationSetting } from "@sahabatkreator/db/schema";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
-import { getOrganizationId } from "../lib/context";
 import { requireAuth } from "../lib/auth-middleware";
+import { getOrganizationId } from "../lib/context";
 
 const settingsApp = new Hono();
 settingsApp.use("/*", requireAuth);
 
 // Helper to upsert a setting
-async function upsertSetting(
-  organizationId: string,
-  key: string,
-  value: string,
-) {
+async function upsertSetting(organizationId: string, key: string, value: string) {
   const existing = await db
     .select()
     .from(organizationSetting)
@@ -80,7 +76,10 @@ settingsApp.patch("/appearance", async (c) => {
   const body = await c.req.json();
   const schema = z.object({
     theme: z.enum(["light", "dark", "system"]).optional(),
-    accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+    accentColor: z
+      .string()
+      .regex(/^#[0-9A-Fa-f]{6}$/)
+      .optional(),
   });
 
   const parsed = schema.safeParse(body);
@@ -133,8 +132,8 @@ settingsApp.get("/brand-voice", async (c) => {
   const organizationId = getOrganizationId(c);
   const settings = await getSettings(organizationId);
 
-  const brandVoice = settings["brandVoice"]
-    ? JSON.parse(settings["brandVoice"])
+  const brandVoice = settings.brandVoice
+    ? JSON.parse(settings.brandVoice)
     : {
         voice: ["Profesional", "Ramah"],
         tone: ["Informatif", "Menginspirasi"],
@@ -181,8 +180,8 @@ settingsApp.get("/ai-config", async (c) => {
   const organizationId = getOrganizationId(c);
   const settings = await getSettings(organizationId);
 
-  const aiConfig = settings["aiConfig"]
-    ? JSON.parse(settings["aiConfig"])
+  const aiConfig = settings.aiConfig
+    ? JSON.parse(settings.aiConfig)
     : {
         defaultTone: "kasual",
         defaultStyle: "pendek",

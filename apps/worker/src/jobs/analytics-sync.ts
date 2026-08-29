@@ -9,11 +9,16 @@
  * - Generates period-over-period comparisons
  */
 
-import { connection, type AnalyticsSyncJobData } from "@sahabatkreator/jobs";
 import { db } from "@sahabatkreator/db";
-import { socialAccount, postAnalytics, bestTimeSchedule, analyticsPeriodSnapshot } from "@sahabatkreator/db/schema";
-import { eq, and, gte, lt, desc, sql } from "drizzle-orm";
+import {
+  analyticsPeriodSnapshot,
+  bestTimeSchedule,
+  postAnalytics,
+  socialAccount,
+} from "@sahabatkreator/db/schema";
+import { type AnalyticsSyncJobData, connection } from "@sahabatkreator/jobs";
 import { type Job, Worker } from "bullmq";
+import { and, desc, eq, gte, lt, sql } from "drizzle-orm";
 
 // ── Platform fetchers ───────────────────────────────────────────────
 
@@ -30,10 +35,14 @@ interface AccountMetrics {
   platformMetrics?: Record<string, unknown>;
 }
 
-async function fetchAnalytics(platform: string, accessToken: string, accountId?: string): Promise<AccountMetrics | null> {
-  if (platform === "INSTAGRAM") {
+async function fetchAnalytics(
+  platform: string,
+  accessToken: string,
+  accountId?: string,
+): Promise<AccountMetrics | null> {
+  if (platform === "INSTAGRAM" || platform === "INSTAGRAM_PAGE") {
     const { getInstagramAnalytics } = await import("@sahabatkreator/platform");
-    return getInstagramAnalytics(accessToken, accountId);
+    return getInstagramAnalytics(accessToken, accountId, platform);
   }
   if (platform === "FACEBOOK") {
     const { getFacebookAnalytics } = await import("@sahabatkreator/platform");
@@ -93,11 +102,22 @@ async function storeDailySnapshot(
       id: `${socialAccountId}-${today.toISOString().split("T")[0]}`,
       postId: sql`null`,
       organizationId: orgId,
-      platform: platform as "INSTAGRAM" | "TIKTOK" | "YOUTUBE" | "MANUAL" | "FACEBOOK" | "THREADS" | "LINKEDIN" | "PINTEREST" | "BLUESKY" | "GOOGLE_BUSINESS",
+      platform: platform as
+        | "INSTAGRAM"
+        | "INSTAGRAM_PAGE"
+        | "TIKTOK"
+        | "YOUTUBE"
+        | "MANUAL"
+        | "FACEBOOK"
+        | "THREADS"
+        | "LINKEDIN"
+        | "PINTEREST"
+        | "BLUESKY"
+        | "GOOGLE_BUSINESS",
       date: today,
       views: metrics.impressions,
-      likes: metrics.platformMetrics?.total_likes as number ?? 0,
-      comments: metrics.platformMetrics?.total_comments as number ?? 0,
+      likes: (metrics.platformMetrics?.total_likes as number) ?? 0,
+      comments: (metrics.platformMetrics?.total_comments as number) ?? 0,
       shares: 0,
       engagementRate: Math.round(metrics.engagementRate * 100), // store as basis points
     })
@@ -130,7 +150,13 @@ async function computeBestTimes(orgId: string, platform: string): Promise<void> 
       shares: postAnalytics.shares,
     })
     .from(postAnalytics)
-    .where(and(eq(postAnalytics.organizationId, orgId), eq(postAnalytics.platform, platform as any), gte(postAnalytics.date, thirtyDaysAgo)))
+    .where(
+      and(
+        eq(postAnalytics.organizationId, orgId),
+        eq(postAnalytics.platform, platform as any),
+        gte(postAnalytics.date, thirtyDaysAgo),
+      ),
+    )
     .orderBy(desc(postAnalytics.date));
 
   if (rows.length === 0) return;
@@ -186,7 +212,8 @@ async function computePeriodSnapshot(orgId: string, endDate: Date): Promise<void
   const weekMs = 7 * 24 * 60 * 60 * 1000;
   const periodStart = new Date(endDate.getTime() - weekMs);
   const prevStart = new Date(periodStart.getTime() - weekMs);
-  const prevEnd = endDate.getTime() <= periodStart.getTime() ? periodStart : new Date(periodStart.getTime() - 1);
+  const prevEnd =
+    endDate.getTime() <= periodStart.getTime() ? periodStart : new Date(periodStart.getTime() - 1);
 
   // Current week totals
   const currentRows = await db
@@ -197,7 +224,13 @@ async function computePeriodSnapshot(orgId: string, endDate: Date): Promise<void
       totalShares: sql<number>`COALESCE(SUM(${postAnalytics.shares}), 0)`,
     })
     .from(postAnalytics)
-    .where(and(eq(postAnalytics.organizationId, orgId), gte(postAnalytics.date, periodStart), lt(postAnalytics.date, endDate)));
+    .where(
+      and(
+        eq(postAnalytics.organizationId, orgId),
+        gte(postAnalytics.date, periodStart),
+        lt(postAnalytics.date, endDate),
+      ),
+    );
 
   // Previous week totals
   const prevRows = await db
@@ -207,12 +240,19 @@ async function computePeriodSnapshot(orgId: string, endDate: Date): Promise<void
       totalComments: sql<number>`COALESCE(SUM(${postAnalytics.comments}), 0)`,
     })
     .from(postAnalytics)
-    .where(and(eq(postAnalytics.organizationId, orgId), gte(postAnalytics.date, prevStart), lt(postAnalytics.date, prevEnd)));
+    .where(
+      and(
+        eq(postAnalytics.organizationId, orgId),
+        gte(postAnalytics.date, prevStart),
+        lt(postAnalytics.date, prevEnd),
+      ),
+    );
 
   const c = currentRows[0] ?? { totalViews: 0, totalLikes: 0, totalComments: 0, totalShares: 0 };
   const p = prevRows[0] ?? { totalViews: 0, totalLikes: 0, totalComments: 0 };
 
-  const pct = (cur: number, base: number) => (base === 0 ? 0 : Math.round(((cur - base) / base) * 100));
+  const pct = (cur: number, base: number) =>
+    base === 0 ? 0 : Math.round(((cur - base) / base) * 100);
 
   await db.insert(analyticsPeriodSnapshot).values({
     id: `${orgId}-week-${periodStart.toISOString().split("T")[0]}`,
@@ -259,7 +299,11 @@ export const analyticsSyncWorker = new Worker<AnalyticsSyncJobData>(
     const endDate = range ? new Date(range) : now;
 
     // 1. Fetch latest metrics from platform
-    const metrics = await fetchAnalytics(platform, account.accessToken, account.platformAccountId);
+    const metrics = await fetchAnalytics(
+      platform,
+      account.accessToken,
+      account.platformAccountId,
+    );
     if (!metrics) {
       console.warn(`[AnalyticsSync] No metrics returned for ${platform}/${socialAccountId}`);
       throw new Error(`Platform returned no analytics for ${platform}`);
@@ -267,7 +311,9 @@ export const analyticsSyncWorker = new Worker<AnalyticsSyncJobData>(
 
     // 2. Store daily snapshot
     await storeDailySnapshot(organizationId, socialAccountId, platform, metrics, endDate);
-    console.log(`[AnalyticsSync] Snapshot stored for ${platform} on ${endDate.toISOString().split("T")[0]}`);
+    console.log(
+      `[AnalyticsSync] Snapshot stored for ${platform} on ${endDate.toISOString().split("T")[0]}`,
+    );
 
     // 3. Recompute best-time schedules for this org+platform
     await computeBestTimes(organizationId, platform);

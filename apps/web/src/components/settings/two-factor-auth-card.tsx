@@ -1,12 +1,11 @@
 "use client";
 
 import { Copy, Loader2, Shield, ShieldCheck } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 export function TwoFactorAuthCard() {
   const [isEnabled, setIsEnabled] = useState(false);
@@ -18,11 +17,7 @@ export function TwoFactorAuthCard() {
   const [verifyCode, setVerifyCode] = useState("");
   const [showSetup, setShowSetup] = useState(false);
 
-  useEffect(() => {
-    check2FAStatus();
-  }, []);
-
-  const check2FAStatus = async () => {
+  const check2FAStatus = useCallback(async () => {
     try {
       const res = await fetch("/api/user/2fa/status");
       if (res.ok) {
@@ -34,7 +29,11 @@ export function TwoFactorAuthCard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    check2FAStatus();
+  }, [check2FAStatus]);
 
   const handleEnable = async () => {
     setEnabling(true);
@@ -121,7 +120,11 @@ export function TwoFactorAuthCard() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          {isEnabled ? <ShieldCheck className="h-5 w-5 text-green-500" /> : <Shield className="h-5 w-5" />}
+          {isEnabled ? (
+            <ShieldCheck className="h-5 w-5 text-green-500" />
+          ) : (
+            <Shield className="h-5 w-5" />
+          )}
           Autentikasi Dua Faktor (2FA)
         </CardTitle>
         <CardDescription>Tambahkan lapisan keamanan ekstra pada akun Anda</CardDescription>
@@ -144,7 +147,11 @@ export function TwoFactorAuthCard() {
               <p className="text-sm">1. Scan QR code ini dengan aplikasi authenticator Anda:</p>
               {qrCode && (
                 <div className="flex justify-center">
-                  <img src={qrCode} alt="2FA QR Code" className="rounded-lg border border-[var(--border)]" />
+                  <img
+                    src={qrCode}
+                    alt="2FA QR Code"
+                    className="rounded-lg border border-[var(--border)]"
+                  />
                 </div>
               )}
             </div>
@@ -152,7 +159,7 @@ export function TwoFactorAuthCard() {
             <div className="space-y-2">
               <p className="text-sm">2. Atau masukkan kode manual:</p>
               <div className="flex items-center gap-2">
-                <code className="flex-1 rounded bg-[var(--bg-secondary)] p-2 font-mono text-xs break-all">
+                <code className="flex-1 break-all rounded bg-[var(--bg-secondary)] p-2 font-mono text-xs">
                   {secret}
                 </code>
                 <Button variant="secondary" size="sm" onClick={copySecret}>
@@ -169,7 +176,7 @@ export function TwoFactorAuthCard() {
                   onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   placeholder="000000"
                   maxLength={6}
-                  className="font-mono text-center text-lg tracking-widest"
+                  className="text-center font-mono text-lg tracking-widest"
                 />
                 <Button onClick={handleVerify} disabled={enabling || verifyCode.length !== 6}>
                   {enabling ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verifikasi"}
@@ -177,17 +184,29 @@ export function TwoFactorAuthCard() {
               </div>
             </div>
 
-            <Button variant="secondary" onClick={() => { setShowSetup(false); setQrCode(""); setSecret(""); }}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setShowSetup(false);
+                setQrCode("");
+                setSecret("");
+              }}
+            >
               Batal
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
             <p className="text-[var(--text-muted)] text-sm">
-              2FA menambahkan lapisan keamanan dengan meminta kode dari aplikasi authenticator saat login.
+              2FA menambahkan lapisan keamanan dengan meminta kode dari aplikasi authenticator saat
+              login.
             </p>
             <Button onClick={handleEnable} disabled={enabling} className="gap-2">
-              {enabling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
+              {enabling ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Shield className="h-4 w-4" />
+              )}
               Aktifkan 2FA
             </Button>
           </div>

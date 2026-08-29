@@ -49,12 +49,12 @@ export function WeekView({ startDate, posts, onEditPost, onDeletePost }: WeekVie
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-primary)]">
       {/* Header */}
-      <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-[var(--border)]">
-        <div className="border-r border-[var(--border)]" />
+      <div className="grid grid-cols-[60px_repeat(7,1fr)] border-[var(--border)] border-b">
+        <div className="border-[var(--border)] border-r" />
         {weekDays.map((day, index) => (
           <div
             key={index}
-            className={`border-r border-[var(--border)] p-2 text-center last:border-r-0 ${
+            className={`border-[var(--border)] border-r p-2 text-center last:border-r-0 ${
               isToday(day) ? "bg-[var(--accent-gold-light)]" : ""
             }`}
           >
@@ -71,8 +71,11 @@ export function WeekView({ startDate, posts, onEditPost, onDeletePost }: WeekVie
       {/* Time Grid */}
       <div className="max-h-[500px] overflow-y-auto">
         {HOURS.map((hour) => (
-          <div key={hour} className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-[var(--border)] last:border-b-0">
-            <div className="border-r border-[var(--border)] py-2 pr-2 text-right">
+          <div
+            key={hour}
+            className="grid grid-cols-[60px_repeat(7,1fr)] border-[var(--border)] border-b last:border-b-0"
+          >
+            <div className="border-[var(--border)] border-r py-2 pr-2 text-right">
               <span className="text-[var(--text-muted)] text-xs">
                 {String(hour).padStart(2, "0")}:00
               </span>
@@ -82,7 +85,7 @@ export function WeekView({ startDate, posts, onEditPost, onDeletePost }: WeekVie
               return (
                 <div
                   key={dayIndex}
-                  className={`min-h-[40px] border-r border-[var(--border)] p-0.5 last:border-r-0 ${
+                  className={`min-h-[40px] border-[var(--border)] border-r p-0.5 last:border-r-0 ${
                     isToday(day) ? "bg-[var(--accent-gold-light)]/30" : ""
                   }`}
                 >

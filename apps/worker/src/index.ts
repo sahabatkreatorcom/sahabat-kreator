@@ -54,15 +54,15 @@ export const notificationWorker = new Worker<NotificationJobData>(
   },
 );
 
+import { analyticsSyncWorker } from "./jobs/analytics-sync";
+import { emailDigestWorker } from "./jobs/email-digest-worker";
+import { engagementSyncWorker } from "./jobs/engagement-sync";
 // ── Import workers ──────────────────────────────────────────────
 import { postPublisherWorker } from "./jobs/post-publisher";
-import { analyticsSyncWorker } from "./jobs/analytics-sync";
-import { engagementSyncWorker } from "./jobs/engagement-sync";
-import { tokenRefreshWorker } from "./jobs/token-refresh";
 import { postSchedulerWorker } from "./jobs/post-scheduler";
-import { stalePostCleanupWorker } from "./jobs/stale-cleanup";
-import { emailDigestWorker } from "./jobs/email-digest-worker";
 import { scheduledDigestWorker } from "./jobs/scheduled-digest-worker";
+import { stalePostCleanupWorker } from "./jobs/stale-cleanup";
+import { tokenRefreshWorker } from "./jobs/token-refresh";
 
 // ── Event listeners ──────────────────────────────────────────────
 

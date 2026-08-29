@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Info, Lightbulb } from "lucide-react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface SlotRecommendation {
@@ -18,36 +18,43 @@ interface AISlotIndicatorsProps {
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-export function AISlotIndicators({
-  bestTimeSchedule = [],
-  posts = [],
-}: AISlotIndicatorsProps) {
-  const [tooltip, setTooltip] = useState<{ hour: number; reason: string; quality: string } | null>(null);
+export function AISlotIndicators({ bestTimeSchedule = [], posts = [] }: AISlotIndicatorsProps) {
+  const [tooltip, setTooltip] = useState<{ hour: number; reason: string; quality: string } | null>(
+    null,
+  );
 
   const getQualityColor = (quality: string) => {
     switch (quality) {
-      case "high": return "bg-green-500";
-      case "medium": return "bg-yellow-500";
-      case "low": return "bg-gray-400";
-      default: return "bg-gray-300";
+      case "high":
+        return "bg-green-500";
+      case "medium":
+        return "bg-yellow-500";
+      case "low":
+        return "bg-gray-400";
+      default:
+        return "bg-gray-300";
     }
   };
 
   const getQualityLabel = (quality: string) => {
     switch (quality) {
-      case "high": return "Sangat Bagus";
-      case "medium": return "Cukup Bagus";
-      case "low": return "Kurang Ideal";
-      default: return "";
+      case "high":
+        return "Sangat Bagus";
+      case "medium":
+        return "Cukup Bagus";
+      case "low":
+        return "Kurang Ideal";
+      default:
+        return "";
     }
   };
 
   if (bestTimeSchedule.length === 0 && posts.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-[var(--border)] p-4 text-center">
+      <div className="rounded-lg border border-[var(--border)] border-dashed p-4 text-center">
         <Lightbulb className="mx-auto mb-2 h-5 w-5 text-[var(--text-muted)]/40" />
         <p className="font-medium text-[var(--text-secondary)] text-sm">Belum ada rekomendasi AI</p>
-        <p className="text-[var(--text-muted)] text-xs mt-1">
+        <p className="mt-1 text-[var(--text-muted)] text-xs">
           Jadwalkan beberapa post untuk mendapatkan rekomendasi waktu optimal
         </p>
       </div>
@@ -97,7 +104,15 @@ export function AISlotIndicators({
       };
     }
 
-    return { hour, quality: "low" as const, reason: "", confidence: 0, hasHistory: false, historyCount: 0, historyAvg: 0 };
+    return {
+      hour,
+      quality: "low" as const,
+      reason: "",
+      confidence: 0,
+      hasHistory: false,
+      historyCount: 0,
+      historyAvg: 0,
+    };
   });
 
   const topSlots = allSlots.filter((s) => s.quality === "high").slice(0, 5);
@@ -107,10 +122,10 @@ export function AISlotIndicators({
     <div className="space-y-4">
       {/* Quick summary */}
       {topSlots.length > 0 && (
-        <div className="rounded-lg bg-green-500/10 border border-green-500/20 p-3">
+        <div className="rounded-lg border border-green-500/20 bg-green-500/10 p-3">
           <div className="flex items-center gap-2">
             <Lightbulb className="h-4 w-4 text-green-500" />
-            <span className="font-medium text-sm text-green-600">Waktu Terbaik</span>
+            <span className="font-medium text-green-600 text-sm">Waktu Terbaik</span>
           </div>
           <p className="mt-1 text-green-700 text-xs">
             {topSlots.map((s) => `${s.hour}:00`).join(", ")}
@@ -120,7 +135,7 @@ export function AISlotIndicators({
 
       {/* Hour heatmap */}
       <div>
-        <div className="flex items-center justify-between mb-2">
+        <div className="mb-2 flex items-center justify-between">
           <span className="font-medium text-sm">Slot Waktu (24 jam)</span>
           <div className="flex items-center gap-2 text-[var(--text-muted)] text-xs">
             <span className="flex items-center gap-1">
@@ -140,11 +155,11 @@ export function AISlotIndicators({
             <div
               key={slot.hour}
               className={cn(
-                "relative aspect-square rounded-md cursor-pointer transition-transform hover:scale-105",
+                "relative aspect-square cursor-pointer rounded-md transition-transform hover:scale-105",
                 getQualityColor(slot.quality),
                 slot.quality === "low" && "opacity-50",
               )}
-              onMouseEnter={(e) => {
+              onMouseEnter={(_e) => {
                 if (slot.reason || slot.hasHistory) {
                   setTooltip({
                     hour: slot.hour,
@@ -155,7 +170,7 @@ export function AISlotIndicators({
               }}
               onMouseLeave={() => setTooltip(null)}
             >
-              <span className="absolute inset-0 flex items-center justify-center text-white font-bold text-xs">
+              <span className="absolute inset-0 flex items-center justify-center font-bold text-white text-xs">
                 {slot.hour}
               </span>
             </div>
@@ -167,12 +182,13 @@ export function AISlotIndicators({
       {tooltip && (
         <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] p-3">
           <div className="flex items-start gap-2">
-            <Info className="h-4 w-4 text-[var(--accent-gold)] mt-0.5 shrink-0" />
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-[var(--accent-gold)]" />
             <div>
               <p className="font-medium text-sm">
-                {tooltip.hour}:00 — <span className="text-[var(--accent-gold)]">{tooltip.quality}</span>
+                {tooltip.hour}:00 —{" "}
+                <span className="text-[var(--accent-gold)]">{tooltip.quality}</span>
               </p>
-              <p className="text-[var(--text-muted)] text-xs mt-1">{tooltip.reason}</p>
+              <p className="mt-1 text-[var(--text-muted)] text-xs">{tooltip.reason}</p>
             </div>
           </div>
         </div>
@@ -181,12 +197,15 @@ export function AISlotIndicators({
       {/* Top recommendations list */}
       {medSlots.length > 0 && (
         <div>
-          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-wider mb-2">
+          <p className="mb-2 font-medium text-[var(--text-muted)] text-xs uppercase tracking-wider">
             Slot Moderate
           </p>
           <div className="space-y-1">
             {medSlots.map((slot) => (
-              <div key={slot.hour} className="flex items-center justify-between rounded-md bg-[var(--bg-tertiary)] px-3 py-2">
+              <div
+                key={slot.hour}
+                className="flex items-center justify-between rounded-md bg-[var(--bg-tertiary)] px-3 py-2"
+              >
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-yellow-500" />
                   <span className="text-sm">{slot.hour}:00</span>

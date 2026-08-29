@@ -1,8 +1,26 @@
 "use client";
 
-import { Command, CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
-import { CalendarDays, Home, MessageSquare, BarChart3, Settings, User, LogOut, Plus, Search, Zap, Users, Shield } from "lucide-react";
+import {
+  BarChart3,
+  CalendarDays,
+  Home,
+  LogOut,
+  MessageSquare,
+  Plus,
+  Settings,
+  User,
+  Users,
+  Zap,
+} from "lucide-react";
 import { useEffect, useState } from "react";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -28,7 +46,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         label: "Dashboard",
         shortcut: "⌘D",
         icon: <Home className="h-4 w-4" />,
-        action: () => { window.location.href = "/dashboard"; },
+        action: () => {
+          window.location.href = "/dashboard";
+        },
         section: "Navigasi",
       },
       {
@@ -36,7 +56,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         label: "Kalender",
         shortcut: "⌘C",
         icon: <CalendarDays className="h-4 w-4" />,
-        action: () => { window.location.href = "/calendar"; },
+        action: () => {
+          window.location.href = "/calendar";
+        },
         section: "Navigasi",
       },
       {
@@ -44,7 +66,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         label: "Buat Post Baru",
         shortcut: "⌘N",
         icon: <Plus className="h-4 w-4" />,
-        action: () => { window.location.href = "/compose"; },
+        action: () => {
+          window.location.href = "/compose";
+        },
         section: "Aksi",
       },
       {
@@ -52,7 +76,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         label: "Analytics",
         shortcut: "⌘A",
         icon: <BarChart3 className="h-4 w-4" />,
-        action: () => { window.location.href = "/analytics"; },
+        action: () => {
+          window.location.href = "/analytics";
+        },
         section: "Navigasi",
       },
       {
@@ -60,7 +86,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         label: "Engagement Inbox",
         shortcut: "⌘E",
         icon: <MessageSquare className="h-4 w-4" />,
-        action: () => { window.location.href = "/engagement"; },
+        action: () => {
+          window.location.href = "/engagement";
+        },
         section: "Navigasi",
       },
       {
@@ -68,7 +96,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         label: "Pengaturan",
         shortcut: "⌘G",
         icon: <Settings className="h-4 w-4" />,
-        action: () => { window.location.href = "/settings"; },
+        action: () => {
+          window.location.href = "/settings";
+        },
         section: "Aksi",
       },
       {
@@ -76,7 +106,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         label: "Profil Saya",
         shortcut: "⌘P",
         icon: <User className="h-4 w-4" />,
-        action: () => { window.location.href = "/settings#profile"; },
+        action: () => {
+          window.location.href = "/settings#profile";
+        },
         section: "Aksi",
       },
       {
@@ -84,7 +116,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         label: "AI Caption Suggestion",
         shortcut: "⌘S",
         icon: <Zap className="h-4 w-4" />,
-        action: () => { window.location.href = "/compose?mode=ai"; },
+        action: () => {
+          window.location.href = "/compose?mode=ai";
+        },
         section: "AI",
       },
       {
@@ -92,7 +126,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         label: "Kelola Tim",
         shortcut: "⌘T",
         icon: <Users className="h-4 w-4" />,
-        action: () => { window.location.href = "/settings#team"; },
+        action: () => {
+          window.location.href = "/settings#team";
+        },
         section: "Admin",
       },
       {
@@ -100,7 +136,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         label: "Keluar",
         shortcut: "⌘Q",
         icon: <LogOut className="h-4 w-4" />,
-        action: () => { window.location.href = "/"; },
+        action: () => {
+          window.location.href = "/";
+        },
         section: "Akun",
       },
     ]);
@@ -124,12 +162,15 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     return () => document.removeEventListener("keydown", down);
   }, [isOpen, onClose]);
 
-  const groupedActions = actions.reduce((acc, action) => {
-    const section = action.section || "Lainnya";
-    if (!acc[section]) acc[section] = [];
-    acc[section].push(action);
-    return acc;
-  }, {} as Record<string, CommandAction[]>);
+  const groupedActions = actions.reduce(
+    (acc, action) => {
+      const section = action.section || "Lainnya";
+      if (!acc[section]) acc[section] = [];
+      acc[section].push(action);
+      return acc;
+    },
+    {} as Record<string, CommandAction[]>,
+  );
 
   return (
     <CommandDialog open={isOpen} onOpenChange={onClose}>
@@ -139,7 +180,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         {Object.entries(groupedActions).map(([section, items]) => (
           <div key={section}>
             <CommandSeparator />
-            <div className="px-2 py-1.5 text-xs font-medium text-[var(--text-muted)]">
+            <div className="px-2 py-1.5 font-medium text-[var(--text-muted)] text-xs">
               {section}
             </div>
             {items.map((item) => (

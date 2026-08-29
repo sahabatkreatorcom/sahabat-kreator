@@ -1,7 +1,7 @@
 "use client";
 
-import { Loader2, Palette, Save, Sun, Moon, Monitor } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Loader2, Monitor, Moon, Palette, Save, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +28,7 @@ const ACCENT_COLORS = [
 export function AppearanceSettings() {
   const [theme, setTheme] = useState<Theme>("dark");
   const [accentColor, setAccentColor] = useState("#D4A843");
-  const [loading, setLoading] = useState(false);
+  const [_loading, _setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {

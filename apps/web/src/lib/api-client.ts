@@ -353,8 +353,7 @@ export interface Notification {
 export const notificationApi = {
   list: () => request<{ notifications: Notification[] }>("/api/notifications"),
 
-  unreadCount: () =>
-    request<{ count: number }>("/api/notifications/unread-count"),
+  unreadCount: () => request<{ count: number }>("/api/notifications/unread-count"),
 
   markRead: (id: string) =>
     request<{ success: boolean }>(`/api/notifications/${id}/read`, {
@@ -393,7 +392,10 @@ export const pillarsApi = {
       body: JSON.stringify(data),
     }),
 
-  update: (id: string, data: Partial<Pick<ContentPillar, "name" | "description" | "color" | "isActive">>) =>
+  update: (
+    id: string,
+    data: Partial<Pick<ContentPillar, "name" | "description" | "color" | "isActive">>,
+  ) =>
     request<{ pillar: ContentPillar }>(`/api/pillars/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),
@@ -458,7 +460,10 @@ export const competitorsApi = {
       body: JSON.stringify(data),
     }),
 
-  update: (id: string, data: Partial<Pick<Competitor, "name" | "platform" | "platformHandle" | "isActive">>) =>
+  update: (
+    id: string,
+    data: Partial<Pick<Competitor, "name" | "platform" | "platformHandle" | "isActive">>,
+  ) =>
     request<{ competitor: Competitor }>(`/api/competitors/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),
@@ -495,7 +500,12 @@ export interface EngagementStats {
 
 export const engagementApi = {
   list: (params?: { type?: string; platform?: string; unread?: string }) =>
-    request<{ items: EngagementItem[]; unreadCount: number; unreadByType: Record<string, number>; total: number }>(
+    request<{
+      items: EngagementItem[];
+      unreadCount: number;
+      unreadByType: Record<string, number>;
+      total: number;
+    }>(
       `/api/engagement${params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : ""}`,
     ),
 
@@ -554,7 +564,10 @@ export const aiCaptionApi = {
 
 // ── AI Assist ────────────────────────────────────────────────
 export const aiAssistApi = {
-  generateReply: (comment: string, options?: { platform?: string; tone?: string; context?: string }) =>
+  generateReply: (
+    comment: string,
+    options?: { platform?: string; tone?: string; context?: string },
+  ) =>
     request<{ reply: string; source: string }>("/api/ai/generate-reply", {
       method: "POST",
       body: JSON.stringify({ comment, ...options }),
@@ -662,7 +675,9 @@ export const skApi = {
     }),
 
   getChatSession: (sessionId: string) =>
-    request<{ session: SKChatSession; messages: SKChatMessage[] }>(`/api/sk/chat/sessions/${sessionId}`),
+    request<{ session: SKChatSession; messages: SKChatMessage[] }>(
+      `/api/sk/chat/sessions/${sessionId}`,
+    ),
 
   deleteChatSession: (sessionId: string) =>
     request<{ success: boolean }>(`/api/sk/chat/sessions/${sessionId}`, {
@@ -677,7 +692,8 @@ export const skApi = {
       body: JSON.stringify(data),
     }),
 
-  getUsageLimits: () => request<{ maxReportsPerDay: number; maxChatsPerDay: number }>("/api/sk/usage-limits"),
+  getUsageLimits: () =>
+    request<{ maxReportsPerDay: number; maxChatsPerDay: number }>("/api/sk/usage-limits"),
 };
 
 // ── Platform Analytics ─────────────────────────────────────────
@@ -721,14 +737,17 @@ export interface CrossPlatformStats {
 
 export const platformApi = {
   getAccounts: () => request<{ accounts: PlatformAccount[] }>("/api/platforms/accounts"),
-  
+
   getAuthUrl: (platform: string, state: string) =>
-    request<{ authUrl: string }>(`/api/platforms/${platform}/auth-url?state=${encodeURIComponent(state)}`),
-  
+    request<{ authUrl: string }>(
+      `/api/platforms/${platform}/auth-url?state=${encodeURIComponent(state)}`,
+    ),
+
   getAnalytics: (platform: string, days = 30) =>
     request<{ analytics: PlatformAnalytics }>(`/api/platforms/${platform}/analytics?days=${days}`),
-  
-  getCrossPlatformStats: () => request<{ stats: CrossPlatformStats }>("/api/platforms/cross-platform"),
+
+  getCrossPlatformStats: () =>
+    request<{ stats: CrossPlatformStats }>("/api/platforms/cross-platform"),
 };
 
 // ── Admin ─────────────────────────────────────────────────────────
@@ -779,88 +798,96 @@ export interface AdminCredential {
 export const adminApi = {
   // Stats
   getStats: () => request<{ stats: Record<string, unknown> }>("/api/admin/stats"),
-  
+
   // Users
   getUsers: (params?: { page?: number; search?: string; limit?: number }) => {
     const query = new URLSearchParams();
     if (params?.page) query.set("page", String(params.page));
     if (params?.search) query.set("search", params.search);
     if (params?.limit) query.set("limit", String(params.limit));
-    return request<{ users: AdminUser[]; pagination: { page: number; limit: number; total: number } }>(
-      `/api/admin/users${query.toString() ? `?${query.toString()}` : ""}`,
-    );
+    return request<{
+      users: AdminUser[];
+      pagination: { page: number; limit: number; total: number };
+    }>(`/api/admin/users${query.toString() ? `?${query.toString()}` : ""}`);
   },
-  
-  getUser: (userId: string) =>
-    request<{ user: AdminUser }>(`/api/admin/users/${userId}`),
-  
+
+  getUser: (userId: string) => request<{ user: AdminUser }>(`/api/admin/users/${userId}`),
+
   // User ban/unban
   banUser: (userId: string, data: { reason: string; expiresAt?: string }) =>
     request<{ success: boolean }>(`/api/admin/users/${userId}/ban`, {
       method: "POST",
       body: JSON.stringify(data),
     }),
-  
+
   unbanUser: (userId: string) =>
     request<{ success: boolean }>(`/api/admin/users/${userId}/unban`, {
       method: "POST",
     }),
-  
+
   // Organizations
   getOrganizations: (params?: { page?: number; search?: string; limit?: number }) => {
     const query = new URLSearchParams();
     if (params?.page) query.set("page", String(params.page));
     if (params?.search) query.set("search", params.search);
     if (params?.limit) query.set("limit", String(params.limit));
-    return request<{ organizations: AdminOrganization[]; pagination: { page: number; limit: number; total: number } }>(
-      `/api/admin/organizations${query.toString() ? `?${query.toString()}` : ""}`,
-    );
+    return request<{
+      organizations: AdminOrganization[];
+      pagination: { page: number; limit: number; total: number };
+    }>(`/api/admin/organizations${query.toString() ? `?${query.toString()}` : ""}`);
   },
-  
+
   // Platform Credentials
   getPlatformCredentials: () =>
     request<{ credentials: AdminCredential[] }>("/api/admin/platform-credentials"),
-  
+
   updatePlatformCredential: (data: Partial<AdminCredential> & { platform: string }) =>
     request<{ credential: AdminCredential }>("/api/admin/platform-credentials", {
       method: "PUT",
       body: JSON.stringify(data),
     }),
-  
+
   deletePlatformCredential: (platform: string) =>
     request<{ success: boolean }>(`/api/admin/platform-credentials/${platform}`, {
       method: "DELETE",
     }),
-  
+
   // Settings
   getSettings: () => request<{ settings: AdminSettings }>("/api/admin/settings"),
-  
+
   updateSettings: (data: Partial<AdminSettings>) =>
     request<{ success: boolean }>("/api/admin/settings", {
       method: "PATCH",
       body: JSON.stringify(data),
     }),
-  
+
   // Impersonate
   impersonate: (userId: string) =>
-    request<{ success: boolean; impersonation: { token: string; user: { id: string; name: string; email: string }; expiresAt: string } }>(
-      "/api/admin/impersonate",
-      { method: "POST", body: JSON.stringify({ userId }) },
-    ),
-  
+    request<{
+      success: boolean;
+      impersonation: {
+        token: string;
+        user: { id: string; name: string; email: string };
+        expiresAt: string;
+      };
+    }>("/api/admin/impersonate", { method: "POST", body: JSON.stringify({ userId }) }),
+
   endImpersonation: () =>
     request<{ success: boolean }>("/api/admin/impersonate", { method: "DELETE" }),
-  
+
   getImpersonationStatus: () =>
-    request<{ impersonating: boolean; session?: { user: { id: string; name: string; email: string }; expiresAt: string } }>(
-      "/api/admin/impersonate/status",
-    ),
+    request<{
+      impersonating: boolean;
+      session?: { user: { id: string; name: string; email: string }; expiresAt: string };
+    }>("/api/admin/impersonate/status"),
 };
 
 // ── Analytics ────────────────────────────────────────────────
 export const analyticsApi = {
   overview: (range?: string) =>
-    request<{ overview: any; range: string }>(`/api/analytics/overview${range ? `?range=${range}` : ""}`),
+    request<{ overview: any; range: string }>(
+      `/api/analytics/overview${range ? `?range=${range}` : ""}`,
+    ),
 
   posts: (params?: { limit?: number; offset?: number }) =>
     request<{ posts: any[]; total: number; limit: number; offset: number }>(
@@ -870,7 +897,9 @@ export const analyticsApi = {
   platforms: () => request<{ platforms: any[] }>("/api/analytics/platforms"),
 
   engagement: (range?: string) =>
-    request<{ engagement: any; range: string }>(`/api/analytics/engagement${range ? `?range=${range}` : ""}`),
+    request<{ engagement: any; range: string }>(
+      `/api/analytics/engagement${range ? `?range=${range}` : ""}`,
+    ),
 
   optimalTimes: () => request<{ optimalTimes: any }>("/api/analytics/optimal-times"),
 
@@ -908,4 +937,3 @@ export const pushApi = {
       body: JSON.stringify(data),
     }),
 };
-

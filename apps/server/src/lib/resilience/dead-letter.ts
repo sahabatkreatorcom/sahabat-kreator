@@ -8,19 +8,19 @@
  * intervention and re-enqueue them.
  */
 
-import { Redis } from "@upstash/redis";
-import { logger } from "./logger";
 import { db } from "@sahabatkreator/db";
 import { post } from "@sahabatkreator/db/schema";
+import { type PostJobData, queuePostPublish } from "@sahabatkreator/jobs";
+import { Redis } from "@upstash/redis";
 import { eq } from "drizzle-orm";
-import { queuePostPublish, type PostJobData } from "@sahabatkreator/jobs";
+import { logger } from "./logger";
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 /** Redis key for the dead-letter sorted set */
-const DLQ_KEY = 'dlq:publish';
+const DLQ_KEY = "dlq:publish";
 
 /**
  * Why: Dead-letter entries auto-expire after 30 days to prevent unbounded
@@ -33,23 +33,23 @@ const DLQ_TTL_SECONDS = 30 * 24 * 60 * 60;
  * data lives in the database — this is just an index for surfacing failures.
  */
 interface DeadLetterEntry {
-    postId: string;
-    organizationId: string;
-    errorMessage: string;
-    platform?: string;
-    attemptsMade: number;
-    failedAt: string; // ISO timestamp
+  postId: string;
+  organizationId: string;
+  errorMessage: string;
+  platform?: string;
+  attemptsMade: number;
+  failedAt: string; // ISO timestamp
 }
 
 /** Returned by list operations */
 export interface DeadLetterPost {
-    postId: string;
-    organizationId: string;
-    errorMessage: string;
-    platform?: string;
-    attemptsMade: number;
-    failedAt: Date;
-    score: number; // Unix timestamp for ordering
+  postId: string;
+  organizationId: string;
+  errorMessage: string;
+  platform?: string;
+  attemptsMade: number;
+  failedAt: Date;
+  score: number; // Unix timestamp for ordering
 }
 
 // ---------------------------------------------------------------------------
@@ -57,7 +57,7 @@ export interface DeadLetterPost {
 // ---------------------------------------------------------------------------
 
 function getRedis(): Redis {
-    return Redis.fromEnv();
+  return Redis.fromEnv();
 }
 
 // ---------------------------------------------------------------------------
@@ -74,35 +74,40 @@ function getRedis(): Redis {
  * @param attemptsMade - Total attempts made across all retry layers
  */
 export async function moveToDeadLetter(
-    postId: string,
-    organizationId: string,
-    errorMessage: string,
-    platform?: string,
-    attemptsMade: number = 0,
+  postId: string,
+  organizationId: string,
+  errorMessage: string,
+  platform?: string,
+  attemptsMade = 0,
 ): Promise<void> {
-    const redis = getRedis();
+  const redis = getRedis();
 
-    const entry: DeadLetterEntry = {
-        postId,
-        organizationId,
-        errorMessage: errorMessage.slice(0, 500), // Why: Cap to prevent oversized Redis values
-        platform,
-        attemptsMade,
-        failedAt: new Date().toISOString(),
-    };
+  const entry: DeadLetterEntry = {
+    postId,
+    organizationId,
+    errorMessage: errorMessage.slice(0, 500), // Why: Cap to prevent oversized Redis values
+    platform,
+    attemptsMade,
+    failedAt: new Date().toISOString(),
+  };
 
-    try {
-        const score = Date.now();
+  try {
+    const score = Date.now();
 
-        // Why: ZADD with the postId as member ensures deduplication — a post
-        // can only appear once in the DLQ even if failed events fire multiple times.
-        await redis.zadd(DLQ_KEY, { score, member: JSON.stringify(entry) });
-        await redis.expire(DLQ_KEY, DLQ_TTL_SECONDS);
+    // Why: ZADD with the postId as member ensures deduplication — a post
+    // can only appear once in the DLQ even if failed events fire multiple times.
+    await redis.zadd(DLQ_KEY, { score, member: JSON.stringify(entry) });
+    await redis.expire(DLQ_KEY, DLQ_TTL_SECONDS);
 
-        logger.warn('Post moved to dead-letter queue — all retries exhausted', { postId, organizationId, platform, attemptsMade });
-    } catch (error) {
-        logger.error('Failed to move post to dead-letter queue', { postId, error });
-    }
+    logger.warn("Post moved to dead-letter queue — all retries exhausted", {
+      postId,
+      organizationId,
+      platform,
+      attemptsMade,
+    });
+  } catch (error) {
+    logger.error("Failed to move post to dead-letter queue", { postId, error });
+  }
 }
 
 /**
@@ -112,28 +117,28 @@ export async function moveToDeadLetter(
  * @returns true if removed, false if not found
  */
 export async function removeFromDeadLetter(postId: string): Promise<boolean> {
-    const redis = getRedis();
+  const redis = getRedis();
 
-    try {
-        // Why: We need to find the member by postId since the member is a JSON string.
-        // Scan through recent entries to find the matching one.
-        const allEntries = await redis.zrange(DLQ_KEY, 0, -1);
-        for (const entry of allEntries) {
-            try {
-                const parsed: DeadLetterEntry = JSON.parse(entry as string);
-                if (parsed.postId === postId) {
-                    const removed = await redis.zrem(DLQ_KEY, entry as string);
-                    return removed > 0;
-                }
-            } catch {
-                // Skip malformed entries
-            }
+  try {
+    // Why: We need to find the member by postId since the member is a JSON string.
+    // Scan through recent entries to find the matching one.
+    const allEntries = await redis.zrange(DLQ_KEY, 0, -1);
+    for (const entry of allEntries) {
+      try {
+        const parsed: DeadLetterEntry = JSON.parse(entry as string);
+        if (parsed.postId === postId) {
+          const removed = await redis.zrem(DLQ_KEY, entry as string);
+          return removed > 0;
         }
-        return false;
-    } catch (error) {
-        logger.error('Failed to remove from dead-letter queue', { postId, error });
-        return false;
+      } catch {
+        // Skip malformed entries
+      }
     }
+    return false;
+  } catch (error) {
+    logger.error("Failed to remove from dead-letter queue", { postId, error });
+    return false;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -147,53 +152,55 @@ export async function removeFromDeadLetter(postId: string): Promise<boolean> {
  * @param offset - Pagination offset
  * @returns Array of dead-letter post entries
  */
-export async function listDeadLetterPosts(
-    limit: number = 20,
-    offset: number = 0,
-): Promise<DeadLetterPost[]> {
-    const redis = getRedis();
+export async function listDeadLetterPosts(limit = 20, offset = 0): Promise<DeadLetterPost[]> {
+  const redis = getRedis();
 
-    try {
-        // Why: ZREVRANGEBYSCORE returns newest first (highest score = most recent)
-        const entries = await redis.zrange(DLQ_KEY, offset, offset + limit - 1, { withScores: true }) as Array<string | number>;
+  try {
+    // Why: ZREVRANGEBYSCORE returns newest first (highest score = most recent)
+    const entries = (await redis.zrange(DLQ_KEY, offset, offset + limit - 1, {
+      withScores: true,
+    })) as Array<string | number>;
 
-        const posts: DeadLetterPost[] = [];
-        // Why: withScores returns alternating [member, score, member, score, ...]
-        for (let i = 0; i < entries.length; i += 2) {
-            try {
-                const entry = entries[i];
-                if (typeof entry !== 'string') continue;
-                const parsed: DeadLetterEntry = JSON.parse(entry);
-                const score = typeof entries[i + 1] === 'number' ? entries[i + 1] : parseInt(entries[i + 1] as string, 10);
-                posts.push({
-                    ...parsed,
-                    failedAt: new Date(parsed.failedAt),
-                    score: score as number,
-                });
-            } catch {
-                // Skip malformed entries
-            }
-        }
-
-        return posts;
-    } catch (error) {
-        logger.error('Failed to list dead-letter posts', { error });
-        return [];
+    const posts: DeadLetterPost[] = [];
+    // Why: withScores returns alternating [member, score, member, score, ...]
+    for (let i = 0; i < entries.length; i += 2) {
+      try {
+        const entry = entries[i];
+        if (typeof entry !== "string") continue;
+        const parsed: DeadLetterEntry = JSON.parse(entry);
+        const score =
+          typeof entries[i + 1] === "number"
+            ? entries[i + 1]
+            : Number.parseInt(entries[i + 1] as string, 10);
+        posts.push({
+          ...parsed,
+          failedAt: new Date(parsed.failedAt),
+          score: score as number,
+        });
+      } catch {
+        // Skip malformed entries
+      }
     }
+
+    return posts;
+  } catch (error) {
+    logger.error("Failed to list dead-letter posts", { error });
+    return [];
+  }
 }
 
 /**
  * Get the total count of posts in the dead-letter queue.
  */
 export async function getDeadLetterCount(): Promise<number> {
-    const redis = getRedis();
+  const redis = getRedis();
 
-    try {
-        return await redis.zcard(DLQ_KEY);
-    } catch (error) {
-        logger.error('Failed to get dead-letter count', { error });
-        return 0;
-    }
+  try {
+    return await redis.zcard(DLQ_KEY);
+  } catch (error) {
+    logger.error("Failed to get dead-letter count", { error });
+    return 0;
+  }
 }
 
 /**
@@ -203,14 +210,14 @@ export async function getDeadLetterCount(): Promise<number> {
  * @param limit - Max entries to return
  */
 export async function listDeadLetterByOrg(
-    organizationId: string,
-    limit: number = 20,
+  organizationId: string,
+  limit = 20,
 ): Promise<DeadLetterPost[]> {
-    // Why: Redis sorted sets don't support filtering by field, so we fetch
-    // a larger window and filter in-memory. For typical usage (< 100 DLQ entries),
-    // this is efficient enough without needing a secondary index.
-    const all = await listDeadLetterPosts(200, 0);
-    return all.filter((p) => p.organizationId === organizationId).slice(0, limit);
+  // Why: Redis sorted sets don't support filtering by field, so we fetch
+  // a larger window and filter in-memory. For typical usage (< 100 DLQ entries),
+  // this is efficient enough without needing a secondary index.
+  const all = await listDeadLetterPosts(200, 0);
+  return all.filter((p) => p.organizationId === organizationId).slice(0, limit);
 }
 
 /**
@@ -221,34 +228,34 @@ export async function listDeadLetterByOrg(
  * @returns true if re-enqueued successfully
  */
 export async function retryDeadLetterPost(
-    postId: string,
-    organizationId: string,
+  postId: string,
+  organizationId: string,
 ): Promise<boolean> {
-    try {
-        // Fetch the post data from DB to re-enqueue
-        const [postResult] = await db.select().from(post).where(eq(post.id, postId)).limit(1);
-        if (!postResult) {
-            logger.warn('Post not found in DB, cannot retry dead-letter', { postId });
-            return false;
-        }
-
-        // Re-enqueue using the same queue pattern
-        const jobData: PostJobData = {
-            postId: postResult.id,
-            organizationId: postResult.organizationId,
-            socialAccountId: postResult.socialAccountId ?? '',
-            caption: postResult.caption ?? '',
-            postType: (postResult.postType ?? 'POST') as string,
-            scheduledAt: postResult.scheduledAt?.toISOString(),
-        };
-
-        await queuePostPublish(jobData);
-        await removeFromDeadLetter(postId);
-        logger.info('Dead-letter post re-enqueued for retry', { postId, organizationId });
-
-        return true;
-    } catch (error) {
-        logger.error('Failed to retry dead-letter post', { postId, error });
-        return false;
+  try {
+    // Fetch the post data from DB to re-enqueue
+    const [postResult] = await db.select().from(post).where(eq(post.id, postId)).limit(1);
+    if (!postResult) {
+      logger.warn("Post not found in DB, cannot retry dead-letter", { postId });
+      return false;
     }
+
+    // Re-enqueue using the same queue pattern
+    const jobData: PostJobData = {
+      postId: postResult.id,
+      organizationId: postResult.organizationId,
+      socialAccountId: postResult.socialAccountId ?? "",
+      caption: postResult.caption ?? "",
+      postType: (postResult.postType ?? "POST") as string,
+      scheduledAt: postResult.scheduledAt?.toISOString(),
+    };
+
+    await queuePostPublish(jobData);
+    await removeFromDeadLetter(postId);
+    logger.info("Dead-letter post re-enqueued for retry", { postId, organizationId });
+
+    return true;
+  } catch (error) {
+    logger.error("Failed to retry dead-letter post", { postId, error });
+    return false;
+  }
 }

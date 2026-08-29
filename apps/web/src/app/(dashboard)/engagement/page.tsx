@@ -3,7 +3,6 @@
 import {
   Check,
   CheckCheck,
-  Filter,
   MessageSquare,
   RefreshCcw,
   Reply,
@@ -109,7 +108,7 @@ export default function EngagementPage() {
 
   useEffect(() => {
     fetchEngagement();
-  }, [activeFilter]);
+  }, [fetchEngagement]);
 
   const handleSync = async () => {
     setSyncing(true);
@@ -131,9 +130,7 @@ export default function EngagementPage() {
   const handleMarkAsRead = async (id: string) => {
     try {
       await fetch(`/api/engagement/${id}/read`, { method: "PATCH" });
-      setItems((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, isRead: true } : item))
-      );
+      setItems((prev) => prev.map((item) => (item.id === id ? { ...item, isRead: true } : item)));
       setStats((prev) => ({
         ...prev,
         unreadCount: Math.max(0, prev.unreadCount - 1),
@@ -173,9 +170,7 @@ export default function EngagementPage() {
       if (data.success) {
         toast.success("Balasan terkirim");
         setItems((prev) =>
-          prev.map((item) =>
-            item.id === selectedItem.id ? { ...item, isReplied: true } : item
-          )
+          prev.map((item) => (item.id === selectedItem.id ? { ...item, isReplied: true } : item)),
         );
         setReplyContent("");
         setSelectedItem(null);
@@ -243,7 +238,7 @@ export default function EngagementPage() {
             type="button"
             onClick={handleMarkAllAsRead}
             disabled={stats.unreadCount === 0}
-            className="flex items-center gap-2 rounded-lg border border-[var(--border)] px-3 py-2 font-medium text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-tertiary)] disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg border border-[var(--border)] px-3 py-2 font-medium text-[var(--text-secondary)] text-sm transition-colors hover:bg-[var(--bg-tertiary)] disabled:opacity-50"
           >
             <CheckCheck className="h-4 w-4" />
             <span className="hidden sm:inline">Tandai Semua Dibaca</span>
@@ -269,7 +264,7 @@ export default function EngagementPage() {
             onClick={() => setActiveFilter(activeFilter === type ? "all" : type)}
             className={cn(
               "card p-4 text-left transition-all hover:shadow-md",
-              activeFilter === type && "ring-2 ring-[var(--accent-gold)]"
+              activeFilter === type && "ring-2 ring-[var(--accent-gold)]",
             )}
           >
             <div className="mb-2 flex items-center justify-between">
@@ -308,7 +303,7 @@ export default function EngagementPage() {
                 "rounded-md px-3 py-1 font-medium text-xs transition-colors",
                 activeFilter === type
                   ? "bg-[var(--accent-gold)] text-white"
-                  : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
+                  : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]",
               )}
             >
               {type === "all" ? "Semua" : TYPE_LABELS[type]}
@@ -341,12 +336,12 @@ export default function EngagementPage() {
               key={item.id}
               className={cn(
                 "card p-4 transition-all hover:shadow-md",
-                !item.isRead && "border-l-4 border-l-[var(--accent-gold)]"
+                !item.isRead && "border-l-4 border-l-[var(--accent-gold)]",
               )}
             >
               <div className="flex items-start gap-3">
                 {/* Avatar */}
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--bg-tertiary)] font-semibold text-sm text-[var(--text-secondary)]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--bg-tertiary)] font-semibold text-[var(--text-secondary)] text-sm">
                   {item.authorName.charAt(0)}
                 </div>
 
@@ -358,7 +353,7 @@ export default function EngagementPage() {
                     <span
                       className={cn(
                         "rounded-full px-2 py-0.5 font-medium text-xs",
-                        PLATFORM_COLORS[item.platform] || "bg-gray-500/10 text-gray-600"
+                        PLATFORM_COLORS[item.platform] || "bg-gray-500/10 text-gray-600",
                       )}
                     >
                       {item.platform}
@@ -368,7 +363,12 @@ export default function EngagementPage() {
                       {TYPE_LABELS[item.type]}
                     </span>
                     {item.sentiment && (
-                      <span className={cn("flex items-center gap-1 text-xs", SENTIMENT_CONFIG[item.sentiment].color)}>
+                      <span
+                        className={cn(
+                          "flex items-center gap-1 text-xs",
+                          SENTIMENT_CONFIG[item.sentiment].color,
+                        )}
+                      >
                         {SENTIMENT_CONFIG[item.sentiment].icon}
                       </span>
                     )}
@@ -452,7 +452,7 @@ export default function EngagementPage() {
                   setSelectedItem(null);
                   setReplyContent("");
                 }}
-                className="rounded-lg border border-[var(--border)] px-4 py-2 font-medium text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-tertiary)]"
+                className="rounded-lg border border-[var(--border)] px-4 py-2 font-medium text-[var(--text-secondary)] text-sm transition-colors hover:bg-[var(--bg-tertiary)]"
               >
                 Batal
               </button>

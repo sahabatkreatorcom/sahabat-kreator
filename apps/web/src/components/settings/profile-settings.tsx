@@ -44,7 +44,7 @@ export function ProfileSettings() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-gold)] font-bold text-xl text-[var(--bg-primary)]">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent-gold)] font-bold text-[var(--bg-primary)] text-xl">
             {name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U"}
           </div>
           <Button variant="secondary" size="sm">
@@ -55,7 +55,12 @@ export function ProfileSettings() {
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="name">Nama</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama Anda" />
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Nama Anda"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>

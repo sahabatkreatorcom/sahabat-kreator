@@ -1,45 +1,22 @@
 import { relations } from "drizzle-orm";
-import {
-  account,
-  invitation,
-  member,
-  organization,
-  session,
-  twoFactor,
-  user,
-} from "./auth";
+import { calendarNote, engagementItem, media, notification, organizationSetting } from "./app";
+import { activityLog, auditLog, draftInteraction, publishError } from "./audit";
+import { account, invitation, member, organization, session, twoFactor, user } from "./auth";
 import { payment, subscription } from "./billing";
-import { competitor } from "./competitor";
-import {
-  calendarNote,
-  engagementItem,
-  notification,
-  media,
-  organizationSetting,
-} from "./app";
-import { socialAccount } from "./social-account";
-import { post, postMedia } from "./post";
-import { contentPillar, hashtagCollection } from "./content";
-import {
-  auditLog,
-  draftInteraction,
-  publishError,
-  activityLog,
-} from "./audit";
-import {
-  skReport,
-  skRecommendation,
-  skBrandKnowledge,
-} from "./sk";
-import {
-  skMediaAnalysis,
-  skExperiment,
-  skPlatformKnowledge,
-  skChatSession,
-  skChatMessage,
-} from "./sk_chat";
-import { blogPost } from "./blogpost";
 import { blogComment } from "./blogcomment";
+import { blogPost } from "./blogpost";
+import { competitor } from "./competitor";
+import { contentPillar, hashtagCollection } from "./content";
+import { post, postMedia } from "./post";
+import { skBrandKnowledge, skRecommendation, skReport } from "./sk";
+import {
+  skChatMessage,
+  skChatSession,
+  skExperiment,
+  skMediaAnalysis,
+  skPlatformKnowledge,
+} from "./sk_chat";
+import { socialAccount } from "./social-account";
 
 // ── Auth Relations ─────────────────────────────────────────────────
 export const userRelations = relations(user, ({ many }) => ({

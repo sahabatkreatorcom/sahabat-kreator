@@ -47,8 +47,8 @@ export default function DashboardPage() {
         if (postsRes.ok) {
           const posts = postsRes.data.posts as any[];
           const now = new Date();
-          const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          const _sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          const _thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
           setTotalPosts(posts.length);
           setScheduledPosts(posts.filter((p) => p.status === "SCHEDULED").length);

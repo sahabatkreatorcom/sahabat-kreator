@@ -48,7 +48,9 @@ export function DeleteAccountCard() {
         <div className="flex items-start gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
           <AlertTriangle className="h-5 w-5 shrink-0 text-red-500" />
           <div className="text-sm">
-            <p className="font-medium text-red-500">Peringatan: Tindakan ini tidak dapat dibatalkan</p>
+            <p className="font-medium text-red-500">
+              Peringatan: Tindakan ini tidak dapat dibatalkan
+            </p>
             <ul className="mt-1 list-disc pl-4 text-[var(--text-muted)]">
               <li>Semua post, media, dan data akan dihapus</li>
               <li>Akun media sosial akan diputus</li>
@@ -77,11 +79,21 @@ export function DeleteAccountCard() {
               />
             </div>
             <div className="flex gap-2">
-              <Button variant="danger" onClick={handleDelete} disabled={loading || confirmText !== "HAPUS"}>
+              <Button
+                variant="danger"
+                onClick={handleDelete}
+                disabled={loading || confirmText !== "HAPUS"}
+              >
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Ya, Hapus Akun Saya
               </Button>
-              <Button variant="secondary" onClick={() => { setShowConfirm(false); setConfirmText(""); }}>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setShowConfirm(false);
+                  setConfirmText("");
+                }}
+              >
                 Batal
               </Button>
             </div>

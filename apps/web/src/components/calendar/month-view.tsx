@@ -62,10 +62,13 @@ export function MonthView({ year, month, posts, onEditPost, onDeletePost }: Mont
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-primary)]">
       {/* Header */}
-      <div className="grid grid-cols-7 border-b border-[var(--border)]">
+      <div className="grid grid-cols-7 border-[var(--border)] border-b">
         {WEEKDAYS.map((day) => (
-          <div key={day} className="border-r border-[var(--border)] p-2 text-center last:border-r-0">
-            <span className="text-[var(--text-muted)] text-xs font-medium">{day}</span>
+          <div
+            key={day}
+            className="border-[var(--border)] border-r p-2 text-center last:border-r-0"
+          >
+            <span className="font-medium text-[var(--text-muted)] text-xs">{day}</span>
           </div>
         ))}
       </div>
@@ -77,7 +80,7 @@ export function MonthView({ year, month, posts, onEditPost, onDeletePost }: Mont
             return (
               <div
                 key={`empty-${index}`}
-                className="min-h-[100px] border-r border-b border-[var(--border)] bg-[var(--bg-secondary)]/50 p-1 last:border-r-0"
+                className="min-h-[100px] border-[var(--border)] border-r border-b bg-[var(--bg-secondary)]/50 p-1 last:border-r-0"
               />
             );
           }
@@ -86,15 +89,13 @@ export function MonthView({ year, month, posts, onEditPost, onDeletePost }: Mont
           return (
             <div
               key={index}
-              className={`min-h-[100px] border-r border-b border-[var(--border)] p-1 last:border-r-0 ${
+              className={`min-h-[100px] border-[var(--border)] border-r border-b p-1 last:border-r-0 ${
                 isToday(day) ? "bg-[var(--accent-gold-light)]" : ""
               }`}
             >
               <p
                 className={`mb-1 text-right text-xs ${
-                  isToday(day)
-                    ? "font-bold text-[var(--accent-gold)]"
-                    : "text-[var(--text-muted)]"
+                  isToday(day) ? "font-bold text-[var(--accent-gold)]" : "text-[var(--text-muted)]"
                 }`}
               >
                 {day.getDate()}

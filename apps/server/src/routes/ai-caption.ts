@@ -1,6 +1,6 @@
+import { env } from "@sahabatkreator/env/server";
 import { Hono } from "hono";
 import { z } from "zod";
-import { env } from "@sahabatkreator/env/server";
 import { requireAuth } from "../lib/auth-middleware";
 
 const aiCaptionApp = new Hono();
@@ -9,7 +9,9 @@ aiCaptionApp.use("/*", requireAuth);
 
 const generateSchema = z.object({
   topic: z.string().min(2).max(200),
-  platform: z.enum(["instagram", "youtube", "facebook", "tiktok", "twitter", "linkedin"]).optional(),
+  platform: z
+    .enum(["instagram", "youtube", "facebook", "tiktok", "twitter", "linkedin"])
+    .optional(),
   tone: z.enum(["profesional", "kasual", "formal", "lucu"]).default("kasual"),
   style: z.enum(["pendek", "panjang", "hook", "storytelling", "edukatif"]).default("pendek"),
   includeEmojis: z.boolean().default(true),

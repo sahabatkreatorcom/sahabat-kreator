@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -14,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { postsApi } from "@/lib/api-client";
 
 interface QuickAddModalProps {
@@ -27,12 +27,12 @@ export function QuickAddModal({ isOpen, onClose, defaultDate, onSuccess }: Quick
   const [caption, setCaption] = useState("");
   const [postType, setPostType] = useState("POST");
   const [scheduledDate, setScheduledDate] = useState(
-    defaultDate?.toISOString().slice(0, 10) || new Date().toISOString().slice(0, 10)
+    defaultDate?.toISOString().slice(0, 10) || new Date().toISOString().slice(0, 10),
   );
   const [scheduledTime, setScheduledTime] = useState(
     defaultDate
       ? `${String(defaultDate.getHours()).padStart(2, "0")}:${String(defaultDate.getMinutes()).padStart(2, "0")}`
-      : "09:00"
+      : "09:00",
   );
   const [loading, setLoading] = useState(false);
 
@@ -128,7 +128,12 @@ export function QuickAddModal({ isOpen, onClose, defaultDate, onSuccess }: Quick
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Jadwalkan
             </Button>
-            <Button variant="secondary" onClick={() => handleSave(true)} disabled={loading} className="flex-1">
+            <Button
+              variant="secondary"
+              onClick={() => handleSave(true)}
+              disabled={loading}
+              className="flex-1"
+            >
               Simpan Draft
             </Button>
           </div>

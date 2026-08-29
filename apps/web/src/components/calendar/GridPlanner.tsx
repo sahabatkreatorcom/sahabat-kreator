@@ -1,10 +1,9 @@
 "use client";
 
-import { Calendar as CalendarIcon, Edit, MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { Calendar as CalendarIcon, Edit, Plus, Trash2 } from "lucide-react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useState, useCallback } from "react";
 
 interface GridPost {
   id: string;
@@ -109,7 +108,7 @@ function PostBlock({ post, onClick }: { post: GridPost; onClick: () => void }) {
       </div>
       <div className="mt-0.5 flex items-center gap-1">
         <span className={cn("h-1.5 w-1.5 rounded-full", bgClass)} />
-        <span className="text-[var(--text-muted)] text-[10px] capitalize">{platform}</span>
+        <span className="text-[10px] text-[var(--text-muted)] capitalize">{platform}</span>
       </div>
     </button>
   );
@@ -140,7 +139,7 @@ function ContextMenu({
     >
       {onEdit && (
         <button
-          className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
+          className="flex w-full items-center gap-2 px-3 py-2 text-left text-[var(--text-secondary)] text-sm hover:bg-[var(--bg-tertiary)]"
           onClick={onEdit}
         >
           <Edit className="h-3.5 w-3.5" /> Edit post
@@ -148,7 +147,7 @@ function ContextMenu({
       )}
       {onApplyAI && (
         <button
-          className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
+          className="flex w-full items-center gap-2 px-3 py-2 text-left text-[var(--text-secondary)] text-sm hover:bg-[var(--bg-tertiary)]"
           onClick={onApplyAI}
         >
           <CalendarIcon className="h-3.5 w-3.5 text-[var(--accent-gold)]" /> Saran AI
@@ -156,7 +155,7 @@ function ContextMenu({
       )}
       {onDelete && (
         <button
-          className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-500 hover:bg-red-500/10"
+          className="flex w-full items-center gap-2 px-3 py-2 text-left text-red-500 text-sm hover:bg-red-500/10"
           onClick={onDelete}
         >
           <Trash2 className="h-3.5 w-3.5" /> Hapus
@@ -205,13 +204,21 @@ export function GridPlanner({
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-lg">{monthName}</h3>
           <div className="flex gap-1">
-            <Button variant="secondary" size="sm" onClick={() => setCurrentDate(new Date(year, month - 1))}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setCurrentDate(new Date(year, month - 1))}
+            >
               ←
             </Button>
             <Button variant="secondary" size="sm" onClick={() => setCurrentDate(new Date())}>
               Hari Ini
             </Button>
-            <Button variant="secondary" size="sm" onClick={() => setCurrentDate(new Date(year, month + 1))}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setCurrentDate(new Date(year, month + 1))}
+            >
               →
             </Button>
           </div>
@@ -220,7 +227,10 @@ export function GridPlanner({
         {/* Weekday headers */}
         <div className="grid grid-cols-7 gap-1">
           {WEEKDAYS.map((day) => (
-            <div key={day} className="py-2 text-center font-medium text-[var(--text-muted)] text-xs">
+            <div
+              key={day}
+              className="py-2 text-center font-medium text-[var(--text-muted)] text-xs"
+            >
               {day}
             </div>
           ))}
@@ -230,7 +240,12 @@ export function GridPlanner({
         <div className="grid grid-cols-7 gap-1">
           {dates.map((date, index) => {
             if (!date) {
-              return <div key={`empty-${index}`} className="min-h-[80px] rounded-lg bg-[var(--bg-tertiary)]/30" />;
+              return (
+                <div
+                  key={`empty-${index}`}
+                  className="min-h-[80px] rounded-lg bg-[var(--bg-tertiary)]/30"
+                />
+              );
             }
 
             const dayPosts = posts.filter((p) => {
@@ -260,21 +275,15 @@ export function GridPlanner({
                     {date.getDate()}
                   </span>
                   {dayPosts.length > 0 && (
-                    <span className="text-[var(--text-muted)] text-[10px]">
-                      {dayPosts.length}
-                    </span>
+                    <span className="text-[10px] text-[var(--text-muted)]">{dayPosts.length}</span>
                   )}
                 </div>
                 <div className="space-y-1">
                   {dayPosts.slice(0, 2).map((post) => (
-                    <PostBlock
-                      key={post.id}
-                      post={post}
-                      onClick={() => onEditPost?.(post.id)}
-                    />
+                    <PostBlock key={post.id} post={post} onClick={() => onEditPost?.(post.id)} />
                   ))}
                   {dayPosts.length > 2 && (
-                    <p className="text-[var(--text-muted)] text-[10px] text-center">
+                    <p className="text-center text-[10px] text-[var(--text-muted)]">
                       +{dayPosts.length - 2} lagi
                     </p>
                   )}
@@ -297,13 +306,21 @@ export function GridPlanner({
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-lg">{weekLabel}</h3>
         <div className="flex gap-1">
-          <Button variant="secondary" size="sm" onClick={() => setCurrentDate(new Date(currentDate.getTime() - 7 * 86400000))}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setCurrentDate(new Date(currentDate.getTime() - 7 * 86400000))}
+          >
             ←
           </Button>
           <Button variant="secondary" size="sm" onClick={() => setCurrentDate(new Date())}>
             Hari Ini
           </Button>
-          <Button variant="secondary" size="sm" onClick={() => setCurrentDate(new Date(currentDate.getTime() + 7 * 86400000))}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setCurrentDate(new Date(currentDate.getTime() + 7 * 86400000))}
+          >
             →
           </Button>
         </div>
@@ -346,10 +363,7 @@ export function GridPlanner({
               <div className="flex-1 space-y-1">
                 {dayPosts.map((post) => (
                   <div key={post.id} onContextMenu={(e) => handleContextMenu(e, post)}>
-                    <PostBlock
-                      post={post}
-                      onClick={() => onEditPost?.(post.id)}
-                    />
+                    <PostBlock post={post} onClick={() => onEditPost?.(post.id)} />
                   </div>
                 ))}
                 {dayPosts.length === 0 && (

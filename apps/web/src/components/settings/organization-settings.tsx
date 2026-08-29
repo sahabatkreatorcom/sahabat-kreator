@@ -1,7 +1,7 @@
 "use client";
 
 import { Building2, Loader2, Save, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,11 +24,7 @@ export function OrganizationSettings() {
   const [saving, setSaving] = useState(false);
   const [orgId, setOrgId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchOrganization();
-  }, []);
-
-  const fetchOrganization = async () => {
+  const fetchOrganization = useCallback(async () => {
     try {
       const res = await fetch("/api/organization/current");
       if (res.ok) {
@@ -40,9 +36,9 @@ export function OrganizationSettings() {
     } catch {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchMembers = async (id?: string) => {
+  const fetchMembers = useCallback(async (id?: string) => {
     if (!id) return;
     try {
       const res = await fetch("/api/team");
@@ -55,7 +51,11 @@ export function OrganizationSettings() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchOrganization();
+  }, [fetchOrganization]);
 
   const handleSave = async () => {
     if (!orgId) return;
@@ -121,7 +121,9 @@ export function OrganizationSettings() {
               <Loader2 className="h-5 w-5 animate-spin text-[var(--accent-gold)]" />
             </div>
           ) : members.length === 0 ? (
-            <p className="py-4 text-center text-[var(--text-muted)] text-sm">Belum ada anggota tim</p>
+            <p className="py-4 text-center text-[var(--text-muted)] text-sm">
+              Belum ada anggota tim
+            </p>
           ) : (
             <div className="space-y-2">
               {members.map((member) => (

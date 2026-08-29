@@ -29,7 +29,7 @@ export function ConversationThread({ messages, onReply, onBack }: ConversationTh
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-[var(--border)] p-3">
+      <div className="flex items-center gap-3 border-[var(--border)] border-b p-3">
         <Button variant="ghost" size="sm" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -71,7 +71,7 @@ export function ConversationThread({ messages, onReply, onBack }: ConversationTh
       </div>
 
       {/* Reply Input */}
-      <div className="border-t border-[var(--border)] p-3">
+      <div className="border-[var(--border)] border-t p-3">
         <div className="flex gap-2">
           <Textarea
             value={replyContent}
@@ -85,7 +85,11 @@ export function ConversationThread({ messages, onReply, onBack }: ConversationTh
               }
             }}
           />
-          <Button onClick={handleSend} disabled={sending || !replyContent.trim()} className="self-end">
+          <Button
+            onClick={handleSend}
+            disabled={sending || !replyContent.trim()}
+            className="self-end"
+          >
             {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </div>

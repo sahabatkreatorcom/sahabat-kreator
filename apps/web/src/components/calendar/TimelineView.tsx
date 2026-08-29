@@ -1,11 +1,10 @@
 "use client";
 
-import { Calendar, Clock, TrendingUp, ChevronRight, Edit, Trash2, GripVertical, Upload } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Calendar, Clock, Edit, GripVertical, Trash2, TrendingUp } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useState, useRef, useCallback } from "react";
 
 interface TimelinePost {
   id: string;
@@ -87,7 +86,7 @@ function formatRelative(isoString: string) {
 function PerformanceOverlay({ engagement }: { engagement: TimelinePost["engagement"] }) {
   if (!engagement) return null;
   return (
-    <div className="mt-3 border-t border-[var(--border)] pt-3">
+    <div className="mt-3 border-[var(--border)] border-t pt-3">
       <p className="mb-2 font-medium text-[var(--text-muted)] text-xs uppercase tracking-wider">
         Performa
       </p>
@@ -99,7 +98,7 @@ function PerformanceOverlay({ engagement }: { engagement: TimelinePost["engageme
           { label: "View", value: engagement.views, icon: "👁" },
         ].map(({ label, value }) => (
           <div key={label} className="text-center">
-            <p className="font-semibold text-sm text-[var(--text-primary)]">
+            <p className="font-semibold text-[var(--text-primary)] text-sm">
               {value?.toLocaleString("id-ID") ?? 0}
             </p>
             <p className="text-[var(--text-muted)] text-xs">{label}</p>
@@ -130,13 +129,16 @@ function TimelineItem({
   const dragStartTime = useRef<number | null>(null);
   const dragStartY = useRef<number>(0);
 
-  const handleDragStart = useCallback((e: React.DragEvent) => {
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", post.id);
-    setIsDragging(true);
-    dragStartTime.current = Date.now();
-    dragStartY.current = e.clientY;
-  }, [post.id]);
+  const handleDragStart = useCallback(
+    (e: React.DragEvent) => {
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", post.id);
+      setIsDragging(true);
+      dragStartTime.current = Date.now();
+      dragStartY.current = e.clientY;
+    },
+    [post.id],
+  );
 
   const handleDragEnd = useCallback(() => {
     setIsDragging(false);
@@ -149,16 +151,14 @@ function TimelineItem({
       <div className="flex flex-col items-center">
         <div
           className={cn(
-            "h-8 w-8 rounded-full flex items-center justify-center shrink-0 transition-all",
+            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all",
             PLATFORM_COLORS[post.socialAccount?.platform ?? ""] || "bg-gray-400",
             isDragging && "scale-110 ring-4 ring-[var(--accent-gold)]/30",
           )}
         >
           <GripVertical className="h-4 w-4 text-white opacity-70" />
         </div>
-        {!isLast && (
-          <div className="w-px flex-1 bg-[var(--border)] my-1" />
-        )}
+        {!isLast && <div className="my-1 w-px flex-1 bg-[var(--border)]" />}
       </div>
 
       {/* Content */}
@@ -167,8 +167,8 @@ function TimelineItem({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         className={cn(
-          "flex-1 rounded-xl border bg-[var(--bg-secondary)] p-4 transition-all cursor-grab active:cursor-grabbing",
-          isDragging && "opacity-50 scale-[0.98]",
+          "flex-1 cursor-grab rounded-xl border bg-[var(--bg-secondary)] p-4 transition-all active:cursor-grabbing",
+          isDragging && "scale-[0.98] opacity-50",
           !isDragging && "hover:border-[var(--accent-gold)]/50 hover:shadow-sm",
         )}
       >
@@ -181,7 +181,12 @@ function TimelineItem({
                 PLATFORM_COLORS[post.socialAccount?.platform ?? ""] || "bg-gray-400",
               )}
             />
-            <span className={cn("text-xs font-medium capitalize", PLATFORM_TEXT_COLORS[post.socialAccount?.platform ?? ""] || "text-gray-500")}>
+            <span
+              className={cn(
+                "font-medium text-xs capitalize",
+                PLATFORM_TEXT_COLORS[post.socialAccount?.platform ?? ""] || "text-gray-500",
+              )}
+            >
               {post.socialAccount?.platform || "Platform"}
             </span>
             <span className="text-[var(--text-muted)] text-xs">·</span>
@@ -190,7 +195,7 @@ function TimelineItem({
             </Badge>
             <span
               className={cn(
-                "rounded-full px-2 py-0.5 text-xs font-medium",
+                "rounded-full px-2 py-0.5 font-medium text-xs",
                 post.status === "PUBLISHED" && "bg-green-500/20 text-green-500",
                 post.status === "SCHEDULED" && "bg-blue-500/20 text-blue-500",
                 post.status === "FAILED" && "bg-red-500/20 text-red-500",
@@ -201,14 +206,24 @@ function TimelineItem({
             </span>
           </div>
 
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             {onEdit && (
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => onEdit(post.id)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => onEdit(post.id)}
+              >
                 <Edit className="h-3.5 w-3.5" />
               </Button>
             )}
             {onDelete && (
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-red-500 hover:text-red-600" onClick={() => onDelete(post.id)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-red-500 hover:text-red-600"
+                onClick={() => onDelete(post.id)}
+              >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             )}
@@ -234,7 +249,7 @@ function TimelineItem({
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 text-xs gap-1"
+              className="h-7 gap-1 text-xs"
               onClick={() => setShowPerformanceOverlay((v) => !v)}
             >
               <TrendingUp className="h-3.5 w-3.5" />
@@ -268,7 +283,7 @@ export function TimelineView({
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <Calendar className="mb-4 h-12 w-12 text-[var(--text-muted)]/40" />
         <p className="font-medium text-[var(--text-secondary)]">Belum ada post</p>
-        <p className="text-[var(--text-muted)] text-sm mt-1">
+        <p className="mt-1 text-[var(--text-muted)] text-sm">
           Post akan muncul di sini secara kronologis
         </p>
       </div>

@@ -1,10 +1,8 @@
 import { db } from "@sahabatkreator/db";
 import { skChatMessage, skChatSession } from "@sahabatkreator/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
-import { requireAuth } from "../lib/auth-middleware";
-import { getOrganizationId, getUserId } from "../lib/context";
 import {
   chatWithSK,
   generateSKReport,
@@ -13,6 +11,8 @@ import {
   getSKUsageLimits,
   updateSKBrandKnowledge,
 } from "../lib/ai/sk-advisor";
+import { requireAuth } from "../lib/auth-middleware";
+import { getOrganizationId, getUserId } from "../lib/context";
 
 const skApp = new Hono();
 

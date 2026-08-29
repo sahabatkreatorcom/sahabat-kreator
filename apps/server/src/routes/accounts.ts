@@ -7,8 +7,16 @@ import { requireAuth } from "../lib/auth-middleware";
 import { getOrganizationId } from "../lib/context";
 
 const VALID_PLATFORMS = [
-  "INSTAGRAM", "FACEBOOK", "TIKTOK", "YOUTUBE", "PINTEREST",
-  "GOOGLE_BUSINESS", "LINKEDIN", "BLUESKY", "THREADS", "MANUAL",
+  "INSTAGRAM",
+  "FACEBOOK",
+  "TIKTOK",
+  "YOUTUBE",
+  "PINTEREST",
+  "GOOGLE_BUSINESS",
+  "LINKEDIN",
+  "BLUESKY",
+  "THREADS",
+  "MANUAL",
 ] as const;
 
 const accountsApp = new Hono();

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { signIn } from "@/lib/auth-client";
 
 function LoginPageInner() {
-  const router = useRouter();
+  const _router = useRouter();
   const searchParams = useSearchParams();
   const justRegistered = searchParams.get("registered") === "true";
 

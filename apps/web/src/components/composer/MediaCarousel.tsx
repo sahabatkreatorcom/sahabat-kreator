@@ -3,7 +3,6 @@
 import {
   ArrowDown,
   ArrowUp,
-  Check,
   Image as ImageIcon,
   MoveHorizontal,
   Pin,
@@ -14,7 +13,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { MediaItem } from "@/lib/api-client";
 
 interface CarouselItem {
   id: string;
@@ -69,7 +67,7 @@ export function MediaCarousel({ items, onChange, onRemove }: MediaCarouselProps)
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-[var(--border)] py-12">
+      <div className="flex flex-col items-center justify-center rounded-lg border-2 border-[var(--border)] border-dashed py-12">
         <ImageIcon className="mb-3 h-10 w-10 text-[var(--text-muted)]" />
         <p className="font-medium text-[var(--text-muted)]">Belum ada media</p>
         <p className="text-[var(--text-muted)] text-sm">Upload gambar atau video untuk carousel</p>
@@ -82,7 +80,10 @@ export function MediaCarousel({ items, onChange, onRemove }: MediaCarouselProps)
       <div className="flex items-center justify-between">
         <p className="text-[var(--text-muted)] text-xs">{items.length} media</p>
         <span className="text-[var(--text-muted)] text-xs">
-          Cover: <span className="font-medium text-[var(--accent-gold)]">{items.find((i) => i.isCover)?.name || items[0]?.name}</span>
+          Cover:{" "}
+          <span className="font-medium text-[var(--accent-gold)]">
+            {items.find((i) => i.isCover)?.name || items[0]?.name}
+          </span>
         </span>
       </div>
 
@@ -91,8 +92,10 @@ export function MediaCarousel({ items, onChange, onRemove }: MediaCarouselProps)
           <div
             key={item.id}
             className={cn(
-              "group relative cursor-move rounded-lg border overflow-hidden transition-all",
-              item.isCover ? "border-[var(--accent-gold)] ring-2 ring-[var(--accent-gold)]/30" : "border-[var(--border)]",
+              "group relative cursor-move overflow-hidden rounded-lg border transition-all",
+              item.isCover
+                ? "border-[var(--accent-gold)] ring-2 ring-[var(--accent-gold)]/30"
+                : "border-[var(--border)]",
               draggedIndex === index && "opacity-50",
             )}
             draggable
@@ -116,11 +119,14 @@ export function MediaCarousel({ items, onChange, onRemove }: MediaCarouselProps)
                   alt={item.name}
                   className={cn(
                     "h-full w-full object-cover transition-transform",
-                    item.focalPoint && `object-${item.focalPoint.x * 100}%-${item.focalPoint.y * 100}%`,
+                    item.focalPoint &&
+                      `object-${item.focalPoint.x * 100}%-${item.focalPoint.y * 100}%`,
                   )}
                   style={
                     item.focalPoint
-                      ? { objectPosition: `${item.focalPoint.x * 100}% ${item.focalPoint.y * 100}%` }
+                      ? {
+                          objectPosition: `${item.focalPoint.x * 100}% ${item.focalPoint.y * 100}%`,
+                        }
                       : undefined
                   }
                 />
@@ -139,7 +145,7 @@ export function MediaCarousel({ items, onChange, onRemove }: MediaCarouselProps)
               )}
 
               {/* Position counter */}
-              <div className="absolute top-1.5 right-1.5 rounded-full bg-black/60 px-1.5 py-0.5 text-white text-[10px] font-medium">
+              <div className="absolute top-1.5 right-1.5 rounded-full bg-black/60 px-1.5 py-0.5 font-medium text-[10px] text-white">
                 {index + 1}
               </div>
 
@@ -148,7 +154,7 @@ export function MediaCarousel({ items, onChange, onRemove }: MediaCarouselProps)
                 {!item.isCover && (
                   <Button
                     size="sm"
-                    className="h-7 w-7 p-0 bg-white/90 text-black hover:bg-white"
+                    className="h-7 w-7 bg-white/90 p-0 text-black hover:bg-white"
                     onClick={() => setCover(index)}
                     title="Set sebagai thumbnail"
                   >
@@ -168,11 +174,11 @@ export function MediaCarousel({ items, onChange, onRemove }: MediaCarouselProps)
             </div>
 
             {/* Reorder handles */}
-            <div className="flex border-t border-[var(--border)] bg-[var(--bg-secondary)]">
+            <div className="flex border-[var(--border)] border-t bg-[var(--bg-secondary)]">
               <button
                 onClick={() => handleReorder(index, index - 1)}
                 disabled={index === 0}
-                className="flex flex-1 items-center justify-center gap-1 border-r border-[var(--border)] py-1.5 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] disabled:opacity-30"
+                className="flex flex-1 items-center justify-center gap-1 border-[var(--border)] border-r py-1.5 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] disabled:opacity-30"
                 title="Naikkan"
               >
                 <ArrowUp className="h-3 w-3" />
@@ -190,10 +196,14 @@ export function MediaCarousel({ items, onChange, onRemove }: MediaCarouselProps)
             {/* Focal point setter */}
             {item.mimeType.startsWith("image/") && (
               <button
-                className="flex w-full items-center justify-center gap-1 border-t border-[var(--border)] py-1 text-[var(--text-muted)] text-xs transition-colors hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]"
+                className="flex w-full items-center justify-center gap-1 border-[var(--border)] border-t py-1 text-[var(--text-muted)] text-xs transition-colors hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]"
                 onClick={() => {
                   const current = item.focalPoint || { x: 0.5, y: 0.5 };
-                  handleSetFocalPoint(index, current.x === 0.5 && current.y === 0.5 ? 0.3 : 0.5, current.y === 0.5 ? 0.3 : 0.5);
+                  handleSetFocalPoint(
+                    index,
+                    current.x === 0.5 && current.y === 0.5 ? 0.3 : 0.5,
+                    current.y === 0.5 ? 0.3 : 0.5,
+                  );
                   toast.success("Titik fokus diubah");
                 }}
                 title="Ubah titik fokus"
@@ -204,7 +214,10 @@ export function MediaCarousel({ items, onChange, onRemove }: MediaCarouselProps)
             )}
 
             {/* File name */}
-            <p className="truncate border-t border-[var(--border)] px-2 py-1 text-[var(--text-muted)] text-xs" title={item.name}>
+            <p
+              className="truncate border-[var(--border)] border-t px-2 py-1 text-[var(--text-muted)] text-xs"
+              title={item.name}
+            >
               {item.name}
             </p>
           </div>

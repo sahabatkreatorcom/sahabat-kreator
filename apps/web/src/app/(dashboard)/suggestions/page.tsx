@@ -1,18 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import {
-  AlertCircle,
   Bot,
   Check,
   Copy,
-  FileText,
   Lightbulb,
   Loader2,
   MessageSquare,
   RefreshCw,
   Sparkles,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { suggestionApi } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -104,8 +102,8 @@ export default function SuggestionsPage() {
           <Sparkles className="h-5 w-5 text-[var(--accent-gold)]" />
         </div>
         <div>
-          <h1 className="text-2xl font-semibold">SK AI — Saran Konten</h1>
-          <p className="text-sm text-[var(--text-secondary)]">
+          <h1 className="font-semibold text-2xl">SK AI — Saran Konten</h1>
+          <p className="text-[var(--text-secondary)] text-sm">
             Dapatkan ide konten kreatif dari AI untuk media sosial Anda
           </p>
         </div>
@@ -113,7 +111,7 @@ export default function SuggestionsPage() {
 
       {/* Recent Context */}
       {recentContext && (
-        <div className="card p-4 space-y-3">
+        <div className="card space-y-3 p-4">
           <div className="flex items-center gap-2">
             <Bot className="h-4 w-4 text-[var(--accent-gold)]" />
             <span className="font-medium text-sm">Konteks Terkini</span>
@@ -121,15 +119,15 @@ export default function SuggestionsPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {recentContext.recentPosts.length > 0 && (
               <div className="rounded-lg bg-[var(--bg-secondary)] p-3">
-                <p className="text-xs text-[var(--text-muted)] mb-1">Post Terbaru</p>
-                <p className="text-sm truncate">
+                <p className="mb-1 text-[var(--text-muted)] text-xs">Post Terbaru</p>
+                <p className="truncate text-sm">
                   {recentContext.recentPosts[0].caption?.slice(0, 60) || "—"}
                 </p>
               </div>
             )}
             {recentContext.accounts.length > 0 && (
               <div className="rounded-lg bg-[var(--bg-secondary)] p-3">
-                <p className="text-xs text-[var(--text-muted)] mb-1">Akun Terhubung</p>
+                <p className="mb-1 text-[var(--text-muted)] text-xs">Akun Terhubung</p>
                 <p className="text-sm">
                   {recentContext.accounts.map((a) => a.platform).join(", ")}
                 </p>
@@ -137,10 +135,8 @@ export default function SuggestionsPage() {
             )}
             {recentContext.competitors.length > 0 && (
               <div className="rounded-lg bg-[var(--bg-secondary)] p-3">
-                <p className="text-xs text-[var(--text-muted)] mb-1">Kompetitor Dipantau</p>
-                <p className="text-sm">
-                  {recentContext.competitors.map((c) => c.name).join(", ")}
-                </p>
+                <p className="mb-1 text-[var(--text-muted)] text-xs">Kompetitor Dipantau</p>
+                <p className="text-sm">{recentContext.competitors.map((c) => c.name).join(", ")}</p>
               </div>
             )}
           </div>
@@ -159,7 +155,7 @@ export default function SuggestionsPage() {
             onChange={(e) => setTopic(e.target.value)}
             placeholder="Contoh: Tips skincare untuk kulit berminyak, Review produk baru..."
             rows={3}
-            className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 resize-none"
+            className="w-full resize-none rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50"
           />
         </div>
 
@@ -255,7 +251,9 @@ export default function SuggestionsPage() {
               {suggestions.length} Saran untuk &quot;{topic.slice(0, 30)}
               {topic.length > 30 ? "..." : ""}&quot;
               {source === "fallback" && (
-                <span className="ml-2 font-normal text-[var(--text-muted)] text-xs">(template)</span>
+                <span className="ml-2 font-normal text-[var(--text-muted)] text-xs">
+                  (template)
+                </span>
               )}
             </h2>
             <button

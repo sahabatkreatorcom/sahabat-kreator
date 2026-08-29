@@ -1,15 +1,14 @@
 "use client";
 
-import { Bell, LogOut, Moon, Shield, Sun } from "lucide-react";
+import { LogOut, Moon, Shield, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSPANavigation } from "@/components/layout/dashboard-spa-shell";
+import { PushNotificationBell } from "@/components/push";
 import { engagementApi, notificationApi } from "@/lib/api-client";
-import { signOut } from "@/lib/auth-client";
 import { useSidebarStore } from "@/lib/stores/sidebar-store";
 import { cn } from "@/lib/utils";
-import { PushNotificationBell } from "@/components/push";
 import { OrganizationSwitcher } from "./organization-switcher";
 import { COLLAPSED_WIDTH, EXPANDED_WIDTH, navItems } from "./sidebar-nav-items";
 

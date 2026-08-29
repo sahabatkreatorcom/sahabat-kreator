@@ -1,8 +1,8 @@
 import { db } from "@sahabatkreator/db";
 import { blogComment, blogPost } from "@sahabatkreator/db/schema";
 import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
-import { Hono } from "hono";
 import type { Context } from "hono";
+import { Hono } from "hono";
 import { z } from "zod";
 import { requireAuth } from "../lib/auth-middleware";
 import { getOrganizationId } from "../lib/context";
@@ -73,7 +73,10 @@ function generateId(): string {
 
 // ── Helper: Ensure slug uniqueness ──────────────────────────────────
 async function ensureUniqueSlug(baseSlug: string, organizationId: string): Promise<string> {
-  let slug = baseSlug.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+  let slug = baseSlug
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-");
   let count = 1;
   const existing = await db
     .select({ id: blogPost.id })
@@ -81,7 +84,10 @@ async function ensureUniqueSlug(baseSlug: string, organizationId: string): Promi
     .where(and(eq(blogPost.slug, slug), eq(blogPost.organizationId, organizationId)));
 
   if (existing.length > 0) {
-    const base = baseSlug.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+    const base = baseSlug
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-");
     slug = `${base}-${count}`;
     while (true) {
       const check = await db
@@ -374,12 +380,17 @@ blogApp.patch("/:id", async (c) => {
     updateData.readingTimeMinutes = minutes;
   }
   if (parsed.data.metaTitle !== undefined) updateData.metaTitle = parsed.data.metaTitle ?? null;
-  if (parsed.data.metaDescription !== undefined) updateData.metaDescription = parsed.data.metaDescription ?? null;
-  if (parsed.data.metaKeywords !== undefined) updateData.metaKeywords = parsed.data.metaKeywords ?? null;
-  if (parsed.data.canonicalUrl !== undefined) updateData.canonicalUrl = parsed.data.canonicalUrl ?? null;
+  if (parsed.data.metaDescription !== undefined)
+    updateData.metaDescription = parsed.data.metaDescription ?? null;
+  if (parsed.data.metaKeywords !== undefined)
+    updateData.metaKeywords = parsed.data.metaKeywords ?? null;
+  if (parsed.data.canonicalUrl !== undefined)
+    updateData.canonicalUrl = parsed.data.canonicalUrl ?? null;
   if (parsed.data.ogImage !== undefined) updateData.ogImage = parsed.data.ogImage ?? null;
-  if (parsed.data.twitterCard !== undefined) updateData.twitterCard = parsed.data.twitterCard ?? null;
-  if (parsed.data.structuredData !== undefined) updateData.structuredData = parsed.data.structuredData;
+  if (parsed.data.twitterCard !== undefined)
+    updateData.twitterCard = parsed.data.twitterCard ?? null;
+  if (parsed.data.structuredData !== undefined)
+    updateData.structuredData = parsed.data.structuredData;
   if (parsed.data.status !== undefined) updateData.status = parsed.data.status;
   if (parsed.data.publishedAt !== undefined) {
     updateData.publishedAt = parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : null;
@@ -505,12 +516,7 @@ blogApp.patch("/comments/:commentId", async (c) => {
   const [updated] = await db
     .update(blogComment)
     .set(updateData)
-    .where(
-      and(
-        eq(blogComment.id, commentId),
-        eq(blogComment.organizationId, organizationId),
-      ),
-    )
+    .where(and(eq(blogComment.id, commentId), eq(blogComment.organizationId, organizationId)))
     .returning();
 
   if (!updated) return c.json({ error: "Comment not found" }, 404);
@@ -525,12 +531,7 @@ blogApp.delete("/comments/:commentId", async (c) => {
 
   const [deleted] = await db
     .delete(blogComment)
-    .where(
-      and(
-        eq(blogComment.id, commentId),
-        eq(blogComment.organizationId, organizationId),
-      ),
-    )
+    .where(and(eq(blogComment.id, commentId), eq(blogComment.organizationId, organizationId)))
     .returning();
 
   if (!deleted) return c.json({ error: "Comment not found" }, 404);

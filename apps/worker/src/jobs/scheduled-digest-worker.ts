@@ -9,16 +9,22 @@
  * - Manages subscription-based scheduling via BullMQ job schedulers
  */
 
-import { connection, queueEmailDigest, scheduleRecurringJob } from "@sahabatkreator/jobs";
 import { db } from "@sahabatkreator/db";
-import { organization, member, user, organizationSetting, emailReport } from "@sahabatkreator/db/schema";
-import { eq, and, gt, gte, lt } from "drizzle-orm";
+import {
+  emailReport,
+  member,
+  organization,
+  organizationSetting,
+  user,
+} from "@sahabatkreator/db/schema";
+import { connection, queueEmailDigest, scheduleRecurringJob } from "@sahabatkreator/jobs";
 import { Worker } from "bullmq";
+import { and, eq } from "drizzle-orm";
 
 // ── Scheduler crons (ISO cron syntax accepted by BullMQ) ────────────
-const CRON_DAILY = "0 8 * * *";   // 08:00 every day
-const CRON_WEEKLY = "0 8 * * 1";  // 08:00 every Monday
-const CRON_MONTHLY = "0 8 1 * *"; // 08:00 on the 1st of every month
+const _CRON_DAILY = "0 8 * * *"; // 08:00 every day
+const _CRON_WEEKLY = "0 8 * * 1"; // 08:00 every Monday
+const _CRON_MONTHLY = "0 8 1 * *"; // 08:00 on the 1st of every month
 
 type PeriodType = "daily" | "weekly" | "monthly";
 
@@ -49,7 +55,12 @@ async function isDigestEnabled(orgId: string): Promise<boolean> {
   const [setting] = await db
     .select({ value: organizationSetting.value })
     .from(organizationSetting)
-    .where(and(eq(organizationSetting.organizationId, orgId), eq(organizationSetting.key, "digest_enabled")));
+    .where(
+      and(
+        eq(organizationSetting.organizationId, orgId),
+        eq(organizationSetting.key, "digest_enabled"),
+      ),
+    );
   return setting?.value !== "false";
 }
 
@@ -92,7 +103,9 @@ export const scheduledDigestWorker = new Worker(
     }
 
     // Fetch all organizations
-    const orgs = await db.select({ id: organization.id, name: organization.name }).from(organization);
+    const orgs = await db
+      .select({ id: organization.id, name: organization.name })
+      .from(organization);
     console.log(`[ScheduledDigest] Found ${orgs.length} organizations`);
 
     let jobsQueued = 0;

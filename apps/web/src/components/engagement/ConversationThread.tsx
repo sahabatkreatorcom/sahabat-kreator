@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  AlertCircle,
   ArrowLeft,
   Check,
   FileText,
@@ -26,10 +25,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { engagementApi, aiAssistApi } from "@/lib/api-client";
 import type { EngagementItem } from "@/lib/api-client";
+import { aiAssistApi } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
-import { AIReplySuggestion } from "./AIReplySuggestion";
 import { CannedReply } from "./CannedReplies";
 
 interface ConversationThreadProps {
@@ -84,16 +82,14 @@ export function ConversationThread({
   };
 
   const insertCannedReply = (text: string) => {
-    setReplyContent((prev) => (prev ? prev + "\n" + text : text));
+    setReplyContent((prev) => (prev ? `${prev}\n${text}` : text));
     setShowCannedReplies(false);
   };
 
   const sentimentIcon = (sentiment?: string) => {
-    if (sentiment === "positive")
-      return <ThumbsUp className="h-3.5 w-3.5 text-green-500" />;
-    if (sentiment === "negative")
-      return <ThumbsDown className="h-3.5 w-3.5 text-red-500" />;
-    return <span className="h-3.5 w-3.5 inline-block rounded-full bg-gray-400" />;
+    if (sentiment === "positive") return <ThumbsUp className="h-3.5 w-3.5 text-green-500" />;
+    if (sentiment === "negative") return <ThumbsDown className="h-3.5 w-3.5 text-red-500" />;
+    return <span className="inline-block h-3.5 w-3.5 rounded-full bg-gray-400" />;
   };
 
   const sentimentLabel = (sentiment?: string) => {
@@ -114,7 +110,7 @@ export function ConversationThread({
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-[var(--border)] p-3">
+      <div className="flex items-center gap-3 border-[var(--border)] border-b p-3">
         <Button variant="ghost" size="sm" onClick={onBack} className="shrink-0">
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -127,7 +123,9 @@ export function ConversationThread({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <p className="truncate font-medium text-sm">{parentMessage.authorName}</p>
-            <span className="shrink-0 text-[var(--text-muted)] text-xs">@{parentMessage.authorUsername}</span>
+            <span className="shrink-0 text-[var(--text-muted)] text-xs">
+              @{parentMessage.authorUsername}
+            </span>
           </div>
           <p className="truncate text-[var(--text-muted)] text-xs">
             {parentMessage.platform} · {new Date(parentMessage.createdAt).toLocaleString("id-ID")}
@@ -165,11 +163,15 @@ export function ConversationThread({
           <div className="max-w-[75%] rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] p-3">
             <div className="mb-1 flex items-center gap-2">
               <span className="font-medium text-xs">{parentMessage.authorName}</span>
-              <span className="text-[var(--text-muted)] text-xs">@{parentMessage.authorUsername}</span>
+              <span className="text-[var(--text-muted)] text-xs">
+                @{parentMessage.authorUsername}
+              </span>
             </div>
-            <p className="text-[var(--text-primary)] text-sm whitespace-pre-wrap">{parentMessage.content}</p>
+            <p className="whitespace-pre-wrap text-[var(--text-primary)] text-sm">
+              {parentMessage.content}
+            </p>
             {parentMessage.postCaption && (
-              <div className="mt-2 flex items-start gap-1.5 rounded-md border-l-2 border-[var(--accent-gold)] bg-[var(--bg-tertiary)] p-2">
+              <div className="mt-2 flex items-start gap-1.5 rounded-md border-[var(--accent-gold)] border-l-2 bg-[var(--bg-tertiary)] p-2">
                 <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--accent-gold)]" />
                 <p className="text-[var(--text-muted)] text-xs italic">
                   {parentMessage.postCaption.slice(0, 80)}
@@ -209,11 +211,11 @@ export function ConversationThread({
                 msg.type === "dm" && !msg.isRead
                   ? "bg-[var(--accent-gold)] text-[var(--bg-primary)]"
                   : msg.type === "dm"
-                    ? "bg-[var(--bg-secondary)] border border-[var(--border)]"
+                    ? "border border-[var(--border)] bg-[var(--bg-secondary)]"
                     : "border border-[var(--border)] bg-[var(--bg-secondary)]",
               )}
             >
-              <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+              <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
               <p
                 className={cn(
                   "mt-1 text-xs",
@@ -237,7 +239,7 @@ export function ConversationThread({
       </div>
 
       {/* Reply Input */}
-      <div className="border-t border-[var(--border)] p-3">
+      <div className="border-[var(--border)] border-t p-3">
         <div className="space-y-2">
           {/* Toolbar */}
           <div className="flex items-center gap-1">
@@ -284,16 +286,24 @@ export function ConversationThread({
             <Button
               onClick={handleSend}
               disabled={sending || !replyContent.trim()}
-              className="self-end shrink-0"
+              className="shrink-0 self-end"
             >
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              {sending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>
       </div>
 
       {/* Canned Replies Dialog */}
-      <CannedReply onInsert={insertCannedReply} onClose={() => setShowCannedReplies(false)} open={showCannedReplies} />
+      <CannedReply
+        onInsert={insertCannedReply}
+        onClose={() => setShowCannedReplies(false)}
+        open={showCannedReplies}
+      />
 
       {/* Label Dialog */}
       <Dialog open={labelDialogOpen} onOpenChange={setLabelDialogOpen}>

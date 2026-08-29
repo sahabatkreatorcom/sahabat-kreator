@@ -1,10 +1,10 @@
 "use client";
 
-import { Clock, Zap, TrendingUp, TrendingDown, ArrowUpRight } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { ArrowUpRight, Clock, TrendingDown, TrendingUp, Zap } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 const WEEKDAYS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
@@ -76,7 +76,7 @@ export function BestTimeToPost({
             </CardTitle>
             <span
               className={cn(
-                "flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+                "flex items-center gap-1 rounded-full px-2 py-0.5 font-medium text-xs",
                 trend.trend === "up" && "bg-green-500/10 text-green-600",
                 trend.trend === "down" && "bg-red-500/10 text-red-600",
                 trend.trend === "neutral" && "bg-[var(--bg-tertiary)] text-[var(--text-muted)]",
@@ -100,7 +100,7 @@ export function BestTimeToPost({
                 <div className="mb-1 grid grid-cols-[36px_repeat(24,1fr)] gap-0.5">
                   <div />
                   {HOURS.filter((h) => h % 4 === 0).map((h) => (
-                    <div key={h} className="text-center text-[var(--text-muted)] text-[10px]">
+                    <div key={h} className="text-center text-[10px] text-[var(--text-muted)]">
                       {String(h).padStart(2, "0")}
                     </div>
                   ))}
@@ -109,7 +109,7 @@ export function BestTimeToPost({
                 <div className="space-y-0.5">
                   {WEEKDAYS.map((day, di) => (
                     <div key={day} className="grid grid-cols-[36px_repeat(24,1fr)] gap-0.5">
-                      <div className="text-[var(--text-muted)] text-[10px] flex items-center">
+                      <div className="flex items-center text-[10px] text-[var(--text-muted)]">
                         {day}
                       </div>
                       {HOURS.map((hour) => {
@@ -118,7 +118,7 @@ export function BestTimeToPost({
                           <div
                             key={`${di}-${hour}`}
                             className={cn(
-                              "aspect-square rounded-sm transition-colors cursor-pointer hover:ring-1 hover:ring-[var(--accent-gold)]",
+                              "aspect-square cursor-pointer rounded-sm transition-colors hover:ring-1 hover:ring-[var(--accent-gold)]",
                               getColor(cell?.score || 0),
                             )}
                             title={`${day} ${String(hour).padStart(2, "0")}:00 — skor ${cell?.score ?? 0}`}
@@ -130,7 +130,7 @@ export function BestTimeToPost({
                 </div>
                 {/* Legend */}
                 <div className="mt-2 flex items-center justify-end gap-1">
-                  <span className="text-[var(--text-muted)] text-[10px]">Rendah</span>
+                  <span className="text-[10px] text-[var(--text-muted)]">Rendah</span>
                   {[0, 0.25, 0.5, 0.75, 1].map((level) => (
                     <div
                       key={level}
@@ -141,7 +141,7 @@ export function BestTimeToPost({
                       }`}
                     />
                   ))}
-                  <span className="text-[var(--text-muted)] text-[10px]">Tinggi</span>
+                  <span className="text-[10px] text-[var(--text-muted)]">Tinggi</span>
                 </div>
               </div>
             </div>
@@ -156,7 +156,7 @@ export function BestTimeToPost({
             <Card key={rec.platform}>
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium">{rec.platform}</CardTitle>
+                  <CardTitle className="font-medium text-sm">{rec.platform}</CardTitle>
                   <span className="text-[var(--text-muted)] text-xs">
                     {rec.confidence >= 80 ? "Tinggi" : rec.confidence >= 50 ? "Sedang" : "Rendah"}
                   </span>
@@ -168,7 +168,7 @@ export function BestTimeToPost({
                   {rec.bestHours.map((h) => (
                     <span
                       key={h}
-                      className="rounded-md bg-[var(--accent-gold)]/15 px-2 py-0.5 text-xs font-medium text-[var(--accent-gold)]"
+                      className="rounded-md bg-[var(--accent-gold)]/15 px-2 py-0.5 font-medium text-[var(--accent-gold)] text-xs"
                     >
                       {String(h).padStart(2, "0")}:00
                     </span>
@@ -199,7 +199,7 @@ export function BestTimeToPost({
       <Button
         onClick={handlePostNow}
         disabled={isPosting}
-        className="w-full gap-2 bg-gradient text-base py-3"
+        className="w-full gap-2 bg-gradient py-3 text-base"
       >
         <Zap className="h-4 w-4" />
         {isPosting ? "Menjalankan..." : "Posting Sekarang"}
@@ -224,9 +224,7 @@ function MiniLineChart({ data }: { data: number[] }) {
     y: pad.top + ch - ((v - min) / range) * ch,
   }));
 
-  const linePath = points
-    .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
-    .join(" ");
+  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   const areaPath =
     linePath +
     ` L ${points[points.length - 1]?.x ?? 0} ${pad.top + ch} L ${points[0]?.x ?? 0} ${pad.top + ch} Z`;
@@ -240,7 +238,13 @@ function MiniLineChart({ data }: { data: number[] }) {
         </linearGradient>
       </defs>
       <path d={areaPath} fill="url(#besttime-trend)" />
-      <path d={linePath} fill="none" stroke="var(--accent-gold)" strokeWidth="2" strokeLinecap="round" />
+      <path
+        d={linePath}
+        fill="none"
+        stroke="var(--accent-gold)"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
       {points.map((p, i) => (
         <circle key={i} cx={p.x} cy={p.y} r="3" className="fill-[var(--accent-gold)]" />
       ))}

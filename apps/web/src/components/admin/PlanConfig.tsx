@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Pencil, Save, X, Check, Zap, Users, LayoutGrid, Download, Shield } from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { Check, Download, LayoutGrid, Pencil, Save, Users, X, Zap } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface PlanFeature {
   key: string;
   label: string;
   description: string;
-  type: 'boolean' | 'number' | 'select';
+  type: "boolean" | "number" | "select";
   options?: string[];
   defaultValue: string | boolean | number;
 }
@@ -25,87 +25,123 @@ interface PlanConfig {
 
 const FEATURE_SCHEMA: PlanFeature[] = [
   {
-    key: 'socialAccounts',
-    label: 'Akun Media Sosial',
-    description: 'Jumlah akun media sosial yang bisa dihubungkan',
-    type: 'number',
+    key: "socialAccounts",
+    label: "Akun Media Sosial",
+    description: "Jumlah akun media sosial yang bisa dihubungkan",
+    type: "number",
     defaultValue: 3,
   },
   {
-    key: 'teamMembers',
-    label: 'Anggota Tim',
-    description: 'Jumlah maksimal anggota tim dalam organisasi',
-    type: 'number',
+    key: "teamMembers",
+    label: "Anggota Tim",
+    description: "Jumlah maksimal anggota tim dalam organisasi",
+    type: "number",
     defaultValue: 2,
   },
   {
-    key: 'scheduledPostsPerMonth',
-    label: 'Post Terjadwal/bulan',
-    description: 'Maksimum post yang bisa dijadwalkan setiap bulan',
-    type: 'number',
+    key: "scheduledPostsPerMonth",
+    label: "Post Terjadwal/bulan",
+    description: "Maksimum post yang bisa dijadwalkan setiap bulan",
+    type: "number",
     defaultValue: 30,
   },
   {
-    key: 'aiGenerationsPerMonth',
-    label: 'AI Generations/bulan',
-    description: 'Maksimum generate AI caption per bulan',
-    type: 'number',
+    key: "aiGenerationsPerMonth",
+    label: "AI Generations/bulan",
+    description: "Maksimum generate AI caption per bulan",
+    type: "number",
     defaultValue: 10,
   },
   {
-    key: 'analyticsExport',
-    label: 'Ekspor Analitik',
-    description: 'Izinkan ekspor data analitik ke CSV/PDF',
-    type: 'boolean',
+    key: "analyticsExport",
+    label: "Ekspor Analitik",
+    description: "Izinkan ekspor data analitik ke CSV/PDF",
+    type: "boolean",
     defaultValue: false,
   },
   {
-    key: 'customBranding',
-    label: 'Branding Kustom',
-    description: 'Logo & warna brand di post yang dipublikasikan',
-    type: 'boolean',
+    key: "customBranding",
+    label: "Branding Kustom",
+    description: "Logo & warna brand di post yang dipublikasikan",
+    type: "boolean",
     defaultValue: false,
   },
   {
-    key: 'prioritySupport',
-    label: 'Dukungan Prioritas',
-    description: 'Support channel khusus dengan respon lebih cepat',
-    type: 'boolean',
+    key: "prioritySupport",
+    label: "Dukungan Prioritas",
+    description: "Support channel khusus dengan respon lebih cepat",
+    type: "boolean",
     defaultValue: false,
   },
   {
-    key: 'mediaStorage',
-    label: 'Penyimpanan Media (GB)',
-    description: 'Kuota penyimpanan media per organisasi',
-    type: 'number',
+    key: "mediaStorage",
+    label: "Penyimpanan Media (GB)",
+    description: "Kuota penyimpanan media per organisasi",
+    type: "number",
     defaultValue: 5,
   },
 ];
 
 const DEFAULT_PLANS: PlanConfig[] = [
   {
-    id: 'free',
-    name: 'Free',
-    color: '#6B7280',
-    features: { socialAccounts: 3, teamMembers: 2, scheduledPostsPerMonth: 30, aiGenerationsPerMonth: 10, analyticsExport: false, customBranding: false, prioritySupport: false, mediaStorage: 1 },
+    id: "free",
+    name: "Free",
+    color: "#6B7280",
+    features: {
+      socialAccounts: 3,
+      teamMembers: 2,
+      scheduledPostsPerMonth: 30,
+      aiGenerationsPerMonth: 10,
+      analyticsExport: false,
+      customBranding: false,
+      prioritySupport: false,
+      mediaStorage: 1,
+    },
   },
   {
-    id: 'pro',
-    name: 'Pro',
-    color: '#8B5CF6',
-    features: { socialAccounts: 10, teamMembers: 5, scheduledPostsPerMonth: 150, aiGenerationsPerMonth: 100, analyticsExport: true, customBranding: false, prioritySupport: false, mediaStorage: 10 },
+    id: "pro",
+    name: "Pro",
+    color: "#8B5CF6",
+    features: {
+      socialAccounts: 10,
+      teamMembers: 5,
+      scheduledPostsPerMonth: 150,
+      aiGenerationsPerMonth: 100,
+      analyticsExport: true,
+      customBranding: false,
+      prioritySupport: false,
+      mediaStorage: 10,
+    },
   },
   {
-    id: 'business',
-    name: 'Business',
-    color: '#D4A574',
-    features: { socialAccounts: 25, teamMembers: 15, scheduledPostsPerMonth: 500, aiGenerationsPerMonth: 500, analyticsExport: true, customBranding: true, prioritySupport: false, mediaStorage: 50 },
+    id: "business",
+    name: "Business",
+    color: "#D4A574",
+    features: {
+      socialAccounts: 25,
+      teamMembers: 15,
+      scheduledPostsPerMonth: 500,
+      aiGenerationsPerMonth: 500,
+      analyticsExport: true,
+      customBranding: true,
+      prioritySupport: false,
+      mediaStorage: 50,
+    },
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise',
-    color: '#F59E0B',
-    features: { socialAccounts: -1, teamMembers: -1, scheduledPostsPerMonth: -1, aiGenerationsPerMonth: -1, analyticsExport: true, customBranding: true, prioritySupport: true, mediaStorage: -1 },
+    id: "enterprise",
+    name: "Enterprise",
+    color: "#F59E0B",
+    features: {
+      socialAccounts: -1,
+      teamMembers: -1,
+      scheduledPostsPerMonth: -1,
+      aiGenerationsPerMonth: -1,
+      analyticsExport: true,
+      customBranding: true,
+      prioritySupport: true,
+      mediaStorage: -1,
+    },
   },
 ];
 
@@ -128,17 +164,17 @@ export function PlanConfig() {
     try {
       // Call API to update plan config
       const res = await fetch(`/api/admin/plans/${planId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ features: editForm }),
       });
-      if (!res.ok) throw new Error('Failed to save');
+      if (!res.ok) throw new Error("Failed to save");
       setPlans((prev) =>
         prev.map((p) => (p.id === planId ? { ...p, features: { ...editForm } } : p)),
       );
-      toast.success('Plan berhasil diperbarui');
+      toast.success("Plan berhasil diperbarui");
     } catch {
-      toast.error('Gagal memperbarui plan');
+      toast.error("Gagal memperbarui plan");
     } finally {
       setEditingId(null);
     }
@@ -157,7 +193,12 @@ export function PlanConfig() {
             Atur fitur dan limit untuk setiap tier langganan
           </p>
         </div>
-        <Button variant="secondary" size="sm" className="gap-2" onClick={() => toast.success('Konfigurasi tersimpan')}>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="gap-2"
+          onClick={() => toast.success("Konfigurasi tersimpan")}
+        >
           <Save className="h-4 w-4" />
           Simpan Semua
         </Button>
@@ -166,23 +207,32 @@ export function PlanConfig() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {plans.map((plan) => {
           const isEditing = editingId === plan.id;
-          const isUnlimited = (v: number) => v === -1 || v === Infinity;
+          const isUnlimited = (v: number) => v === -1 || v === Number.POSITIVE_INFINITY;
 
           return (
-            <div key={plan.id} className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] p-5">
+            <div
+              key={plan.id}
+              className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] p-5"
+            >
               {/* Header */}
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl font-bold text-white" style={{ backgroundColor: `${plan.color}20`, color: plan.color }}>
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-xl font-bold text-white"
+                    style={{ backgroundColor: `${plan.color}20`, color: plan.color }}
+                  >
                     {plan.name.charAt(0)}
                   </div>
                   <div>
                     <h3 className="font-semibold">{plan.name}</h3>
                     <p className="text-[var(--text-muted)] text-xs">
-                      {plan.id === 'free' ? 'Tier dasar gratis' :
-                       plan.id === 'pro' ? 'Untuk kreator berkembang' :
-                       plan.id === 'business' ? 'Untuk tim & agensi' :
-                       'Unlimited everything'}
+                      {plan.id === "free"
+                        ? "Tier dasar gratis"
+                        : plan.id === "pro"
+                          ? "Untuk kreator berkembang"
+                          : plan.id === "business"
+                            ? "Untuk tim & agensi"
+                            : "Unlimited everything"}
                     </p>
                   </div>
                 </div>
@@ -200,8 +250,8 @@ export function PlanConfig() {
               <div className="space-y-3">
                 {FEATURE_SCHEMA.map((feat) => {
                   const value = editForm[feat.key] ?? plan.features[feat.key];
-                  const isNum = typeof value === 'number';
-                  const isBool = typeof value === 'boolean';
+                  const isNum = typeof value === "number";
+                  const _isBool = typeof value === "boolean";
 
                   if (isEditing) {
                     return (
@@ -210,7 +260,7 @@ export function PlanConfig() {
                           <p className="font-medium text-sm">{feat.label}</p>
                           <p className="text-[var(--text-muted)] text-xs">{feat.description}</p>
                         </div>
-                        {feat.type === 'boolean' ? (
+                        {feat.type === "boolean" ? (
                           <label className="relative inline-flex cursor-pointer items-center">
                             <input
                               type="checkbox"
@@ -218,10 +268,14 @@ export function PlanConfig() {
                               onChange={(e) => handleFeatureChange(feat.key, e.target.checked)}
                               className="sr-only"
                             />
-                            <div className={cn(
-                              'peer h-6 w-11 rounded-full transition-all after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[""]',
-                              value ? 'bg-[var(--accent-gold)] after:translate-x-full' : 'bg-[var(--bg-tertiary)]',
-                            )} />
+                            <div
+                              className={cn(
+                                'peer h-6 w-11 rounded-full transition-all after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[""]',
+                                value
+                                  ? "bg-[var(--accent-gold)] after:translate-x-full"
+                                  : "bg-[var(--bg-tertiary)]",
+                              )}
+                            />
                           </label>
                         ) : (
                           <Input
@@ -237,24 +291,40 @@ export function PlanConfig() {
                   }
 
                   return (
-                    <div key={feat.key} className="flex items-center justify-between border-[var(--border-light)] border-b py-2 last:border-0">
+                    <div
+                      key={feat.key}
+                      className="flex items-center justify-between border-[var(--border-light)] border-b py-2 last:border-0"
+                    >
                       <span className="text-[var(--text-secondary)] text-sm">{feat.label}</span>
                       <span className="font-medium text-sm">
-                        {isNum ? (isUnlimited(value as number) ? (
-                          <span className="flex items-center gap-1 text-[var(--accent-gold)]">
-                            <Zap className="h-3 w-3" /> Unlimited
-                          </span>
+                        {isNum ? (
+                          isUnlimited(value as number) ? (
+                            <span className="flex items-center gap-1 text-[var(--accent-gold)]">
+                              <Zap className="h-3 w-3" /> Unlimited
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1">
+                              {feat.key === "teamMembers" && (
+                                <Users className="h-3 w-3 text-[var(--text-muted)]" />
+                              )}
+                              {feat.key === "scheduledPostsPerMonth" && (
+                                <LayoutGrid className="h-3 w-3 text-[var(--text-muted)]" />
+                              )}
+                              {feat.key === "analyticsExport" && (
+                                <Download className="h-3 w-3 text-[var(--text-muted)]" />
+                              )}
+                              {isUnlimited(value as number) ? "∞" : `${value}`}
+                            </span>
+                          )
                         ) : (
-                          <span className="flex items-center gap-1">
-                            {feat.key === 'teamMembers' && <Users className="h-3 w-3 text-[var(--text-muted)]" />}
-                            {feat.key === 'scheduledPostsPerMonth' && <LayoutGrid className="h-3 w-3 text-[var(--text-muted)]" />}
-                            {feat.key === 'analyticsExport' && <Download className="h-3 w-3 text-[var(--text-muted)]" />}
-                            {isUnlimited(value as number) ? '∞' : `${value}`}
-                          </span>
-                        )) : (
-                          <span className={cn('flex items-center gap-1', value ? 'text-[var(--success)]' : 'text-[var(--text-muted)]')}>
+                          <span
+                            className={cn(
+                              "flex items-center gap-1",
+                              value ? "text-[var(--success)]" : "text-[var(--text-muted)]",
+                            )}
+                          >
                             {value ? <Check className="h-3.5 w-3.5" /> : <span>—</span>}
-                            {value ? 'Ya' : 'Tidak'}
+                            {value ? "Ya" : "Tidak"}
                           </span>
                         )}
                       </span>

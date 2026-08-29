@@ -1,12 +1,7 @@
 import { pgEnum } from "drizzle-orm/pg-core";
 
 // ── Engagement Thread Status ─────────────────────────────────────
-export const threadStatusEnum = pgEnum("thread_status", [
-  "OPEN",
-  "REPLIED",
-  "ARCHIVED",
-  "TRASHED",
-]);
+export const threadStatusEnum = pgEnum("thread_status", ["OPEN", "REPLIED", "ARCHIVED", "TRASHED"]);
 
 // ── Push Notification Queue Status ───────────────────────────────
 export const pushNotificationStatusEnum = pgEnum("push_notification_status", [
@@ -45,11 +40,7 @@ export const utmCampaignTypeEnum = pgEnum("utm_campaign_type", [
 ]);
 
 // ── Sound Platform ───────────────────────────────────────────────
-export const soundPlatformEnum = pgEnum("sound_platform", [
-  "INSTAGRAM",
-  "TIKTOK",
-  "YOUTUBE",
-]);
+export const soundPlatformEnum = pgEnum("sound_platform", ["INSTAGRAM", "TIKTOK", "YOUTUBE"]);
 
 // ── Shop Connection Platform ─────────────────────────────────────
 export const shopConnectionPlatformEnum = pgEnum("shop_connection_platform", [
@@ -72,6 +63,7 @@ export const brandVoiceToneEnum = pgEnum("brand_voice_tone", [
 // ── Platform ─────────────────────────────────────────────────────
 export const platformEnum = pgEnum("platform", [
   "INSTAGRAM",
+  "INSTAGRAM_PAGE",
   "TIKTOK",
   "YOUTUBE",
   "FACEBOOK",
@@ -84,21 +76,10 @@ export const platformEnum = pgEnum("platform", [
 ]);
 
 // ── Organization Tier ────────────────────────────────────────────
-export const orgTierEnum = pgEnum("org_tier", [
-  "FREE",
-  "STARTER",
-  "PRO",
-  "BUSINESS",
-  "ENTERPRISE",
-]);
+export const orgTierEnum = pgEnum("org_tier", ["FREE", "STARTER", "PRO", "BUSINESS", "ENTERPRISE"]);
 
 // ── Member Role ──────────────────────────────────────────────────
-export const memberRoleEnum = pgEnum("member_role", [
-  "OWNER",
-  "ADMIN",
-  "MEMBER",
-  "VIEWER",
-]);
+export const memberRoleEnum = pgEnum("member_role", ["OWNER", "ADMIN", "MEMBER", "VIEWER"]);
 
 // ── Post Status ──────────────────────────────────────────────────
 export const postStatusEnum = pgEnum("post_status", [
@@ -111,13 +92,7 @@ export const postStatusEnum = pgEnum("post_status", [
 ]);
 
 // ── Post Type ────────────────────────────────────────────────────
-export const postTypeEnum = pgEnum("post_type", [
-  "POST",
-  "STORY",
-  "REEL",
-  "CAROUSEL",
-  "VIDEO",
-]);
+export const postTypeEnum = pgEnum("post_type", ["POST", "STORY", "REEL", "CAROUSEL", "VIDEO"]);
 
 // ── Engagement Item Type ─────────────────────────────────────────
 export const engagementItemTypeEnum = pgEnum("engagement_item_type", [
@@ -142,11 +117,7 @@ export const notificationTypeEnum = pgEnum("notification_type", [
 ]);
 
 // ── Sentiment ────────────────────────────────────────────────────
-export const sentimentEnum = pgEnum("sentiment", [
-  "POSITIVE",
-  "NEGATIVE",
-  "NEUTRAL",
-]);
+export const sentimentEnum = pgEnum("sentiment", ["POSITIVE", "NEGATIVE", "NEUTRAL"]);
 
 // ── Draft Action ─────────────────────────────────────────────────
 export const draftActionEnum = pgEnum("draft_action", [
@@ -209,11 +180,7 @@ export const skRecommendationStatusEnum = pgEnum("sk_recommendation_status", [
 ]);
 
 // ── SK Chat Role ─────────────────────────────────────────────────
-export const skChatRoleEnum = pgEnum("sk_chat_role", [
-  "USER",
-  "ASSISTANT",
-  "SYSTEM",
-]);
+export const skChatRoleEnum = pgEnum("sk_chat_role", ["USER", "ASSISTANT", "SYSTEM"]);
 
 // ── SK Experiment Status ─────────────────────────────────────────
 export const skExperimentStatusEnum = pgEnum("sk_experiment_status", [

@@ -65,7 +65,7 @@ export default function ChangelogPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* Header */}
-      <header className="border-b border-[var(--border)]">
+      <header className="border-[var(--border)] border-b">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
             <ArrowLeft className="h-5 w-5" />
@@ -97,7 +97,7 @@ export default function ChangelogPage() {
         </div>
 
         <div className="space-y-8">
-          {CHANGELOG_DATA.map((entry, index) => (
+          {CHANGELOG_DATA.map((entry, _index) => (
             <div
               key={entry.version}
               className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] p-6"
@@ -109,7 +109,9 @@ export default function ChangelogPage() {
                 <span className="text-[var(--text-muted)] text-sm">{entry.date}</span>
               </div>
 
-              <h2 className="mb-2 font-semibold text-xl text-[var(--text-primary)]">{entry.title}</h2>
+              <h2 className="mb-2 font-semibold text-[var(--text-primary)] text-xl">
+                {entry.title}
+              </h2>
               <p className="mb-4 text-[var(--text-muted)]">{entry.description}</p>
 
               <div className="space-y-2">
@@ -117,7 +119,9 @@ export default function ChangelogPage() {
                   const config = CHANGE_TYPE_CONFIG[change.type];
                   return (
                     <div key={changeIndex} className="flex items-start gap-2">
-                      <span className={`mt-0.5 rounded-full px-2 py-0.5 text-xs ${config.className}`}>
+                      <span
+                        className={`mt-0.5 rounded-full px-2 py-0.5 text-xs ${config.className}`}
+                      >
                         {config.label}
                       </span>
                       <span className="text-[var(--text-primary)] text-sm">{change.text}</span>
@@ -131,7 +135,7 @@ export default function ChangelogPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[var(--border)] py-8">
+      <footer className="border-[var(--border)] border-t py-8">
         <div className="mx-auto max-w-4xl px-6 text-center text-[var(--text-muted)] text-sm">
           <p>&copy; 2026 Sahabat Kreator. Hak cipta dilindungi.</p>
         </div>

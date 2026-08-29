@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-
 /**
  * Hono-style admin middleware for API routes on the Hono server.
  * This file is kept for reference and potential reuse in the server app.

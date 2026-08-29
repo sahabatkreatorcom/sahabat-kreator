@@ -40,7 +40,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* Header */}
-      <header className="border-b border-[var(--border)]">
+      <header className="border-[var(--border)] border-b">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
             <ArrowLeft className="h-5 w-5" />
@@ -156,7 +156,11 @@ export default function ContactPage() {
               </div>
 
               <Button type="submit" disabled={loading} className="w-full gap-2">
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
                 Kirim Pesan
               </Button>
             </form>
@@ -165,7 +169,7 @@ export default function ContactPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[var(--border)] py-8">
+      <footer className="border-[var(--border)] border-t py-8">
         <div className="mx-auto max-w-4xl px-6 text-center text-[var(--text-muted)] text-sm">
           <p>&copy; 2026 Sahabat Kreator. Hak cipta dilindungi.</p>
         </div>

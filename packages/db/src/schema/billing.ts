@@ -26,9 +26,7 @@ export const payment = pgTable(
     customerEmail: text("customer_email"),
     customerPhone: text("customer_phone"),
     invoiceNumber: text("invoice_number").notNull().unique(),
-    status: text("status", { enum: paymentStatusEnum.enumValues })
-      .default("PENDING")
-      .notNull(),
+    status: text("status", { enum: paymentStatusEnum.enumValues }).default("PENDING").notNull(),
     sumopodPaymentId: text("sumopod_payment_id"),
     checkoutUrl: text("checkout_url"),
     paymentLinkUrl: text("payment_link_url"),
@@ -89,30 +87,27 @@ export const subscription = pgTable(
 );
 
 // ── Global Integration Settings (singleton) ────────────────────���───
-export const globalIntegrationSettings = pgTable(
-  "global_integration_settings",
-  {
-    id: text("id").primaryKey(),
-    // SumoPod Pay
-    sumopodApiKey: text("sumopod_api_key"),
-    sumopodApiSecret: text("sumopod_api_secret"),
-    sumopodWebhookSecret: text("sumopod_webhook_secret"),
-    sumopodWebhookToken: text("sumopod_webhook_token"),
-    sumopodBase: text("sumopod_base"),
-    sumopodConfigured: boolean("sumopod_configured").default(false),
-    // OpenRouter AI
-    openrouterApiKey: text("openrouter_api_key"),
-    openrouterConfigured: boolean("openrouter_configured").default(false),
-    // Platform OAuth (encrypted)
-    metaAppId: text("meta_app_id"),
-    metaAppSecret: text("meta_app_secret"),
-    youtubeApiKey: text("youtube_api_key"),
-    tiktokClientId: text("tiktok_client_id"),
-    tiktokClientSecret: text("tiktok_client_secret"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => new Date())
-      .notNull(),
-  },
-);
+export const globalIntegrationSettings = pgTable("global_integration_settings", {
+  id: text("id").primaryKey(),
+  // SumoPod Pay
+  sumopodApiKey: text("sumopod_api_key"),
+  sumopodApiSecret: text("sumopod_api_secret"),
+  sumopodWebhookSecret: text("sumopod_webhook_secret"),
+  sumopodWebhookToken: text("sumopod_webhook_token"),
+  sumopodBase: text("sumopod_base"),
+  sumopodConfigured: boolean("sumopod_configured").default(false),
+  // OpenRouter AI
+  openrouterApiKey: text("openrouter_api_key"),
+  openrouterConfigured: boolean("openrouter_configured").default(false),
+  // Platform OAuth (encrypted)
+  metaAppId: text("meta_app_id"),
+  metaAppSecret: text("meta_app_secret"),
+  youtubeApiKey: text("youtube_api_key"),
+  tiktokClientId: text("tiktok_client_id"),
+  tiktokClientSecret: text("tiktok_client_secret"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});

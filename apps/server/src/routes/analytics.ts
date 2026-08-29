@@ -1,6 +1,6 @@
 import { db } from "@sahabatkreator/db";
-import { post, socialAccount, media } from "@sahabatkreator/db/schema";
-import { and, count, desc, eq, sql, gte } from "drizzle-orm";
+import { media, post, socialAccount } from "@sahabatkreator/db/schema";
+import { and, count, desc, eq, gte, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { requireAuth } from "../lib/auth-middleware";
 import { getOrganizationId } from "../lib/context";
@@ -133,12 +133,7 @@ analyticsApp.get("/platforms", async (c) => {
       const postCount = await db
         .select({ count: count() })
         .from(post)
-        .where(
-          and(
-            eq(post.organizationId, organizationId),
-            eq(post.socialAccountId, p.id),
-          ),
-        );
+        .where(and(eq(post.organizationId, organizationId), eq(post.socialAccountId, p.id)));
 
       return {
         ...p,

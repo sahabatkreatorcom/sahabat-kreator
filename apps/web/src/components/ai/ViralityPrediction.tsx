@@ -1,21 +1,13 @@
 "use client";
 
+import { Brain, Copy, RefreshCw, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useState } from "react";
-import {
-  Brain,
-  Copy,
-  ThumbsDown,
-  ThumbsUp,
-  Sparkles,
-  Check,
-  RefreshCw,
-} from "lucide-react";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 interface HookResult {
   id: string;
@@ -39,7 +31,7 @@ const SCORE_THRESHOLDS = {
   low: { min: 0, label: "Perlu Peningkatan", color: "bg-red-500" },
 };
 
-const HOOK_TYPES = ["question", "statement", "number", "controversial", "story"] as const;
+const _HOOK_TYPES = ["question", "statement", "number", "controversial", "story"] as const;
 const HOOK_TYPE_LABELS: Record<string, string> = {
   question: "Pertanyaan",
   statement: "Pernyataan",
@@ -60,7 +52,10 @@ function calculateViralityScore(
   const hasEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(content);
   const hasQuestion = /\?/.test(content);
   const hasNumber = /\d+/.test(content);
-  const hasStrongWords = /\b!(?!.*\?!|.*\.\!)|\bwow\b|\bharus\b|\btidak\b|\bsangat\b|\bseru\b|\bluar biasa\b/i.test(content);
+  const hasStrongWords =
+    /\b!(?!.*\?!|.*\.!)|\bwow\b|\bharus\b|\btidak\b|\bsangat\b|\bseru\b|\bluar biasa\b/i.test(
+      content,
+    );
 
   const hookStrength = Math.min(
     100,
@@ -132,7 +127,10 @@ export function ViralityPrediction({
   onImprove,
 }: ViralityPredictionProps) {
   const [localContent, setLocalContent] = useState(content);
-  const [result, setResult] = useState<{ score: number; factors: { name: string; value: number; max: number }[] } | null>(null);
+  const [result, setResult] = useState<{
+    score: number;
+    factors: { name: string; value: number; max: number }[];
+  } | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
 
   const analyze = () => {
@@ -186,12 +184,12 @@ export function ViralityPrediction({
 
         <div className="flex gap-2">
           <Button onClick={analyze} isLoading={analyzing}>
-            <Sparkles className="h-4 w-4 mr-2" />
+            <Sparkles className="mr-2 h-4 w-4" />
             Analisis
           </Button>
           {result && (
             <Button variant="secondary" onClick={() => setResult(null)}>
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw className="mr-2 h-4 w-4" />
               Ulangi
             </Button>
           )}
@@ -224,7 +222,7 @@ export function ViralityPrediction({
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-2xl font-bold">{result.score}</span>
+                  <span className="font-bold text-2xl">{result.score}</span>
                   <span className="text-[var(--text-muted)] text-xs">/100</span>
                 </div>
               </div>
@@ -233,7 +231,7 @@ export function ViralityPrediction({
                 <Badge
                   variant="secondary"
                   className={cn(
-                    "text-sm px-3 py-1",
+                    "px-3 py-1 text-sm",
                     getThreshold(result.score).color,
                     "text-white",
                   )}
@@ -241,7 +239,8 @@ export function ViralityPrediction({
                   {getThreshold(result.score).label}
                 </Badge>
                 <p className="mt-2 text-[var(--text-muted)] text-xs">
-                  Skor didasarkan pada kekuatan hook, waktu posting, cakupan hashtag, dan kesesuaian platform
+                  Skor didasarkan pada kekuatan hook, waktu posting, cakupan hashtag, dan kesesuaian
+                  platform
                 </p>
               </div>
             </div>
@@ -275,11 +274,11 @@ export function ViralityPrediction({
 
             {/* Suggestions */}
             {suggestions.length > 0 && (
-              <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-3">
-                <p className="font-medium text-sm text-yellow-700 mb-2">Saran Peningkatan</p>
+              <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-3">
+                <p className="mb-2 font-medium text-sm text-yellow-700">Saran Peningkatan</p>
                 <ul className="space-y-1">
                   {suggestions.map((s, i) => (
-                    <li key={i} className="flex items-center gap-2 text-yellow-700 text-xs">
+                    <li key={i} className="flex items-center gap-2 text-xs text-yellow-700">
                       <span>•</span> {s}
                     </li>
                   ))}
@@ -326,9 +325,7 @@ export function HookGenerator({ currentTopic = "" }: { currentTopic?: string }) 
   };
 
   const rateHook = (id: string, rating: number) => {
-    setHooks((prev) =>
-      prev ? prev.map((h) => (h.id === id ? { ...h, rating } : h)) : prev,
-    );
+    setHooks((prev) => (prev ? prev.map((h) => (h.id === id ? { ...h, rating } : h)) : prev));
   };
 
   return (
@@ -352,7 +349,7 @@ export function HookGenerator({ currentTopic = "" }: { currentTopic?: string }) 
           />
         </div>
         <Button onClick={generate} isLoading={generating}>
-          <Sparkles className="h-4 w-4 mr-2" />
+          <Sparkles className="mr-2 h-4 w-4" />
           Generate Hook
         </Button>
 
@@ -404,7 +401,7 @@ export function HookGenerator({ currentTopic = "" }: { currentTopic?: string }) 
                     <ThumbsDown className="h-3.5 w-3.5" />
                   </button>
                   {hook.rating !== undefined && (
-                    <span className="text-[var(--text-muted)] text-xs self-center ml-1">
+                    <span className="ml-1 self-center text-[var(--text-muted)] text-xs">
                       {hook.rating > 0 ? "👍" : "👎"}
                     </span>
                   )}

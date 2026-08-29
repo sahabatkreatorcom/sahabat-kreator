@@ -70,7 +70,7 @@ export function PushNotificationBell({ onBadgeUpdate }: PushNotificationBellProp
       {showMenu && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-          <div className="absolute right-0 top-full z-50 mt-2 w-72 rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] p-3 shadow-xl">
+          <div className="absolute top-full right-0 z-50 mt-2 w-72 rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] p-3 shadow-xl">
             <p className="mb-2 font-semibold text-sm">Notifikasi Push</p>
 
             {!isPermissionGranted ? (
@@ -96,7 +96,7 @@ export function PushNotificationBell({ onBadgeUpdate }: PushNotificationBellProp
               </div>
             ) : (
               <div className="space-y-2">
-                <p className="text-xs text-[var(--success)]">✓ Sudah berlangganan</p>
+                <p className="text-[var(--success)] text-xs">✓ Sudah berlangganan</p>
                 <button
                   type="button"
                   onClick={handleTest}
@@ -107,7 +107,7 @@ export function PushNotificationBell({ onBadgeUpdate }: PushNotificationBellProp
                 <button
                   type="button"
                   onClick={handleUnsubscribe}
-                  className="w-full rounded-lg border border-red-500/30 px-3 py-2 font-medium text-sm text-red-400 hover:bg-red-500/10"
+                  className="w-full rounded-lg border border-red-500/30 px-3 py-2 font-medium text-red-400 text-sm hover:bg-red-500/10"
                 >
                   Hentikan Berlangganan
                 </button>

@@ -2,7 +2,6 @@
 
 import { Clock, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { analyticsApi } from "@/lib/api-client";
 
@@ -15,10 +14,6 @@ export function OptimalTimeCard() {
   const [bestHours, setBestHours] = useState<OptimalTime[]>([]);
   const [bestDays, setBestDays] = useState<OptimalTime[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchOptimalTimes();
-  }, []);
 
   const fetchOptimalTimes = async () => {
     try {
@@ -33,6 +28,10 @@ export function OptimalTimeCard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchOptimalTimes();
+  }, [fetchOptimalTimes]);
 
   return (
     <Card>
@@ -62,7 +61,9 @@ export function OptimalTimeCard() {
                       className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-1.5"
                     >
                       <span className="font-medium text-sm">{hour.label}</span>
-                      <span className="text-[var(--text-muted)] text-xs">({hour.postCount} post)</span>
+                      <span className="text-[var(--text-muted)] text-xs">
+                        ({hour.postCount} post)
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -82,7 +83,9 @@ export function OptimalTimeCard() {
                       className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-1.5"
                     >
                       <span className="font-medium text-sm">{day.label}</span>
-                      <span className="text-[var(--text-muted)] text-xs">({day.postCount} post)</span>
+                      <span className="text-[var(--text-muted)] text-xs">
+                        ({day.postCount} post)
+                      </span>
                     </div>
                   ))}
                 </div>

@@ -19,7 +19,9 @@ export function FollowerGrowthChart({ data = [] }: FollowerGrowthChartProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="py-4 text-center text-[var(--text-muted)] text-sm">Belum ada data pertumbuhan</p>
+          <p className="py-4 text-center text-[var(--text-muted)] text-sm">
+            Belum ada data pertumbuhan
+          </p>
         </CardContent>
       </Card>
     );
@@ -57,8 +59,11 @@ export function FollowerGrowthChart({ data = [] }: FollowerGrowthChartProps) {
             <TrendingUp className="h-5 w-5" />
             Pertumbuhan Follower
           </CardTitle>
-          <div className={cn("text-sm font-medium", growth >= 0 ? "text-green-500" : "text-red-500")}>
-            {growth >= 0 ? "+" : ""}{growth} ({growthPercent}%)
+          <div
+            className={cn("font-medium text-sm", growth >= 0 ? "text-green-500" : "text-red-500")}
+          >
+            {growth >= 0 ? "+" : ""}
+            {growth} ({growthPercent}%)
           </div>
         </div>
       </CardHeader>
@@ -107,27 +112,23 @@ export function FollowerGrowthChart({ data = [] }: FollowerGrowthChartProps) {
 
           {/* Data Points */}
           {points.map((p, i) => (
-            <circle
-              key={i}
-              cx={p.x}
-              cy={p.y}
-              r="3"
-              className="fill-[var(--accent-gold)]"
-            />
+            <circle key={i} cx={p.x} cy={p.y} r="3" className="fill-[var(--accent-gold)]" />
           ))}
 
           {/* X Axis Labels */}
-          {points.filter((_, i) => i % Math.ceil(data.length / 5) === 0 || i === data.length - 1).map((p, i) => (
-            <text
-              key={i}
-              x={p.x}
-              y={height - 5}
-              textAnchor="middle"
-              className="fill-[var(--text-muted)] text-[8px]"
-            >
-              {new Date(p.date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
-            </text>
-          ))}
+          {points
+            .filter((_, i) => i % Math.ceil(data.length / 5) === 0 || i === data.length - 1)
+            .map((p, i) => (
+              <text
+                key={i}
+                x={p.x}
+                y={height - 5}
+                textAnchor="middle"
+                className="fill-[var(--text-muted)] text-[8px]"
+              >
+                {new Date(p.date).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
+              </text>
+            ))}
         </svg>
       </CardContent>
     </Card>

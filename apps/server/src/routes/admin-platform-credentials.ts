@@ -1,6 +1,6 @@
 import { db } from "@sahabatkreator/db";
 import { globalPlatformCredential, user } from "@sahabatkreator/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 import { requireAuth } from "../lib/auth-middleware";
@@ -12,7 +12,7 @@ platformCredentialsApp.use("/*", requireAuth);
 platformCredentialsApp.use("/*", async (c, next) => {
   const userId = getUserId(c);
   if (!userId) return c.json({ error: "Unauthorized" }, 401);
-  
+
   // Check if user is super admin
   const [userRow] = await db.select().from(user).where(eq(user.id, userId)).limit(1);
   if (userRow?.role !== "superadmin") {
@@ -32,7 +32,17 @@ platformCredentialsApp.get("/", async (c) => {
 
 // ─── PUT /api/admin/platform-credentials ──────────────────────────────────────
 const credentialSchema = z.object({
-  platform: z.enum(["INSTAGRAM", "FACEBOOK", "TIKTOK", "YOUTUBE", "PINTEREST", "LINKEDIN", "BLUESKY", "THREADS", "GOOGLE_BUSINESS"]),
+  platform: z.enum([
+    "INSTAGRAM",
+    "FACEBOOK",
+    "TIKTOK",
+    "YOUTUBE",
+    "PINTEREST",
+    "LINKEDIN",
+    "BLUESKY",
+    "THREADS",
+    "GOOGLE_BUSINESS",
+  ]),
   clientId: z.string().min(1),
   clientSecret: z.string().min(1).optional(),
   redirectUri: z.string().url().optional(),
@@ -48,7 +58,8 @@ platformCredentialsApp.put("/", async (c) => {
     return c.json({ error: parsed.error.message }, 400);
   }
 
-  const { platform, clientId, clientSecret, redirectUri, webhookVerifyToken, isConfigured } = parsed.data;
+  const { platform, clientId, clientSecret, redirectUri, webhookVerifyToken, isConfigured } =
+    parsed.data;
 
   // If no secret provided, keep existing
   const existing = await db.query.globalPlatformCredential.findFirst({

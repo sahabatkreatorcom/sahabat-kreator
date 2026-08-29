@@ -8,11 +8,11 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { media } from "./app";
 import { organization } from "./auth";
+import { contentPillar } from "./content";
 import { postStatusEnum, postTypeEnum } from "./enum";
 import { socialAccount } from "./social-account";
-import { contentPillar } from "./content";
-import { media } from "./app";
 
 // ── Post ───────────────────────────────────────────────────────────
 export const post = pgTable(
@@ -22,17 +22,12 @@ export const post = pgTable(
     organizationId: text("organization_id")
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    socialAccountId: text("social_account_id").references(
-      () => socialAccount.id,
-      { onDelete: "set null" },
-    ),
+    socialAccountId: text("social_account_id").references(() => socialAccount.id, {
+      onDelete: "set null",
+    }),
     caption: text("caption").default("").notNull(),
-    postType: text("post_type", { enum: postTypeEnum.enumValues })
-      .default("POST")
-      .notNull(),
-    status: text("status", { enum: postStatusEnum.enumValues })
-      .default("DRAFT")
-      .notNull(),
+    postType: text("post_type", { enum: postTypeEnum.enumValues }).default("POST").notNull(),
+    status: text("status", { enum: postStatusEnum.enumValues }).default("DRAFT").notNull(),
     scheduledAt: timestamp("scheduled_at"),
     publishedAt: timestamp("published_at"),
     autoPublish: boolean("auto_publish").default(true).notNull(),
@@ -65,10 +60,7 @@ export const post = pgTable(
       table.scheduledAt,
     ),
     index("post_org_published_idx").on(table.organizationId, table.publishedAt),
-    uniqueIndex("post_org_external_uidx").on(
-      table.organizationId,
-      table.platformPostId,
-    ),
+    uniqueIndex("post_org_external_uidx").on(table.organizationId, table.platformPostId),
     index("post_linked_group_idx").on(table.linkedGroupId),
     index("post_social_account_idx").on(table.socialAccountId),
   ],

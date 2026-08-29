@@ -1,7 +1,7 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import { useSession } from "@/lib/auth-client";
-import { useState, useEffect } from "react";
 
 export type Role = "owner" | "admin" | "editor" | "viewer";
 
@@ -80,13 +80,7 @@ export function usePermissions() {
   const [role, setRole] = useState<Role>("viewer");
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (session?.user) {
-      checkUserPermissions();
-    }
-  }, [session]);
-
-  const checkUserPermissions = async () => {
+  const checkUserPermissions = useCallback(async () => {
     try {
       const res = await fetch("/api/user/permissions");
       if (res.ok) {
@@ -101,7 +95,13 @@ export function usePermissions() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (session?.user) {
+      checkUserPermissions();
+    }
+  }, [session, checkUserPermissions]);
 
   const hasPermission = (permission: keyof Permission): boolean => {
     return permissions[permission] ?? false;

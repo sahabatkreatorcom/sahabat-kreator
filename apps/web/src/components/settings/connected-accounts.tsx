@@ -1,7 +1,7 @@
 "use client";
 
-import { ExternalLink, Loader2, Link, Unlink } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Link, Loader2, Unlink } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,11 +47,7 @@ export function ConnectedAccountsSettings() {
   const [loading, setLoading] = useState(true);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
-
-  const fetchAccounts = async () => {
+  const fetchAccounts = useCallback(async () => {
     try {
       const res = await fetch("/api/accounts");
       if (res.ok) {
@@ -63,7 +59,11 @@ export function ConnectedAccountsSettings() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAccounts();
+  }, [fetchAccounts]);
 
   const handleConnect = (platform: string) => {
     window.location.href = `/api/accounts/${platform}/connect`;
@@ -127,7 +127,9 @@ export function ConnectedAccountsSettings() {
                       </p>
                       <p className="text-[var(--text-muted)] text-xs">
                         @{account.username}
-                        {account.followersCount ? ` · ${account.followersCount.toLocaleString()} followers` : ""}
+                        {account.followersCount
+                          ? ` · ${account.followersCount.toLocaleString()} followers`
+                          : ""}
                       </p>
                     </div>
                   </div>
@@ -137,7 +139,7 @@ export function ConnectedAccountsSettings() {
                         Aktif
                       </span>
                     ) : (
-                      <span className="rounded-full bg-yellow-500/20 px-2 py-0.5 text-yellow-500 text-xs">
+                      <span className="rounded-full bg-yellow-500/20 px-2 py-0.5 text-xs text-yellow-500">
                         Token Kadaluarsa
                       </span>
                     )}

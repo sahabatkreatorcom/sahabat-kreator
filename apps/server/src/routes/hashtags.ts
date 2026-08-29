@@ -1,8 +1,8 @@
-import { Hono } from "hono";
-import { z } from "zod";
 import { db } from "@sahabatkreator/db";
 import { hashtagCollection, post } from "@sahabatkreator/db/schema";
-import { eq, and, desc, count, sql } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
+import { Hono } from "hono";
+import { z } from "zod";
 import { requireAuth } from "../lib/auth-middleware";
 import { getOrganizationId } from "../lib/context";
 
@@ -15,7 +15,10 @@ hashtagsApp.get("/", async (c) => {
   const category = c.req.query("category");
 
   const where = category
-    ? and(eq(hashtagCollection.organizationId, organizationId), eq(hashtagCollection.category, category))
+    ? and(
+        eq(hashtagCollection.organizationId, organizationId),
+        eq(hashtagCollection.category, category),
+      )
     : eq(hashtagCollection.organizationId, organizationId);
 
   const collections = await db.query.hashtagCollection.findMany({
@@ -32,8 +35,8 @@ hashtagsApp.get("/", async (c) => {
         .where(
           and(
             eq(post.organizationId, organizationId),
-            sql`${post.hashtagIds} ? ${collection.id}::text`
-          )
+            sql`${post.hashtagIds} ? ${collection.id}::text`,
+          ),
         );
       return { ...collection, usageCount: result?.count ?? 0 };
     }),
@@ -90,7 +93,12 @@ hashtagsApp.patch("/:id", async (c) => {
   const [updated] = await db
     .update(hashtagCollection)
     .set(parsed.data)
-    .where(and(eq(hashtagCollection.id, collectionId), eq(hashtagCollection.organizationId, organizationId)))
+    .where(
+      and(
+        eq(hashtagCollection.id, collectionId),
+        eq(hashtagCollection.organizationId, organizationId),
+      ),
+    )
     .returning();
 
   if (!updated) return c.json({ error: "Not found" }, 404);
@@ -104,7 +112,12 @@ hashtagsApp.delete("/:id", async (c) => {
 
   const [deleted] = await db
     .delete(hashtagCollection)
-    .where(and(eq(hashtagCollection.id, collectionId), eq(hashtagCollection.organizationId, organizationId)))
+    .where(
+      and(
+        eq(hashtagCollection.id, collectionId),
+        eq(hashtagCollection.organizationId, organizationId),
+      ),
+    )
     .returning();
 
   if (!deleted) return c.json({ error: "Not found" }, 404);

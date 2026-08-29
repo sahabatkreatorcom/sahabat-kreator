@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
 import {
-  Folder,
-  FolderOpen,
-  Plus,
-  MoreHorizontal,
+  ArrowUp,
+  ChevronDown,
+  ChevronRight,
   FileImage,
   FileVideo,
-  ArrowUp,
+  Folder,
+  FolderOpen,
+  MoreHorizontal,
+  Plus,
   Search,
-  ChevronRight,
-  ChevronDown,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface FolderNode {
   id: string;
@@ -37,24 +37,48 @@ interface MediaItem {
 
 export function MediaFolders() {
   const [folders, setFolders] = useState<FolderNode[]>([
-    { id: 'root', name: 'Root', parentId: null, children: [], mediaCount: 0 },
-    { id: 'f1', name: 'Feed Posts', parentId: 'root', mediaCount: 12, children: [] },
-    { id: 'f2', name: 'Stories', parentId: 'root', mediaCount: 8, children: [] },
-    { id: 'f3', name: 'Reels', parentId: 'root', mediaCount: 5, children: [] },
-    { id: 'f4', name: 'IG Feed', parentId: 'f1', mediaCount: 7, children: [] },
-    { id: 'f5', name: 'FB Feed', parentId: 'f1', mediaCount: 5, children: [] },
+    { id: "root", name: "Root", parentId: null, children: [], mediaCount: 0 },
+    { id: "f1", name: "Feed Posts", parentId: "root", mediaCount: 12, children: [] },
+    { id: "f2", name: "Stories", parentId: "root", mediaCount: 8, children: [] },
+    { id: "f3", name: "Reels", parentId: "root", mediaCount: 5, children: [] },
+    { id: "f4", name: "IG Feed", parentId: "f1", mediaCount: 7, children: [] },
+    { id: "f5", name: "FB Feed", parentId: "f1", mediaCount: 5, children: [] },
   ]);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([
-    { id: 'm1', folderId: 'f1', url: '/media/p1.jpg', fileName: 'post-1.jpg', mimeType: 'image/jpeg' },
-    { id: 'm2', folderId: 'f2', url: '/media/s1.jpg', fileName: 'story-1.jpg', mimeType: 'image/jpeg' },
-    { id: 'm3', folderId: 'f3', url: '/media/r1.mp4', fileName: 'reel-1.mp4', mimeType: 'video/mp4' },
-    { id: 'm4', folderId: null, url: '/media/u1.jpg', fileName: 'untouched.png', mimeType: 'image/png' },
+    {
+      id: "m1",
+      folderId: "f1",
+      url: "/media/p1.jpg",
+      fileName: "post-1.jpg",
+      mimeType: "image/jpeg",
+    },
+    {
+      id: "m2",
+      folderId: "f2",
+      url: "/media/s1.jpg",
+      fileName: "story-1.jpg",
+      mimeType: "image/jpeg",
+    },
+    {
+      id: "m3",
+      folderId: "f3",
+      url: "/media/r1.mp4",
+      fileName: "reel-1.mp4",
+      mimeType: "video/mp4",
+    },
+    {
+      id: "m4",
+      folderId: null,
+      url: "/media/u1.jpg",
+      fileName: "untouched.png",
+      mimeType: "image/png",
+    },
   ]);
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['root']));
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["root"]));
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newFolderName, setNewFolderName] = useState('');
-  const [newFolderParent, setNewFolderParent] = useState<string | null>('root');
+  const [newFolderName, setNewFolderName] = useState("");
+  const [newFolderParent, setNewFolderParent] = useState<string | null>("root");
   const [dragOver, setDragOver] = useState<string | null>(null);
 
   const toggleFolder = (folderId: string) => {
@@ -66,47 +90,42 @@ export function MediaFolders() {
     });
   };
 
-  const getChildren = (parentId: string | null) =>
-    folders.filter((f) => f.parentId === parentId);
+  const getChildren = (parentId: string | null) => folders.filter((f) => f.parentId === parentId);
 
   const handleDrop = (e: React.DragEvent, folderId: string) => {
     e.preventDefault();
-    const mediaId = e.dataTransfer.getData('text/plain');
+    const mediaId = e.dataTransfer.getData("text/plain");
     if (!mediaId) return;
 
-    setMediaItems((prev) =>
-      prev.map((m) => (m.id === mediaId ? { ...m, folderId } : m)),
-    );
+    setMediaItems((prev) => prev.map((m) => (m.id === mediaId ? { ...m, folderId } : m)));
     setFolders((prev) =>
-      prev.map((f) =>
-        f.id === folderId ? { ...f, mediaCount: f.mediaCount + 1 } : f,
-      ),
+      prev.map((f) => (f.id === folderId ? { ...f, mediaCount: f.mediaCount + 1 } : f)),
     );
-    toast.success('Media dipindahkan');
+    toast.success("Media dipindahkan");
     setDragOver(null);
   };
 
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) {
-      toast.error('Nama folder harus diisi');
+      toast.error("Nama folder harus diisi");
       return;
     }
     try {
-      const res = await fetch('/api/folders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/folders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newFolderName, parentId: newFolderParent }),
       });
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) throw new Error("Failed");
       setShowCreateModal(false);
-      setNewFolderName('');
-      toast.success('Folder dibuat');
+      setNewFolderName("");
+      toast.success("Folder dibuat");
     } catch {
-      toast.error('Gagal membuat folder');
+      toast.error("Gagal membuat folder");
     }
   };
 
-  const renderFolderTree = (parentId: string | null, depth: number = 0) => {
+  const renderFolderTree = (parentId: string | null, depth = 0) => {
     const children = getChildren(parentId);
     return children.map((folder) => {
       const isExpanded = expandedFolders.has(folder.id);
@@ -116,19 +135,29 @@ export function MediaFolders() {
         <div key={folder.id}>
           <div
             className={cn(
-              'flex items-center gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer transition-colors',
-              selectedFolder === folder.id ? 'bg-[var(--accent-gold)]/10 text-[var(--accent-gold)]' : 'hover:bg-[var(--bg-tertiary)]',
-              dragOver === folder.id && 'bg-[var(--accent-gold)]/20',
+              "flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
+              selectedFolder === folder.id
+                ? "bg-[var(--accent-gold)]/10 text-[var(--accent-gold)]"
+                : "hover:bg-[var(--bg-tertiary)]",
+              dragOver === folder.id && "bg-[var(--accent-gold)]/20",
             )}
             style={{ paddingLeft: `${depth * 16 + 12}px` }}
-            onClick={() => { setSelectedFolder(folder.id); }}
-            onDragOver={(e) => { e.preventDefault(); setDragOver(folder.id); }}
+            onClick={() => {
+              setSelectedFolder(folder.id);
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(folder.id);
+            }}
             onDragLeave={() => setDragOver(null)}
             onDrop={(e) => handleDrop(e, folder.id)}
           >
             <button
-              onClick={(e) => { e.stopPropagation(); toggleFolder(folder.id); }}
-              className="p-0.5 rounded hover:bg-[var(--bg-tertiary)]"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFolder(folder.id);
+              }}
+              className="rounded p-0.5 hover:bg-[var(--bg-tertiary)]"
             >
               {hasChildren ? (
                 isExpanded ? (
@@ -147,7 +176,7 @@ export function MediaFolders() {
             )}
             <span className="flex-1 truncate">{folder.name}</span>
             <span className="text-[var(--text-muted)] text-xs">{folder.mediaCount}</span>
-            <button className="p-1 rounded hover:bg-[var(--bg-tertiary)]">
+            <button className="rounded p-1 hover:bg-[var(--bg-tertiary)]">
               <MoreHorizontal className="h-3.5 w-3.5 text-[var(--text-muted)]" />
             </button>
           </div>
@@ -155,9 +184,15 @@ export function MediaFolders() {
           {isExpanded && (
             <div
               className="min-h-4 rounded-lg"
-              onDragOver={(e) => { e.preventDefault(); setDragOver(folder.id + '-drop'); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragOver(`${folder.id}-drop`);
+              }}
               onDragLeave={() => setDragOver(null)}
-              onDrop={(e) => { e.preventDefault(); handleDrop(e, folder.id); }}
+              onDrop={(e) => {
+                e.preventDefault();
+                handleDrop(e, folder.id);
+              }}
             />
           )}
         </div>
@@ -187,9 +222,7 @@ export function MediaFolders() {
               <Search className="h-4 w-4 text-[var(--text-muted)]" />
               <Input placeholder="Cari folder..." className="h-9" />
             </div>
-            <div className="space-y-0.5">
-              {renderFolderTree(null)}
-            </div>
+            <div className="space-y-0.5">{renderFolderTree(null)}</div>
           </div>
         </div>
 
@@ -200,7 +233,9 @@ export function MediaFolders() {
               <div className="flex items-center gap-2">
                 <FolderOpen className="h-4 w-4 text-[var(--accent-gold)]" />
                 <span className="font-medium">
-                  {selectedFolder ? folders.find((f) => f.id === selectedFolder)?.name : 'Semua Media'}
+                  {selectedFolder
+                    ? folders.find((f) => f.id === selectedFolder)?.name
+                    : "Semua Media"}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -217,10 +252,10 @@ export function MediaFolders() {
                     key={media.id}
                     className="group relative aspect-square overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--bg-tertiary)]"
                     draggable
-                    onDragStart={(e) => e.dataTransfer.setData('text/plain', media.id)}
+                    onDragStart={(e) => e.dataTransfer.setData("text/plain", media.id)}
                   >
                     <div className="flex h-full items-center justify-center">
-                      {media.mimeType.startsWith('image/') ? (
+                      {media.mimeType.startsWith("image/") ? (
                         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple-500/20 to-pink-500/20">
                           <FileImage className="h-6 w-6 text-[var(--text-muted)]" />
                         </div>
@@ -231,13 +266,14 @@ export function MediaFolders() {
                       )}
                     </div>
                     <div className="absolute inset-0 hidden items-end bg-black/60 p-2 group-hover:flex">
-                      <p className="truncate text-xs text-white">{media.fileName}</p>
+                      <p className="truncate text-white text-xs">{media.fileName}</p>
                     </div>
                   </div>
                 ))}
             </div>
 
-            {mediaItems.filter((m) => !selectedFolder || m.folderId === selectedFolder).length === 0 && (
+            {mediaItems.filter((m) => !selectedFolder || m.folderId === selectedFolder).length ===
+              0 && (
               <div className="flex flex-col items-center justify-center py-12 text-[var(--text-muted)]">
                 <Folder className="mb-2 h-8 w-8 opacity-50" />
                 <p className="font-medium">Tidak ada media</p>
@@ -255,7 +291,7 @@ export function MediaFolders() {
             <h2 className="mb-4 font-semibold">Buat Folder Baru</h2>
             <div className="space-y-3">
               <div>
-                <label className="mb-1 block text-sm font-medium">Nama Folder</label>
+                <label className="mb-1 block font-medium text-sm">Nama Folder</label>
                 <Input
                   value={newFolderName}
                   onChange={(e) => setNewFolderName(e.target.value)}
@@ -264,16 +300,20 @@ export function MediaFolders() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium">Parent Folder</label>
+                <label className="mb-1 block font-medium text-sm">Parent Folder</label>
                 <select
-                  value={newFolderParent ?? 'root'}
+                  value={newFolderParent ?? "root"}
                   onChange={(e) => setNewFolderParent(e.target.value || null)}
                   className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm"
                 >
                   <option value="root">Root</option>
-                  {folders.filter((f) => f.id !== 'root').map((f) => (
-                    <option key={f.id} value={f.id}>{f.name}</option>
-                  ))}
+                  {folders
+                    .filter((f) => f.id !== "root")
+                    .map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.name}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>

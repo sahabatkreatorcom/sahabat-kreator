@@ -1,10 +1,11 @@
 "use client";
 
-import { Hash, Download, TrendingUp, TrendingDown, Filter } from "lucide-react";
+import { Download, Filter, Hash, TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -13,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 interface HashtagRow {
@@ -33,16 +33,86 @@ const PLATFORMS = ["Instagram", "TikTok", "YouTube", "Facebook", "LinkedIn", "Th
 
 function sampleData(): HashtagRow[] {
   return [
-    { tag: "#kontenkreator", uses: 42, impressions: 125_000, engagement: 8.4, reach: 45_000, trend: "up" },
-    { tag: "#digitalmarketing", uses: 38, impressions: 98_000, engagement: 6.2, reach: 32_000, trend: "up" },
-    { tag: "#businesstabungancg", uses: 31, impressions: 87_000, engagement: 7.1, reach: 28_000, trend: "down" },
-    { tag: "#contentcreator", uses: 29, impressions: 110_000, engagement: 5.8, reach: 38_000, trend: "flat" },
-    { tag: "#sosmedindonesia", uses: 24, impressions: 67_000, engagement: 9.3, reach: 22_000, trend: "up" },
-    { tag: "#bisnisonline", uses: 22, impressions: 54_000, engagement: 4.7, reach: 18_000, trend: "flat" },
-    { tag: "#tiktokindonesia", uses: 20, impressions: 200_000, engagement: 11.2, reach: 85_000, trend: "up" },
-    { tag: "#reelsinstagram", uses: 18, impressions: 145_000, engagement: 10.1, reach: 60_000, trend: "up" },
-    { tag: "#brandkreator", uses: 15, impressions: 43_000, engagement: 3.9, reach: 12_000, trend: "down" },
-    { tag: "#influencerindo", uses: 14, impressions: 78_000, engagement: 6.8, reach: 25_000, trend: "flat" },
+    {
+      tag: "#kontenkreator",
+      uses: 42,
+      impressions: 125_000,
+      engagement: 8.4,
+      reach: 45_000,
+      trend: "up",
+    },
+    {
+      tag: "#digitalmarketing",
+      uses: 38,
+      impressions: 98_000,
+      engagement: 6.2,
+      reach: 32_000,
+      trend: "up",
+    },
+    {
+      tag: "#businesstabungancg",
+      uses: 31,
+      impressions: 87_000,
+      engagement: 7.1,
+      reach: 28_000,
+      trend: "down",
+    },
+    {
+      tag: "#contentcreator",
+      uses: 29,
+      impressions: 110_000,
+      engagement: 5.8,
+      reach: 38_000,
+      trend: "flat",
+    },
+    {
+      tag: "#sosmedindonesia",
+      uses: 24,
+      impressions: 67_000,
+      engagement: 9.3,
+      reach: 22_000,
+      trend: "up",
+    },
+    {
+      tag: "#bisnisonline",
+      uses: 22,
+      impressions: 54_000,
+      engagement: 4.7,
+      reach: 18_000,
+      trend: "flat",
+    },
+    {
+      tag: "#tiktokindonesia",
+      uses: 20,
+      impressions: 200_000,
+      engagement: 11.2,
+      reach: 85_000,
+      trend: "up",
+    },
+    {
+      tag: "#reelsinstagram",
+      uses: 18,
+      impressions: 145_000,
+      engagement: 10.1,
+      reach: 60_000,
+      trend: "up",
+    },
+    {
+      tag: "#brandkreator",
+      uses: 15,
+      impressions: 43_000,
+      engagement: 3.9,
+      reach: 12_000,
+      trend: "down",
+    },
+    {
+      tag: "#influencerindo",
+      uses: 14,
+      impressions: 78_000,
+      engagement: 6.8,
+      reach: 25_000,
+      trend: "flat",
+    },
   ];
 }
 
@@ -138,7 +208,7 @@ export function HashtagPerformance() {
             </Select>
           </div>
           <div className="mt-3 flex flex-wrap gap-3">
-            <span className="text-[var(--text-muted)] text-xs self-center">Platform:</span>
+            <span className="self-center text-[var(--text-muted)] text-xs">Platform:</span>
             {PLATFORMS.map((p) => (
               <label key={p} className="flex cursor-pointer items-center gap-1.5 text-xs">
                 <Checkbox
@@ -175,7 +245,15 @@ export function HashtagPerformance() {
                     {topTag.impressions.toLocaleString()} impresi · {topTag.engagement}% engagement
                   </p>
                 </div>
-                <Badge variant={topTag.trend === "up" ? "success" : topTag.trend === "down" ? "danger" : "secondary"}>
+                <Badge
+                  variant={
+                    topTag.trend === "up"
+                      ? "success"
+                      : topTag.trend === "down"
+                        ? "danger"
+                        : "secondary"
+                  }
+                >
                   {topTag.trend === "up" ? "Naik" : topTag.trend === "down" ? "Turun" : "Stabil"}
                 </Badge>
               </CardContent>
@@ -188,13 +266,25 @@ export function HashtagPerformance() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[var(--border)] bg-[var(--bg-tertiary)]/50">
-                      <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)] text-xs">Hashtag</th>
-                      <th className="px-4 py-3 text-right font-medium text-[var(--text-muted)] text-xs">Digunakan</th>
-                      <th className="px-4 py-3 text-right font-medium text-[var(--text-muted)] text-xs">Impresi</th>
-                      <th className="px-4 py-3 text-right font-medium text-[var(--text-muted)] text-xs">Engagement</th>
-                      <th className="px-4 py-3 text-right font-medium text-[var(--text-muted)] text-xs">Reach</th>
-                      <th className="px-4 py-3 text-center font-medium text-[var(--text-muted)] text-xs">Tren</th>
+                    <tr className="border-[var(--border)] border-b bg-[var(--bg-tertiary)]/50">
+                      <th className="px-4 py-3 text-left font-medium text-[var(--text-muted)] text-xs">
+                        Hashtag
+                      </th>
+                      <th className="px-4 py-3 text-right font-medium text-[var(--text-muted)] text-xs">
+                        Digunakan
+                      </th>
+                      <th className="px-4 py-3 text-right font-medium text-[var(--text-muted)] text-xs">
+                        Impresi
+                      </th>
+                      <th className="px-4 py-3 text-right font-medium text-[var(--text-muted)] text-xs">
+                        Engagement
+                      </th>
+                      <th className="px-4 py-3 text-right font-medium text-[var(--text-muted)] text-xs">
+                        Reach
+                      </th>
+                      <th className="px-4 py-3 text-center font-medium text-[var(--text-muted)] text-xs">
+                        Tren
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -202,7 +292,7 @@ export function HashtagPerformance() {
                       <tr
                         key={row.tag}
                         className={cn(
-                          "border-b border-[var(--border-light)] transition-colors hover:bg-[var(--bg-tertiary)]/50",
+                          "border-[var(--border-light)] border-b transition-colors hover:bg-[var(--bg-tertiary)]/50",
                           i === 0 && "bg-[var(--accent-gold)]/5",
                         )}
                       >
@@ -210,11 +300,18 @@ export function HashtagPerformance() {
                           <span className="font-medium text-[var(--accent-gold)]">{row.tag}</span>
                         </td>
                         <td className="px-4 py-3 text-right">{row.uses}</td>
+                        <td className="px-4 py-3 text-right">{row.impressions.toLocaleString()}</td>
                         <td className="px-4 py-3 text-right">
-                          {row.impressions.toLocaleString()}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <span className={cn("font-medium", row.engagement >= 7 ? "text-green-600" : row.engagement >= 4 ? "text-[var(--text-primary)]" : "text-red-500")}>
+                          <span
+                            className={cn(
+                              "font-medium",
+                              row.engagement >= 7
+                                ? "text-green-600"
+                                : row.engagement >= 4
+                                  ? "text-[var(--text-primary)]"
+                                  : "text-red-500",
+                            )}
+                          >
                             {row.engagement}%
                           </span>
                         </td>

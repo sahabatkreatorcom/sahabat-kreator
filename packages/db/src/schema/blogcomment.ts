@@ -1,10 +1,4 @@
-import {
-  boolean,
-  index,
-  pgTable,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { organization } from "./auth";
 import { blogPost } from "./blogpost";
 
@@ -33,8 +27,5 @@ export const blogComment = pgTable("blog_comment", blogCommentColumns, (table) =
   index("blog_comment_post_idx").on(table.postId),
   index("blog_comment_org_idx").on(table.organizationId),
   index("blog_comment_approved_idx").on(table.isApproved),
-  index("blog_comment_post_approved_idx").on(
-    table.postId,
-    table.isApproved,
-  ),
+  index("blog_comment_post_approved_idx").on(table.postId, table.isApproved),
 ]);

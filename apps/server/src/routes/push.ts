@@ -43,9 +43,7 @@ pushApp.post("/subscribe", async (c) => {
   }
 
   // Remove existing subscription for this endpoint (if any)
-  await db
-    .delete(pushSubscription)
-    .where(eq(pushSubscription.endpoint, parsed.data.endpoint));
+  await db.delete(pushSubscription).where(eq(pushSubscription.endpoint, parsed.data.endpoint));
 
   const [subscription] = await db
     .insert(pushSubscription)
@@ -67,12 +65,7 @@ pushApp.delete("/subscriptions/:id", async (c) => {
 
   await db
     .delete(pushSubscription)
-    .where(
-      and(
-        eq(pushSubscription.id, subscriptionId),
-        eq(pushSubscription.userId, userId),
-      ),
-    );
+    .where(and(eq(pushSubscription.id, subscriptionId), eq(pushSubscription.userId, userId)));
 
   return c.json({ success: true });
 });

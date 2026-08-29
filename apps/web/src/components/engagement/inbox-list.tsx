@@ -1,9 +1,7 @@
 "use client";
 
-import { MessageSquare, Loader2, Mail, Star, AtSign } from "lucide-react";
-import { useState } from "react";
+import { AtSign, Loader2, Mail, MessageSquare, Star } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import type { EngagementItem } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
@@ -71,7 +69,7 @@ export function InboxList({ items, selectedId, onSelect, onMarkRead, loading }: 
             fallback={item.authorName?.charAt(0) || "?"}
             size="sm"
           />
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className={cn("font-medium text-sm", !item.isRead && "font-bold")}>
                 {item.authorName}
@@ -81,10 +79,15 @@ export function InboxList({ items, selectedId, onSelect, onMarkRead, loading }: 
                 {TYPE_LABELS[item.type] || item.type}
               </span>
             </div>
-            <p className={cn("truncate text-sm", !item.isRead ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]")}>
+            <p
+              className={cn(
+                "truncate text-sm",
+                !item.isRead ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]",
+              )}
+            >
               {item.content}
             </p>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="mt-1 flex items-center gap-2">
               <span className="text-[var(--text-muted)] text-xs">{item.platform}</span>
               <span className="text-[var(--text-muted)] text-xs">
                 {new Date(item.createdAt).toLocaleDateString("id-ID", {

@@ -37,10 +37,7 @@ export const draftInteraction = pgTable(
   (table) => [
     index("draft_interaction_org_idx").on(table.organizationId),
     index("draft_interaction_action_idx").on(table.action),
-    index("draft_interaction_platform_posttype_idx").on(
-      table.platform,
-      table.postType,
-    ),
+    index("draft_interaction_platform_posttype_idx").on(table.platform, table.postType),
   ],
 );
 
@@ -80,10 +77,7 @@ export const activityLog = pgTable(
   (table) => [
     index("activity_log_org_idx").on(table.organizationId),
     index("activity_log_created_idx").on(table.createdAt),
-    index("activity_log_org_created_idx").on(
-      table.organizationId,
-      table.createdAt,
-    ),
+    index("activity_log_org_created_idx").on(table.organizationId, table.createdAt),
   ],
 );
 

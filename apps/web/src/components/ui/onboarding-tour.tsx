@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft, ArrowRight, Check, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 interface TourStep {
@@ -24,36 +24,6 @@ export function OnboardingTour({ steps, isOpen, onClose, onComplete }: Onboardin
   const [currentStep, setCurrentStep] = useState(0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [skipTour, setSkipTour] = useState(false);
-
-  useEffect(() => {
-    if (isOpen && steps.length > 0) {
-      highlightElement(steps[0].target);
-    }
-  }, [isOpen, currentStep, steps]);
-
-  useEffect(() => {
-    // Check if tour was already completed
-    const completed = localStorage.getItem(TOUR_STORAGE_KEY);
-    if (completed === "true") {
-      setSkipTour(true);
-    }
-  }, []);
-
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep((prev) => prev + 1);
-      highlightElement(steps[currentStep + 1].target);
-    } else {
-      completeTour();
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
-      highlightElement(steps[currentStep - 1].target);
-    }
-  };
 
   const highlightElement = (selector: string) => {
     const element = document.querySelector(selector);
@@ -78,6 +48,22 @@ export function OnboardingTour({ steps, isOpen, onClose, onComplete }: Onboardin
     onClose();
   };
 
+  const handleNext = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep((prev) => prev + 1);
+      highlightElement(steps[currentStep + 1].target);
+    } else {
+      completeTour();
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentStep > 0) {
+      setCurrentStep((prev) => prev - 1);
+      highlightElement(steps[currentStep - 1].target);
+    }
+  };
+
   if (!isOpen || skipTour || steps.length === 0) return null;
 
   const step = steps[currentStep];
@@ -85,7 +71,7 @@ export function OnboardingTour({ steps, isOpen, onClose, onComplete }: Onboardin
   return (
     <div className="fixed inset-0 z-50 bg-black/50" onClick={onClose}>
       <div
-        className="absolute rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] p-6 shadow-xl max-w-sm"
+        className="absolute max-w-sm rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] p-6 shadow-xl"
         style={{
           left: Math.min(Math.max(position.x - 150, 16), window.innerWidth - 316),
           top: Math.min(Math.max(position.y - 100, 16), window.innerHeight - 200),
@@ -95,7 +81,7 @@ export function OnboardingTour({ steps, isOpen, onClose, onComplete }: Onboardin
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+          className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
         >
           <X className="h-5 w-5" />
         </button>
@@ -114,18 +100,13 @@ export function OnboardingTour({ steps, isOpen, onClose, onComplete }: Onboardin
 
         {/* Content */}
         <div className="mb-6">
-          <h3 className="mb-2 font-semibold text-lg text-[var(--text-primary)]">{step.title}</h3>
+          <h3 className="mb-2 font-semibold text-[var(--text-primary)] text-lg">{step.title}</h3>
           <p className="text-[var(--text-muted)]">{step.description}</p>
         </div>
 
         {/* Actions */}
         <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="text-[var(--text-muted)]"
-          >
+          <Button variant="ghost" size="sm" onClick={onClose} className="text-[var(--text-muted)]">
             Lewati
           </Button>
 
@@ -155,9 +136,9 @@ export function OnboardingTour({ steps, isOpen, onClose, onComplete }: Onboardin
 }
 
 // Hook to manage tour state
-export function useOnboardingTour(steps: TourStep[], onComplete: () => void) {
+export function useOnboardingTour(_steps: TourStep[], onComplete: () => void) {
   const [isOpen, setIsOpen] = useState(false);
-  const [hasCompleted, setHasCompleted] = useState(false);
+  const [_hasCompleted, setHasCompleted] = useState(false);
 
   useEffect(() => {
     // Show tour after login if not completed

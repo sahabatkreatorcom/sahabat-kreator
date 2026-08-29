@@ -10,10 +10,9 @@
 
 import { db } from "@sahabatkreator/db";
 import {
+  competitor,
   organization,
   post,
-  socialAccount,
-  competitor,
   skBrandKnowledge,
   skChatMessage,
   skChatSession,
@@ -21,9 +20,10 @@ import {
   skPlatformKnowledge,
   skRecommendation,
   skReport,
+  socialAccount,
 } from "@sahabatkreator/db/schema";
-import { eq } from "drizzle-orm";
 import { env } from "@sahabatkreator/env/server";
+import { eq } from "drizzle-orm";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -71,8 +71,7 @@ const PLATFORM_KNOWLEDGE: Record<string, string> = {
     "Prioritaskan postingan ringkas manusiawi, komentar tepat waktu, balasan, dan nada native komunitas.",
   THREADS:
     "Prioritaskan hook konversasional, pendapat cepat, rantai balasan, dan engagement komunitas ringan.",
-  META:
-    "Prioritaskan konsistensi kreatif cross-Meta sambil menyesuaikan caption dan format untuk setiap tujuan.",
+  META: "Prioritaskan konsistensi kreatif cross-Meta sambil menyesuaikan caption dan format untuk setiap tujuan.",
   MANUAL:
     "Gunakan nama akun dan performa masa lalu untuk menyimpulkan kebutuhan format, tapi hindari mengklaim aturan platform-spesifik tanpa bukti.",
 };
@@ -161,12 +160,16 @@ function normalizeCategory(value: unknown): (typeof skRecommendation.category.en
     "COMPETITOR",
     "BRAND",
   ]) as Set<string>;
-  return (allowed.has(normalized) ? normalized : "CONTENT_STRATEGY") as (typeof skRecommendation.category.enumValues)[number];
+  return (
+    allowed.has(normalized) ? normalized : "CONTENT_STRATEGY"
+  ) as (typeof skRecommendation.category.enumValues)[number];
 }
 
 function normalizePriority(value: unknown): (typeof skRecommendation.priority.enumValues)[number] {
   const normalized = typeof value === "string" ? value.toUpperCase() : "";
-  return (["LOW", "MEDIUM", "HIGH"].includes(normalized) ? normalized : "MEDIUM") as (typeof skRecommendation.priority.enumValues)[number];
+  return (
+    ["LOW", "MEDIUM", "HIGH"].includes(normalized) ? normalized : "MEDIUM"
+  ) as (typeof skRecommendation.priority.enumValues)[number];
 }
 
 function toPlatform(value: unknown): string | null {
@@ -200,7 +203,7 @@ function normalizeSKChatAnswer(text: string) {
   const looseMatch = text
     .trim()
     .match(/^[{\s]*["'](?:message|response|content)["']\s*:\s*"([\s\S]*)"\s*}?\s*$/);
-  if (looseMatch && looseMatch[1]) {
+  if (looseMatch?.[1]) {
     try {
       return tidySKText(JSON.parse(`"${looseMatch[1]}"`) as string);
     } catch {
@@ -230,12 +233,12 @@ function getSKSettings(): SKSettings {
     apiKey,
     model: env.SK_MODEL || DEFAULT_SK_MODEL,
     systemPrompt: `${DEFAULT_SK_PROMPT}\n\n${env.SK_SYSTEM_PROMPT_OVERRIDE || ""}`.trim(),
-    temperature: env.SK_TEMPERATURE ? parseFloat(env.SK_TEMPERATURE) : DEFAULT_TEMPERATURE,
+    temperature: env.SK_TEMPERATURE ? Number.parseFloat(env.SK_TEMPERATURE) : DEFAULT_TEMPERATURE,
     maxReportsPerDay: env.SK_MAX_REPORTS_PER_DAY
-      ? parseInt(env.SK_MAX_REPORTS_PER_DAY, 10)
+      ? Number.parseInt(env.SK_MAX_REPORTS_PER_DAY, 10)
       : DEFAULT_MAX_REPORTS_PER_DAY,
     maxChatsPerDay: env.SK_MAX_CHATS_PER_DAY
-      ? parseInt(env.SK_MAX_CHATS_PER_DAY, 10)
+      ? Number.parseInt(env.SK_MAX_CHATS_PER_DAY, 10)
       : DEFAULT_MAX_CHATS_PER_DAY,
   };
 }
@@ -284,39 +287,46 @@ async function collectSKContext(organizationId: string) {
   const ninetyDaysAgo = new Date();
   ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
-  const [org, brandKnowledge, accounts, posts, competitors, platformKnowledge, previousRecommendations] =
-    await Promise.all([
-      db.query.organization.findFirst({
-        where: eq(organization.id, organizationId),
-        columns: { id: true, name: true, tier: true },
-      }),
-      db.query.skBrandKnowledge.findFirst({
-        where: eq(skBrandKnowledge.organizationId, organizationId),
-      }),
-      db.query.socialAccount.findMany({
-        where: eq(socialAccount.organizationId, organizationId),
-        columns: { id: true, platform: true, name: true, username: true, isActive: true },
-      }),
-      db.query.post.findMany({
-        where: eq(post.organizationId, organizationId),
-        orderBy: (post, { desc }) => [desc(post.publishedAt), desc(post.createdAt)],
-        limit: 80,
-      }),
-      db.query.competitor.findMany({
-        where: eq(competitor.organizationId, organizationId),
-        limit: 20,
-      }),
-      db.query.skPlatformKnowledge.findMany({
-        where: eq(skPlatformKnowledge.isActive, true),
-        orderBy: (skPlatformKnowledge, { desc }) => desc(skPlatformKnowledge.updatedAt),
-        limit: 50,
-      }),
-      db.query.skRecommendation.findMany({
-        where: eq(skRecommendation.organizationId, organizationId),
-        orderBy: (skRecommendation, { desc }) => desc(skRecommendation.updatedAt),
-        limit: 30,
-      }),
-    ]);
+  const [
+    org,
+    brandKnowledge,
+    accounts,
+    posts,
+    competitors,
+    platformKnowledge,
+    previousRecommendations,
+  ] = await Promise.all([
+    db.query.organization.findFirst({
+      where: eq(organization.id, organizationId),
+      columns: { id: true, name: true, tier: true },
+    }),
+    db.query.skBrandKnowledge.findFirst({
+      where: eq(skBrandKnowledge.organizationId, organizationId),
+    }),
+    db.query.socialAccount.findMany({
+      where: eq(socialAccount.organizationId, organizationId),
+      columns: { id: true, platform: true, name: true, username: true, isActive: true },
+    }),
+    db.query.post.findMany({
+      where: eq(post.organizationId, organizationId),
+      orderBy: (post, { desc }) => [desc(post.publishedAt), desc(post.createdAt)],
+      limit: 80,
+    }),
+    db.query.competitor.findMany({
+      where: eq(competitor.organizationId, organizationId),
+      limit: 20,
+    }),
+    db.query.skPlatformKnowledge.findMany({
+      where: eq(skPlatformKnowledge.isActive, true),
+      orderBy: (skPlatformKnowledge, { desc }) => desc(skPlatformKnowledge.updatedAt),
+      limit: 50,
+    }),
+    db.query.skRecommendation.findMany({
+      where: eq(skRecommendation.organizationId, organizationId),
+      orderBy: (skRecommendation, { desc }) => desc(skRecommendation.updatedAt),
+      limit: 30,
+    }),
+  ]);
 
   return {
     organization: org,
@@ -363,9 +373,15 @@ function fallbackSKReport(
         priority: "HIGH",
         platform: null,
         confidence: 0.45,
-        evidence: { basedOn: `${postCount} postingan tersedia di konteks SK`, metrics: ["riwayat postingan", "konteks media"] },
+        evidence: {
+          basedOn: `${postCount} postingan tersedia di konteks SK`,
+          metrics: ["riwayat postingan", "konteks media"],
+        },
         citations: [{ type: "post", label: "Postingan organisasi terbaru", id: "recent-posts" }],
-        impactBaseline: { metric: "engagementRate", current: "Gunakan rata-rata 30 hari saat ini sebagai baseline" },
+        impactBaseline: {
+          metric: "engagementRate",
+          current: "Gunakan rata-rata 30 hari saat ini sebagai baseline",
+        },
       },
       {
         title: "Gunakan brand knowledge untuk memperbaiki kualitas saran",
@@ -377,20 +393,31 @@ function fallbackSKReport(
         priority: "MEDIUM",
         platform: null,
         confidence: 0.5,
-        evidence: { basedOn: "Ketersediaan brand knowledge SK", metrics: ["kelengkapan konteks merek"] },
-        citations: [{ type: "platform_knowledge", label: "Brand knowledge SK", id: "sk-brand-knowledge" }],
+        evidence: {
+          basedOn: "Ketersediaan brand knowledge SK",
+          metrics: ["kelengkapan konteks merek"],
+        },
+        citations: [
+          { type: "platform_knowledge", label: "Brand knowledge SK", id: "sk-brand-knowledge" },
+        ],
       },
     ],
     experiments: [
       {
         title: "Uji hook yang lebih jelas selama tujuh hari",
-        hypothesis: "Postingan dengan manfaat langsung di baris pertama atau frame pertama akan mengungguli pembuka yang samar.",
+        hypothesis:
+          "Postingan dengan manfaat langsung di baris pertama atau frame pertama akan mengungguli pembuka yang samar.",
         platform: null,
         metric: "engagementRate",
         baseline: { current: "Rata-rata engagement rate 30 hari saat ini" },
       },
     ],
-    brandKnowledgeUpdates: rawResponse ? { repairNote: "SK menerima respons model non-JSON. Tinjau pilihan model atau prompt jika ini berulang." } : null,
+    brandKnowledgeUpdates: rawResponse
+      ? {
+          repairNote:
+            "SK menerima respons model non-JSON. Tinjau pilihan model atau prompt jika ini berulang.",
+        }
+      : null,
     progressNotes: ["Laporan fallback dibuat karena respons model bukan JSON valid."],
   };
 }
@@ -454,10 +481,15 @@ export async function generateSKReport({
 
   let rawContent = "";
   try {
-    rawContent = await callOpenRouter(settings, [
-      { role: "system", content: settings.systemPrompt },
-      { role: "user", content: prompt },
-    ], DEFAULT_MAX_TOKENS, true);
+    rawContent = await callOpenRouter(
+      settings,
+      [
+        { role: "system", content: settings.systemPrompt },
+        { role: "user", content: prompt },
+      ],
+      DEFAULT_MAX_TOKENS,
+      true,
+    );
   } catch (error) {
     console.error("[SK] Report generation failed:", error);
     throw error;
@@ -494,22 +526,13 @@ export async function generateSKReport({
   let report;
 
   if (reportId) {
-    report = await db
-      .update(skReport)
-      .set(reportData)
-      .where(eq(skReport.id, reportId))
-      .returning();
+    report = await db.update(skReport).set(reportData).where(eq(skReport.id, reportId)).returning();
     report = report[0];
 
     // Delete old recommendations for this report and recreate
-    await db
-      .delete(skRecommendation)
-      .where(eq(skRecommendation.reportId, reportId));
+    await db.delete(skRecommendation).where(eq(skRecommendation.reportId, reportId));
   } else {
-    report = await db
-      .insert(skReport)
-      .values(reportData)
-      .returning();
+    report = await db.insert(skReport).values(reportData).returning();
     report = report[0];
   }
 
@@ -517,45 +540,39 @@ export async function generateSKReport({
     const newReportId = report.id;
 
     if (parsed.recommendations?.length) {
-      const recData = parsed.recommendations
-        .slice(0, 20)
-        .map((rec) => ({
-          id: crypto.randomUUID(),
-          organizationId,
-          socialAccountId:
-            rec.socialAccountId && accountIds.has(rec.socialAccountId)
-              ? rec.socialAccountId
-              : null,
-          reportId: newReportId,
-          title: rec.title || "Tingkatkan performa konten",
-          advice: rec.advice || "",
-          rationale: rec.rationale || null,
-          category: normalizeCategory(rec.category),
-          priority: normalizePriority(rec.priority),
-          status: "PENDING" as const,
-          platform: toPlatform(rec.platform),
-          confidence: clamp01(rec.confidence),
-          evidence: (rec.evidence || {}) as object,
-          citations: (rec.citations || []) as object,
-          impactBaseline: (rec.impactBaseline || undefined) as object | undefined,
-        }));
+      const recData = parsed.recommendations.slice(0, 20).map((rec) => ({
+        id: crypto.randomUUID(),
+        organizationId,
+        socialAccountId:
+          rec.socialAccountId && accountIds.has(rec.socialAccountId) ? rec.socialAccountId : null,
+        reportId: newReportId,
+        title: rec.title || "Tingkatkan performa konten",
+        advice: rec.advice || "",
+        rationale: rec.rationale || null,
+        category: normalizeCategory(rec.category),
+        priority: normalizePriority(rec.priority),
+        status: "PENDING" as const,
+        platform: toPlatform(rec.platform),
+        confidence: clamp01(rec.confidence),
+        evidence: (rec.evidence || {}) as object,
+        citations: (rec.citations || []) as object,
+        impactBaseline: (rec.impactBaseline || undefined) as object | undefined,
+      }));
 
       await db.insert(skRecommendation).values(recData);
     }
 
     if (parsed.experiments?.length) {
-      const expData = parsed.experiments
-        .slice(0, 8)
-        .map((exp) => ({
-          id: crypto.randomUUID(),
-          organizationId,
-          reportId: newReportId,
-          title: exp.title || "Eksperimen konten SK",
-          hypothesis: exp.hypothesis || "Menguji ide ini dapat meningkatkan performa sosial.",
-          platform: toPlatform(exp.platform),
-          metric: exp.metric || "engagementRate",
-          baseline: (exp.baseline || {}) as object,
-        }));
+      const expData = parsed.experiments.slice(0, 8).map((exp) => ({
+        id: crypto.randomUUID(),
+        organizationId,
+        reportId: newReportId,
+        title: exp.title || "Eksperimen konten SK",
+        hypothesis: exp.hypothesis || "Menguji ide ini dapat meningkatkan performa sosial.",
+        platform: toPlatform(exp.platform),
+        metric: exp.metric || "engagementRate",
+        baseline: (exp.baseline || {}) as object,
+      }));
 
       await db.insert(skExperiment).values(expData);
     }
@@ -576,20 +593,11 @@ export async function generateSKReport({
 
 // ─── Chat ───────────────────────────────────────────────────────────────────────
 
-export async function chatWithSK({
-  organizationId,
-  userId,
-  sessionId,
-  message,
-}: ChatOptions) {
+export async function chatWithSK({ organizationId, userId, sessionId, message }: ChatOptions) {
   const settings = getSKSettings();
 
   let session = sessionId
-    ? await db
-        .select()
-        .from(skChatSession)
-        .where(eq(skChatSession.id, sessionId))
-        .limit(1)
+    ? await db.select().from(skChatSession).where(eq(skChatSession.id, sessionId)).limit(1)
     : [];
 
   if (!session?.[0]) {
@@ -720,8 +728,8 @@ export async function getSKReports(organizationId: string) {
 
   const latestReport = latest[0];
 
-  let recommendations: typeof skRecommendation.$inferSelect[] = [];
-  let experiments: typeof skExperiment.$inferSelect[] = [];
+  let recommendations: (typeof skRecommendation.$inferSelect)[] = [];
+  let experiments: (typeof skExperiment.$inferSelect)[] = [];
 
   if (latestReport) {
     [recommendations, experiments] = await Promise.all([

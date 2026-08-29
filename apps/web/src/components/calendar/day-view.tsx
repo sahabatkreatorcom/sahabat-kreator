@@ -31,7 +31,7 @@ export function DayView({ date, posts, onEditPost, onDeletePost }: DayViewProps)
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-primary)]">
-      <div className="border-b border-[var(--border)] p-3">
+      <div className="border-[var(--border)] border-b p-3">
         <h3 className="font-medium text-sm">
           {date.toLocaleDateString("id-ID", {
             weekday: "long",
@@ -45,11 +45,8 @@ export function DayView({ date, posts, onEditPost, onDeletePost }: DayViewProps)
         {HOURS.map((hour) => {
           const hourPosts = getPostsForHour(hour);
           return (
-            <div
-              key={hour}
-              className="flex border-b border-[var(--border)] last:border-b-0"
-            >
-              <div className="w-16 shrink-0 border-r border-[var(--border)] py-2 pr-2 text-right">
+            <div key={hour} className="flex border-[var(--border)] border-b last:border-b-0">
+              <div className="w-16 shrink-0 border-[var(--border)] border-r py-2 pr-2 text-right">
                 <span className="text-[var(--text-muted)] text-xs">{formatHour(hour)}</span>
               </div>
               <div className="min-h-[48px] flex-1 p-1">

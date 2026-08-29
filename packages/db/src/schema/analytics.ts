@@ -1,14 +1,7 @@
-import {
-  index,
-  integer,
-  pgTable,
-  text,
-  timestamp,
-  uniqueIndex,
-} from "drizzle-orm/pg-core";
+import { index, integer, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { organization } from "./auth";
-import { post } from "./post";
 import { platformEnum } from "./enum";
+import { post } from "./post";
 
 // ── Post Analytics (Daily Snapshot) ──────────────────────────────
 export const postAnalytics = pgTable(
@@ -97,10 +90,7 @@ export const bestTimeSchedule = pgTable(
   (table) => [
     index("best_time_org_idx").on(table.organizationId),
     index("best_time_platform_idx").on(table.platform),
-    uniqueIndex("best_time_org_platform_uidx").on(
-      table.organizationId,
-      table.platform,
-    ),
+    uniqueIndex("best_time_org_platform_uidx").on(table.organizationId, table.platform),
   ],
 );
 

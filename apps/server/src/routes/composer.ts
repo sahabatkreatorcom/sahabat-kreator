@@ -78,10 +78,7 @@ composerApp.delete("/templates/:id", async (c) => {
   const result = await db
     .delete(organizationSetting)
     .where(
-      and(
-        eq(organizationSetting.organizationId, organizationId),
-        eq(organizationSetting.key, key),
-      ),
+      and(eq(organizationSetting.organizationId, organizationId), eq(organizationSetting.key, key)),
     );
 
   if (!result) return c.json({ error: "Template not found" }, 404);

@@ -43,7 +43,9 @@ engagementInboxApp.get("/conversations", async (c) => {
   const unreadCount = await db
     .select({ count: count() })
     .from(engagementItem)
-    .where(and(eq(engagementItem.organizationId, organizationId), eq(engagementItem.isRead, false)));
+    .where(
+      and(eq(engagementItem.organizationId, organizationId), eq(engagementItem.isRead, false)),
+    );
 
   // Group by author for threaded conversations
   const conversationMap = new Map<string, typeof items>();
@@ -52,7 +54,7 @@ engagementInboxApp.get("/conversations", async (c) => {
     if (!conversationMap.has(key)) {
       conversationMap.set(key, []);
     }
-    conversationMap.get(key)!.push(item);
+    conversationMap.get(key)?.push(item);
   }
 
   const conversations = Array.from(conversationMap.entries()).map(([author, msgs]) => ({
@@ -186,10 +188,7 @@ engagementInboxApp.delete("/canned-replies/:id", async (c) => {
   const result = await db
     .delete(organizationSetting)
     .where(
-      and(
-        eq(organizationSetting.organizationId, organizationId),
-        eq(organizationSetting.key, key),
-      ),
+      and(eq(organizationSetting.organizationId, organizationId), eq(organizationSetting.key, key)),
     );
 
   if (!result) return c.json({ error: "Canned reply not found" }, 404);
@@ -288,10 +287,7 @@ engagementInboxApp.put("/:id/labels", async (c) => {
     .select()
     .from(engagementItem)
     .where(
-      and(
-        eq(engagementItem.id, engagementId),
-        eq(engagementItem.organizationId, organizationId),
-      ),
+      and(eq(engagementItem.id, engagementId), eq(engagementItem.organizationId, organizationId)),
     );
 
   if (!item) return c.json({ error: "Engagement not found" }, 404);
@@ -304,7 +300,7 @@ engagementInboxApp.put("/:id/labels", async (c) => {
     }
   }
   if (parsed.data.remove) {
-    updatedLabels = updatedLabels.filter((l) => !parsed.data.remove!.includes(l));
+    updatedLabels = updatedLabels.filter((l) => !parsed.data.remove?.includes(l));
   }
 
   await db

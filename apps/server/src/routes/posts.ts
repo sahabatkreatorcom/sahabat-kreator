@@ -17,7 +17,13 @@ postsApp.get("/", async (c) => {
   const offset = Number.parseInt(c.req.query("offset") || "0", 10);
 
   const where = status
-    ? and(eq(post.organizationId, organizationId), eq(post.status, status as "DRAFT" | "SCHEDULED" | "PUBLISHING" | "PUBLISHED" | "FAILED" | "ARCHIVED"))
+    ? and(
+        eq(post.organizationId, organizationId),
+        eq(
+          post.status,
+          status as "DRAFT" | "SCHEDULED" | "PUBLISHING" | "PUBLISHED" | "FAILED" | "ARCHIVED",
+        ),
+      )
     : eq(post.organizationId, organizationId);
 
   const posts = await db.query.post.findMany({
@@ -74,7 +80,16 @@ postsApp.post("/", async (c) => {
     return c.json({ error: err }, 400);
   }
 
-  const { caption, postType, socialAccountId, scheduledAt, autoPublish, mediaIds, pillarId, hashtagIds } = parsed.data;
+  const {
+    caption,
+    postType,
+    socialAccountId,
+    scheduledAt,
+    autoPublish,
+    mediaIds,
+    pillarId,
+    hashtagIds,
+  } = parsed.data;
 
   const returned = await db
     .insert(post)

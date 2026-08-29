@@ -1,15 +1,33 @@
 /**
  * Pinterest API Adapter
  * Handles profile fetching and analytics via Pinterest API v5
+ * Supports both production (api.pinterest.com) and sandbox (api-sandbox.pinterest.com)
  */
 
 import type { AccountMetrics, PlatformProfile } from "./types";
+
+const IS_SANDBOX = process.env.PINTEREST_SANDBOX === "true";
+const PINTEREST_BASE_URL = IS_SANDBOX
+  ? "https://api-sandbox.pinterest.com"
+  : "https://api.pinterest.com";
+
+/** Check if app is in sandbox mode by testing the API */
+export async function checkPinterestSandbox(accessToken: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${PINTEREST_BASE_URL}/v5/user_account`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return response.status === 403 || response.url?.includes("sandbox") || false;
+  } catch {
+    return false;
+  }
+}
 
 // ─── Profile ────────────────────────────────────────────────────────────────────
 
 export async function fetchPinterestProfile(accessToken: string): Promise<PlatformProfile | null> {
   try {
-    const response = await fetch("https://api.pinterest.com/v5/user_account", {
+    const response = await fetch(`${PINTEREST_BASE_URL}/v5/user_account`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
@@ -47,7 +65,7 @@ export async function getPinterestAnalytics(accessToken: string): Promise<Accoun
   try {
     // Pinterest doesn't have a direct analytics endpoint in v5 API for basic accounts
     // We'll return default metrics and can be extended later with Pin analytics
-    const response = await fetch("https://api.pinterest.com/v5/user_account", {
+    const response = await fetch(`${PINTEREST_BASE_URL}/v5/user_account`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
@@ -58,7 +76,7 @@ export async function getPinterestAnalytics(accessToken: string): Promise<Accoun
     const data = (await response.json()) as { username?: string };
 
     // Fetch monthly views if possible
-    const viewsUrl = "https://api.pinterest.com/v5/analytics?granularity=MONTH&date_range_days=30";
+    const viewsUrl = `${PINTEREST_BASE_URL}/v5/analytics?granularity=MONTH&date_range_days=30`;
     const viewsResponse = await fetch(viewsUrl, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
@@ -110,7 +128,7 @@ function getDefaultMetrics(): AccountMetrics {
 
 export async function getPinterestPins(accessToken: string, limit = 20): Promise<any[]> {
   try {
-    const url = `https://api.pinterest.com/v5/pins?limit=${limit}`;
+    const url = `${PINTEREST_BASE_URL}/v5/pins?limit=${limit}`;
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
@@ -134,7 +152,7 @@ export async function getPinterestBoardAnalytics(
   boardId: string,
 ): Promise<any> {
   try {
-    const url = `https://api.pinterest.com/v5/boards/${boardId}/analytics`;
+    const url = `${PINTEREST_BASE_URL}/v5/boards/${boardId}/analytics`;
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });

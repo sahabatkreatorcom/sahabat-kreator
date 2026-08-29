@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Heart, Users, Zap, Globe } from "lucide-react";
+import { ArrowLeft, Globe, Heart, Users, Zap } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -8,7 +8,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* Header */}
-      <header className="border-b border-[var(--border)]">
+      <header className="border-[var(--border)] border-b">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
             <ArrowLeft className="h-5 w-5" />
@@ -35,8 +35,8 @@ export default function AboutPage() {
             Tentang <span className="text-[var(--accent-gold)]">Sahabat Kreator</span>
           </h1>
           <p className="mx-auto max-w-2xl text-[var(--text-muted)] text-lg">
-            Platform manajemen media sosial yang dirancang khusus untuk kreator Indonesia.
-            Kelola semua akun dalam satu tempat, jadwalkan konten, dan analisis performa.
+            Platform manajemen media sosial yang dirancang khusus untuk kreator Indonesia. Kelola
+            semua akun dalam satu tempat, jadwalkan konten, dan analisis performa.
           </p>
         </div>
 
@@ -45,23 +45,28 @@ export default function AboutPage() {
           <h2 className="mb-4 font-semibold text-2xl text-[var(--text-primary)]">Misi Kami</h2>
           <p className="text-[var(--text-muted)] text-lg leading-relaxed">
             Kami percaya setiap kreator Indonesia berhak memiliki alat profesional untuk mengelola
-            kehadiran digital mereka. Sahabat Kreator hadir untuk menyederhanakan proses
-            manajemen media sosial, sehingga kreator dapat fokus pada yang paling penting:
-            membuat konten yang menginspirasi.
+            kehadiran digital mereka. Sahabat Kreator hadir untuk menyederhanakan proses manajemen
+            media sosial, sehingga kreator dapat fokus pada yang paling penting: membuat konten yang
+            menginspirasi.
           </p>
         </div>
 
         {/* Values */}
         <div className="mb-16">
-          <h2 className="mb-8 text-center font-semibold text-2xl text-[var(--text-primary)]">Nilai-Nilai Kami</h2>
+          <h2 className="mb-8 text-center font-semibold text-2xl text-[var(--text-primary)]">
+            Nilai-Nilai Kami
+          </h2>
           <div className="grid gap-6 md:grid-cols-2">
             <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] p-6">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--accent-gold)]/10">
                 <Heart className="h-6 w-6 text-[var(--accent-gold)]" />
               </div>
-              <h3 className="mb-2 font-semibold text-lg text-[var(--text-primary)]">Berpusat pada Kreator</h3>
+              <h3 className="mb-2 font-semibold text-[var(--text-primary)] text-lg">
+                Berpusat pada Kreator
+              </h3>
               <p className="text-[var(--text-muted)]">
-                Setiap fitur kami rancang dengan memahami kebutuhan dan tantangan kreator konten Indonesia.
+                Setiap fitur kami rancang dengan memahami kebutuhan dan tantangan kreator konten
+                Indonesia.
               </p>
             </div>
 
@@ -69,9 +74,12 @@ export default function AboutPage() {
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--accent-gold)]/10">
                 <Zap className="h-6 w-6 text-[var(--accent-gold)]" />
               </div>
-              <h3 className="mb-2 font-semibold text-lg text-[var(--text-primary)]">Mudah Digunakan</h3>
+              <h3 className="mb-2 font-semibold text-[var(--text-primary)] text-lg">
+                Mudah Digunakan
+              </h3>
               <p className="text-[var(--text-muted)]">
-                Antarmuka intuitif yang tidak memerlukan pelajaran rumit. Mulai dalam hitungan menit.
+                Antarmuka intuitif yang tidak memerlukan pelajaran rumit. Mulai dalam hitungan
+                menit.
               </p>
             </div>
 
@@ -79,9 +87,12 @@ export default function AboutPage() {
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--accent-gold)]/10">
                 <Users className="h-6 w-6 text-[var(--accent-gold)]" />
               </div>
-              <h3 className="mb-2 font-semibold text-lg text-[var(--text-primary)]">Kolaborasi Tim</h3>
+              <h3 className="mb-2 font-semibold text-[var(--text-primary)] text-lg">
+                Kolaborasi Tim
+              </h3>
               <p className="text-[var(--text-muted)]">
-                Bekerja sama dengan tim Anda secara efisien. Kelola akses, berikan feedback, dan koordinasi konten.
+                Bekerja sama dengan tim Anda secara efisien. Kelola akses, berikan feedback, dan
+                koordinasi konten.
               </p>
             </div>
 
@@ -89,9 +100,12 @@ export default function AboutPage() {
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--accent-gold)]/10">
                 <Globe className="h-6 w-6 text-[var(--accent-gold)]" />
               </div>
-              <h3 className="mb-2 font-semibold text-lg text-[var(--text-primary)]">Fokus Indonesia</h3>
+              <h3 className="mb-2 font-semibold text-[var(--text-primary)] text-lg">
+                Fokus Indonesia
+              </h3>
               <p className="text-[var(--text-muted)]">
-                Dibuat untuk pasar Indonesia dengan dukungan bahasa lokal dan pemahaman mendalam tentang tren lokal.
+                Dibuat untuk pasar Indonesia dengan dukungan bahasa lokal dan pemahaman mendalam
+                tentang tren lokal.
               </p>
             </div>
           </div>
@@ -112,7 +126,7 @@ export default function AboutPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[var(--border)] py-8">
+      <footer className="border-[var(--border)] border-t py-8">
         <div className="mx-auto max-w-4xl px-6 text-center text-[var(--text-muted)] text-sm">
           <p>&copy; 2026 Sahabat Kreator. Hak cipta dilindungi.</p>
         </div>

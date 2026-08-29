@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { postsApi, aiCaptionApi } from "@/lib/api-client";
+import { useState } from "react";
+import { aiCaptionApi, postsApi } from "@/lib/api-client";
 
 export type PostType = "POST" | "STORY" | "REEL" | "CAROUSEL" | "VIDEO";
 export type PostStatus = "DRAFT" | "SCHEDULED" | "PUBLISHING" | "PUBLISHED" | "FAILED";
@@ -75,7 +75,13 @@ export function useCompose(options: UseComposeOptions = {}) {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const res = await aiCaptionApi.generate({ topic, tone, style, includeEmojis: true, includeHashtags: true });
+      const res = await aiCaptionApi.generate({
+        topic,
+        tone,
+        style,
+        includeEmojis: true,
+        includeHashtags: true,
+      });
       if (res.ok) {
         setCaption(res.data.caption);
       }
@@ -94,9 +100,8 @@ export function useCompose(options: UseComposeOptions = {}) {
 
       if (res.ok) {
         return { ok: true };
-      } else {
-        return { ok: false, error: (res as { ok: false; error: string }).error };
       }
+      return { ok: false, error: (res as { ok: false; error: string }).error };
     } catch {
       return { ok: false, error: "Gagal menyimpan draft" };
     } finally {
@@ -117,9 +122,8 @@ export function useCompose(options: UseComposeOptions = {}) {
       if (res.ok) {
         if (onSuccess) onSuccess();
         return { ok: true };
-      } else {
-        return { ok: false, error: (res as { ok: false; error: string }).error };
       }
+      return { ok: false, error: (res as { ok: false; error: string }).error };
     } catch {
       return { ok: false, error: "Gagal menjadwalkan post" };
     } finally {

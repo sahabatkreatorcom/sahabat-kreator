@@ -53,7 +53,7 @@ export function Sparkline({
           strokeLinejoin="round"
         />
       </svg>
-      <span className={cn("text-xs font-medium", trendColor)}>
+      <span className={cn("font-medium text-xs", trendColor)}>
         {trend > 0 ? "+" : ""}
         {trendPercent}%
       </span>
@@ -77,7 +77,7 @@ export function TrendIndicator({ value, previousValue, label, className }: Trend
     <div className={cn("flex items-center gap-1", className)}>
       {label && <span className="text-[var(--text-muted)] text-xs">{label}</span>}
       <span className={cn("font-medium text-sm", change >= 0 ? "text-green-500" : "text-red-500")}>
-        {change >= 0 ? "↑" : "↓"} {Math.abs(parseFloat(percentChange))}%
+        {change >= 0 ? "↑" : "↓"} {Math.abs(Number.parseFloat(percentChange))}%
       </span>
     </div>
   );

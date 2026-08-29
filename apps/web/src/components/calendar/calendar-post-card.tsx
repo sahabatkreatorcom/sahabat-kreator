@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Clock, Edit, Trash2 } from "lucide-react";
+import { Clock, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -46,10 +46,16 @@ export function CalendarPostCard({ post, onEdit, onDelete, compact }: CalendarPo
       >
         <p className="truncate text-xs">{post.caption?.slice(0, 30) || "Tanpa caption"}</p>
         <div className="flex items-center gap-1">
-          <span className="text-[var(--text-muted)] text-xs">{TYPE_LABELS[post.postType] || post.postType}</span>
+          <span className="text-[var(--text-muted)] text-xs">
+            {TYPE_LABELS[post.postType] || post.postType}
+          </span>
           {post.scheduledAt && (
             <span className="text-[var(--text-muted)] text-xs">
-              · {new Date(post.scheduledAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+              ·{" "}
+              {new Date(post.scheduledAt).toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </span>
           )}
         </div>
@@ -58,11 +64,16 @@ export function CalendarPostCard({ post, onEdit, onDelete, compact }: CalendarPo
   }
 
   return (
-    <div className={cn("group rounded-lg border bg-[var(--bg-primary)] p-3 transition-colors hover:border-[var(--accent-gold)]", statusColor.split(" ")[0])}>
+    <div
+      className={cn(
+        "group rounded-lg border bg-[var(--bg-primary)] p-3 transition-colors hover:border-[var(--accent-gold)]",
+        statusColor.split(" ")[0],
+      )}
+    >
       <div className="mb-2 flex items-start justify-between">
         <span
           className={cn(
-            "rounded-full px-2 py-0.5 text-xs font-medium",
+            "rounded-full px-2 py-0.5 font-medium text-xs",
             post.status === "PUBLISHED"
               ? "bg-green-500/20 text-green-500"
               : post.status === "SCHEDULED"
@@ -74,14 +85,24 @@ export function CalendarPostCard({ post, onEdit, onDelete, compact }: CalendarPo
         >
           {post.status}
         </span>
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           {onEdit && (
-            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => onEdit(post.id)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={() => onEdit(post.id)}
+            >
               <Edit className="h-3 w-3" />
             </Button>
           )}
           {onDelete && (
-            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => onDelete(post.id)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={() => onDelete(post.id)}
+            >
               <Trash2 className="h-3 w-3" />
             </Button>
           )}
@@ -100,7 +121,10 @@ export function CalendarPostCard({ post, onEdit, onDelete, compact }: CalendarPo
         {post.scheduledAt && (
           <span className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            {new Date(post.scheduledAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+            {new Date(post.scheduledAt).toLocaleTimeString("id-ID", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </span>
         )}
       </div>

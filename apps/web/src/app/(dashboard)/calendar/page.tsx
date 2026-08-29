@@ -4,7 +4,6 @@ import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  Clock,
   Plus,
   RefreshCcw,
   Trash2,
@@ -15,14 +14,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  FacebookIcon,
-  InstagramIcon,
-  LinkedinIcon,
-  TikTokIcon,
-  TwitterIcon,
-  YoutubeIcon,
-} from "@/components/ui/platform-icons";
 import { calendarApi, postsApi } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
@@ -86,7 +77,7 @@ export default function CalendarPage() {
 
   useEffect(() => {
     fetchData();
-  }, [currentDate, viewMode]);
+  }, [fetchData]);
 
   const goToPrev = () => {
     const next = new Date(currentDate);
@@ -108,8 +99,18 @@ export default function CalendarPage() {
 
   const getMonthName = (date: Date) => {
     const months = [
-      "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-      "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember",
     ];
     return months[date.getMonth()];
   };
@@ -309,7 +310,10 @@ export default function CalendarPage() {
         {/* Time grid */}
         <div className="max-h-[600px] overflow-y-auto">
           {HOURS.filter((h) => h >= 6 && h <= 22).map((hour) => (
-            <div key={hour} className="grid grid-cols-[60px_repeat(7,1fr)] gap-2 border-[var(--border)] border-t">
+            <div
+              key={hour}
+              className="grid grid-cols-[60px_repeat(7,1fr)] gap-2 border-[var(--border)] border-t"
+            >
               <div className="py-2 pr-2 text-right text-[var(--text-muted)] text-xs">
                 {String(hour).padStart(2, "0")}:00
               </div>
@@ -332,7 +336,7 @@ export default function CalendarPage() {
                           handleEditPost(post.id);
                         }}
                         className={cn(
-                          "mb-1 cursor-pointer rounded px-1 py-0.5 text-xs text-white",
+                          "mb-1 cursor-pointer rounded px-1 py-0.5 text-white text-xs",
                           PLATFORM_COLORS[post.socialAccount?.platform] || "bg-gray-400",
                         )}
                       >
@@ -351,7 +355,7 @@ export default function CalendarPage() {
 
   // Day View
   const renderDayView = () => {
-    const dayPosts = getPostsForDate(currentDate);
+    const _dayPosts = getPostsForDate(currentDate);
     const dayName = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][
       currentDate.getDay()
     ];
@@ -360,7 +364,12 @@ export default function CalendarPage() {
       <div className="space-y-4">
         <div className="text-center">
           <div className="text-[var(--text-muted)] text-sm">{dayName}</div>
-          <div className={cn("font-bold text-3xl", isToday(currentDate) && "text-[var(--accent-gold)]")}>
+          <div
+            className={cn(
+              "font-bold text-3xl",
+              isToday(currentDate) && "text-[var(--accent-gold)]",
+            )}
+          >
             {currentDate.getDate()}
           </div>
         </div>
@@ -405,7 +414,7 @@ export default function CalendarPage() {
                         </button>
                       </div>
                       {post.socialAccount?.platform && (
-                        <span className="text-xs text-white/80">{post.socialAccount.platform}</span>
+                        <span className="text-white/80 text-xs">{post.socialAccount.platform}</span>
                       )}
                     </div>
                   ))}
@@ -502,7 +511,10 @@ export default function CalendarPage() {
               <>
                 <div className="mb-2 grid grid-cols-7 gap-2">
                   {weekDays.map((day) => (
-                    <div key={day} className="py-2 text-center font-medium text-[var(--text-muted)] text-sm">
+                    <div
+                      key={day}
+                      className="py-2 text-center font-medium text-[var(--text-muted)] text-sm"
+                    >
                       {day}
                     </div>
                   ))}

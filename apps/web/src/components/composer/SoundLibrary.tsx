@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Check,
-  Heart,
-  Loader2,
-  Music,
-  Play,
-  Plus,
-  Search,
-  X,
-} from "lucide-react";
+import { Check, Heart, Loader2, Music, Play, Plus, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -159,7 +150,13 @@ export function SoundLibrary({ onAdd, currentSound }: SoundLibraryProps) {
             className="h-9 pl-9 text-sm"
           />
         </div>
-        <Button variant="secondary" size="sm" onClick={handleSearch} disabled={searching} className="shrink-0">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={handleSearch}
+          disabled={searching}
+          className="shrink-0"
+        >
           {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : "Cari"}
         </Button>
       </div>
@@ -176,7 +173,7 @@ export function SoundLibrary({ onAdd, currentSound }: SoundLibraryProps) {
                 else setSounds(MOCK_SOUNDS);
               }}
               className={cn(
-                "rounded-md px-3 py-1 text-xs font-medium transition-colors",
+                "rounded-md px-3 py-1 font-medium text-xs transition-colors",
                 filter === f
                   ? "bg-[var(--accent-gold)] text-white"
                   : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]",
@@ -189,7 +186,7 @@ export function SoundLibrary({ onAdd, currentSound }: SoundLibraryProps) {
       </div>
 
       {/* Results */}
-      <div className="max-h-80 overflow-y-auto space-y-1.5">
+      <div className="max-h-80 space-y-1.5 overflow-y-auto">
         {filteredSounds.length === 0 ? (
           <div className="py-8 text-center">
             <Music className="mx-auto mb-2 h-8 w-8 text-[var(--text-muted)]" />
@@ -216,7 +213,7 @@ export function SoundLibrary({ onAdd, currentSound }: SoundLibraryProps) {
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "h-8 w-8 shrink-0 p-0 rounded-full",
+                    "h-8 w-8 shrink-0 rounded-full p-0",
                     isPlaying && "bg-[var(--accent-gold)] text-white",
                   )}
                   onClick={() => handlePlay(sound.id)}
@@ -261,14 +258,20 @@ export function SoundLibrary({ onAdd, currentSound }: SoundLibraryProps) {
 
                 {/* Duration & Actions */}
                 <div className="flex shrink-0 items-center gap-1.5">
-                  <span className="text-[var(--text-muted)] text-xs">{formatDuration(sound.duration)}</span>
+                  <span className="text-[var(--text-muted)] text-xs">
+                    {formatDuration(sound.duration)}
+                  </span>
                   <Button
                     size="sm"
                     variant={isSelected ? "primary" : "secondary"}
                     className={cn("h-7 w-7 p-0", isSelected && "bg-[var(--accent-gold)]")}
                     onClick={() => handleAdd(sound)}
                   >
-                    {isSelected ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                    {isSelected ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : (
+                      <Plus className="h-3.5 w-3.5" />
+                    )}
                   </Button>
                 </div>
               </div>
@@ -281,8 +284,13 @@ export function SoundLibrary({ onAdd, currentSound }: SoundLibraryProps) {
       {filter === "all" && mySounds.length > 0 && (
         <div className="pt-2">
           <div className="flex items-center justify-between">
-            <p className="font-medium text-xs text-[var(--text-muted)]">Sound Saya</p>
-            <Button variant="ghost" size="sm" className="h-6 text-xs gap-1" onClick={() => setFilter("mine")}>
+            <p className="font-medium text-[var(--text-muted)] text-xs">Sound Saya</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 gap-1 text-xs"
+              onClick={() => setFilter("mine")}
+            >
               Lihat Semua <Heart className="h-3 w-3" />
             </Button>
           </div>
@@ -294,7 +302,7 @@ export function SoundLibrary({ onAdd, currentSound }: SoundLibraryProps) {
               >
                 <button
                   onClick={() => handlePlay(sound.id)}
-                  className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:bg-[var(--accent-gold)] hover:text-white transition-colors"
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--bg-tertiary)] text-[var(--text-muted)] transition-colors hover:bg-[var(--accent-gold)] hover:text-white"
                 >
                   {playingId === sound.id ? (
                     <div className="flex gap-0.5">
@@ -311,17 +319,23 @@ export function SoundLibrary({ onAdd, currentSound }: SoundLibraryProps) {
                   )}
                 </button>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{sound.title}</p>
+                  <p className="truncate font-medium text-sm">{sound.title}</p>
                   <p className="truncate text-[var(--text-muted)] text-xs">{sound.artist}</p>
                 </div>
-                <span className="text-[var(--text-muted)] text-xs">{formatDuration(sound.duration)}</span>
+                <span className="text-[var(--text-muted)] text-xs">
+                  {formatDuration(sound.duration)}
+                </span>
                 <Button
                   size="sm"
                   variant={currentSound?.id === sound.id ? "primary" : "ghost"}
                   className="h-7 w-7 p-0"
                   onClick={() => handleAdd(sound)}
                 >
-                  {currentSound?.id === sound.id ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                  {currentSound?.id === sound.id ? (
+                    <Check className="h-3.5 w-3.5" />
+                  ) : (
+                    <Plus className="h-3.5 w-3.5" />
+                  )}
                 </Button>
               </div>
             ))}

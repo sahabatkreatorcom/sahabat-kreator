@@ -5,21 +5,19 @@ import {
   BarChart3,
   Bot,
   CalendarDays,
-  ChevronDown,
-  MessageSquare,
-  RefreshCcw,
-  Users,
-  Video,
   Eye,
   Heart,
-  Share2,
-  TrendingUp,
+  MessageSquare,
+  RefreshCcw,
   TrendingDown,
+  TrendingUp,
+  Users,
+  Video,
   Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { postsApi, platformApi, analyticsApi, type PlatformAccount } from "@/lib/api-client";
+import { type PlatformAccount, platformApi, postsApi } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
 type TimeRange = "7d" | "30d" | "90d";
@@ -124,10 +122,7 @@ function PlatformCard({
   const Icon = PLATFORM_ICONS[account.platform] || Bot;
 
   return (
-    <div
-      className="card p-5"
-      style={{ borderLeft: `3px solid ${color}` }}
-    >
+    <div className="card p-5" style={{ borderLeft: `3px solid ${color}` }}>
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div
@@ -145,7 +140,7 @@ function PlatformCard({
           <button
             type="button"
             onClick={onConnect}
-            className="rounded-lg bg-[var(--accent-gold)] px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
+            className="rounded-lg bg-[var(--accent-gold)] px-3 py-1.5 font-medium text-white text-xs hover:opacity-90"
           >
             Connect
           </button>
@@ -160,9 +155,7 @@ function PlatformCard({
           </div>
           <div>
             <p className="text-[var(--text-muted)] text-xs">Engagement Rate</p>
-            <p className="font-semibold text-lg">
-              {analytics.engagementRate.toFixed(2)}%
-            </p>
+            <p className="font-semibold text-lg">{analytics.engagementRate.toFixed(2)}%</p>
           </div>
           <div>
             <p className="text-[var(--text-muted)] text-xs">Impressions</p>
@@ -174,9 +167,7 @@ function PlatformCard({
           </div>
         </div>
       ) : (
-        <div className="py-4 text-center text-[var(--text-muted)] text-sm">
-          Belum terhubung
-        </div>
+        <div className="py-4 text-center text-[var(--text-muted)] text-sm">Belum terhubung</div>
       )}
     </div>
   );
@@ -185,7 +176,7 @@ function PlatformCard({
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>("7d");
   const [loading, setLoading] = useState(true);
-  const [platformLoading, setPlatformLoading] = useState(false);
+  const [_platformLoading, setPlatformLoading] = useState(false);
 
   interface PostData {
     id: string;
@@ -232,8 +223,11 @@ export default function AnalyticsPage() {
       setPlatformLoading(true);
       for (const account of platformAccounts) {
         if (!account.isActive) continue;
-        
-        const res = await platformApi.getAnalytics(account.platform, timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90);
+
+        const res = await platformApi.getAnalytics(
+          account.platform,
+          timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90,
+        );
         if (res.ok) {
           setPlatformAnalytics((prev) => ({
             ...prev,
@@ -243,7 +237,7 @@ export default function AnalyticsPage() {
       }
       setPlatformLoading(false);
     }
-    
+
     if (platformAccounts.length > 0) {
       fetchPlatformAnalytics();
     }
@@ -267,7 +261,10 @@ export default function AnalyticsPage() {
 
   // Cross-platform stats
   const totalFollowers = Object.values(platformAnalytics).reduce((sum, a) => sum + a.followers, 0);
-  const totalImpressions = Object.values(platformAnalytics).reduce((sum, a) => sum + a.impressions, 0);
+  const totalImpressions = Object.values(platformAnalytics).reduce(
+    (sum, a) => sum + a.impressions,
+    0,
+  );
   const totalReach = Object.values(platformAnalytics).reduce((sum, a) => sum + a.reach, 0);
   const avgEngagementRate =
     Object.values(platformAnalytics).length > 0
@@ -297,24 +294,90 @@ export default function AnalyticsPage() {
   // Engagement by day
   const engagementByDay: Record<TimeRange, { day: string; count: number }[]> = {
     "7d": [
-      { day: "Sen", count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 1).length },
-      { day: "Sel", count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 2).length },
-      { day: "Rab", count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 3).length },
-      { day: "Kam", count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 4).length },
-      { day: "Jum", count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 5).length },
-      { day: "Sab", count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 6).length },
-      { day: "Min", count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 0).length },
+      {
+        day: "Sen",
+        count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 1).length,
+      },
+      {
+        day: "Sel",
+        count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 2).length,
+      },
+      {
+        day: "Rab",
+        count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 3).length,
+      },
+      {
+        day: "Kam",
+        count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 4).length,
+      },
+      {
+        day: "Jum",
+        count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 5).length,
+      },
+      {
+        day: "Sab",
+        count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 6).length,
+      },
+      {
+        day: "Min",
+        count: publishedPosts.filter((p) => new Date(p.createdAt).getDay() === 0).length,
+      },
     ],
     "30d": [
-      { day: "Minggu 1", count: publishedPosts.filter((p) => { const d = new Date(p.createdAt); return d.getDate() >= 1 && d.getDate() <= 7; }).length },
-      { day: "Minggu 2", count: publishedPosts.filter((p) => { const d = new Date(p.createdAt); return d.getDate() >= 8 && d.getDate() <= 14; }).length },
-      { day: "Minggu 3", count: publishedPosts.filter((p) => { const d = new Date(p.createdAt); return d.getDate() >= 15 && d.getDate() <= 21; }).length },
-      { day: "Minggu 4", count: publishedPosts.filter((p) => { const d = new Date(p.createdAt); return d.getDate() >= 22; }).length },
+      {
+        day: "Minggu 1",
+        count: publishedPosts.filter((p) => {
+          const d = new Date(p.createdAt);
+          return d.getDate() >= 1 && d.getDate() <= 7;
+        }).length,
+      },
+      {
+        day: "Minggu 2",
+        count: publishedPosts.filter((p) => {
+          const d = new Date(p.createdAt);
+          return d.getDate() >= 8 && d.getDate() <= 14;
+        }).length,
+      },
+      {
+        day: "Minggu 3",
+        count: publishedPosts.filter((p) => {
+          const d = new Date(p.createdAt);
+          return d.getDate() >= 15 && d.getDate() <= 21;
+        }).length,
+      },
+      {
+        day: "Minggu 4",
+        count: publishedPosts.filter((p) => {
+          const d = new Date(p.createdAt);
+          return d.getDate() >= 22;
+        }).length,
+      },
     ],
     "90d": [
-      { day: "Bulan 1", count: publishedPosts.filter((p) => { const d = new Date(p.createdAt); const n = new Date(); return d.getMonth() === n.getMonth() - 2; }).length },
-      { day: "Bulan 2", count: publishedPosts.filter((p) => { const d = new Date(p.createdAt); const n = new Date(); return d.getMonth() === n.getMonth() - 1; }).length },
-      { day: "Bulan 3", count: publishedPosts.filter((p) => { const d = new Date(p.createdAt); const n = new Date(); return d.getMonth() === n.getMonth(); }).length },
+      {
+        day: "Bulan 1",
+        count: publishedPosts.filter((p) => {
+          const d = new Date(p.createdAt);
+          const n = new Date();
+          return d.getMonth() === n.getMonth() - 2;
+        }).length,
+      },
+      {
+        day: "Bulan 2",
+        count: publishedPosts.filter((p) => {
+          const d = new Date(p.createdAt);
+          const n = new Date();
+          return d.getMonth() === n.getMonth() - 1;
+        }).length,
+      },
+      {
+        day: "Bulan 3",
+        count: publishedPosts.filter((p) => {
+          const d = new Date(p.createdAt);
+          const n = new Date();
+          return d.getMonth() === n.getMonth();
+        }).length,
+      },
     ],
   };
 
@@ -518,7 +581,7 @@ export default function AnalyticsPage() {
 
             {topPosts.length > 0 ? (
               <div className="space-y-4">
-                {topPosts.map((post, i) => (
+                {topPosts.map((post, _i) => (
                   <div
                     key={post.id}
                     className="flex items-center gap-4 rounded-lg bg-[var(--bg-secondary)] p-4 transition-colors hover:bg-[var(--bg-tertiary)]"
@@ -644,7 +707,7 @@ function PlatformBadge({ platform }: { platform: string }) {
   const color = PLATFORM_COLORS[platform] || "#888";
   return (
     <span
-      className="rounded-full px-2 py-0.5 text-xs font-medium"
+      className="rounded-full px-2 py-0.5 font-medium text-xs"
       style={{ backgroundColor: `${color}20`, color }}
     >
       {platform}

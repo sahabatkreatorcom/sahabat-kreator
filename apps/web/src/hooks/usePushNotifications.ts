@@ -6,12 +6,12 @@ import {
   getVapidPublicKey,
   isNotificationPermissionGranted,
   isPushSupported,
+  type PushSubscriptionDB,
   removeSubscription,
   sendPushNotification,
   storeSubscription,
   subscribeUser,
   unsubscribeUser,
-  type PushSubscriptionDB,
 } from "@/lib/push-notifications";
 
 interface UsePushNotificationsReturn {
@@ -83,7 +83,10 @@ export function usePushNotifications(): UsePushNotificationsReturn {
     // Store in DB
     try {
       const stored = await storeSubscription(sub);
-      setSubscriptions((prev) => [...prev, { id: stored.id, endpoint: sub.endpoint, createdAt: new Date().toISOString() }]);
+      setSubscriptions((prev) => [
+        ...prev,
+        { id: stored.id, endpoint: sub.endpoint, createdAt: new Date().toISOString() },
+      ]);
       setIsSubscribed(true);
       toast.success("Berhasil berlangganan notifikasi push.");
     } catch {

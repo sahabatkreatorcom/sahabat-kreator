@@ -2,24 +2,13 @@
 
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import {
-  AlertTriangle,
-  Building2,
-  Check,
-  Coins,
-  CreditCard,
-  Crown,
-  Shield,
-  Zap,
-} from "lucide-react";
+import { AlertTriangle, CreditCard, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { billingApi } from "@/lib/api-client";
 import { useSession } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
 import { PlanBadge } from "./components/plan-badge";
-import { PlanCard, PLAN_DISPLAY, PLAN_LIMITS, PLAN_PRICES } from "./components/plan-card";
+import { PLAN_DISPLAY, PLAN_LIMITS, PLAN_PRICES, PlanCard } from "./components/plan-card";
 import { UsageMeter } from "./components/usage-meter";
 
 const UPGRADE_PLANS = ["PRO", "BUSINESS", "ENTERPRISE"] as const;

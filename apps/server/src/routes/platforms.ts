@@ -1,111 +1,132 @@
 import { db } from "@sahabatkreator/db";
 import { socialAccount } from "@sahabatkreator/db/schema";
-import { eq, and } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
+import { env } from "@sahabatkreator/env/server";
 import { requireAuth } from "../lib/auth-middleware";
 import { getOrganizationId } from "../lib/context";
-import { env } from "@sahabatkreator/env/server";
 import {
-  fetchInstagramProfile,
-  fetchFacebookPage,
-  fetchTikTokProfile,
-  fetchYouTubeChannel,
-  fetchPinterestProfile,
-  fetchLinkedInProfile,
-  fetchBlueskyProfile,
-  fetchThreadsProfile,
-  fetchGoogleBusinessProfile,
-} from "@sahabatkreator/platform";
-
-// ─── Platform API Types & Helpers ──────────────────────────────────────────────
-
-interface PlatformToken {
-  accessToken: string;
-  refreshToken?: string;
-  expiresIn: number;
-}
-
-interface PlatformProfile {
-  platformId: string;
-  name: string;
-  username: string;
-}
-
-// ─── URL Helpers ──────────────────────────────────────────────────────────────
-
-function getCallbackUrl(baseUrl: string, platform: string): string {
-  return `${baseUrl}/auth/${platform.toLowerCase()}/callback`;
-}
-
-function getAuthorizationUrl(platform: string, config: { clientId: string; clientSecret: string; redirectUri: string; scope?: string }, state: string): string {
-  const oauthUrls: Record<string, { auth: string }> = {
-    INSTAGRAM: { auth: "https://api.instagram.com/oauth/authorize" },
-    FACEBOOK: { auth: "https://www.facebook.com/v26.0/dialog/oauth" },
-    TIKTOK: { auth: "https://www.tiktok.com/v2/auth/authorize" },
-    YOUTUBE: { auth: "https://accounts.google.com/o/oauth2/v2/auth" },
-    PINTEREST: { auth: "https://www.pinterest.com/oauth/" },
-    LINKEDIN: { auth: "https://www.linkedin.com/oauth/v2/authorization" },
-    BLUESKY: { auth: "https://bsky.social/login" },
-    THREADS: { auth: "https://threads.net/oauth/authorize" },
-    GOOGLE_BUSINESS: { auth: "https://accounts.google.com/o/oauth2/v2/auth" },
-  };
-  const url = new URL(oauthUrls[platform]?.auth || "");
-  url.searchParams.set("client_id", config.clientId);
-  url.searchParams.set("redirect_uri", config.redirectUri);
-  url.searchParams.set("response_type", "code");
-  url.searchParams.set("state", state);
-  if (config.scope) {
-    url.searchParams.set("scope", config.scope);
-  }
-  return url.toString();
-}
-
-// ─── Hono App ─────────────────────────────────────────────────────────────────
+  exchangeCodeForToken,
+  getCallbackUrl,
+  buildAuthorizationUrl,
+} from "./platforms/oauth-helpers";
+import { getPlatformStrategy } from "./platforms/oauth-registry";
+import { upsertAccount } from "./platforms/profile-store";
+import type { PlatformToken } from "./platforms/oauth-helpers";
+import type { ProfileResponse } from "./platforms/types";
 
 const platformApp = new Hono();
-
 platformApp.use("/*", requireAuth);
 
-// ─── GET /api/platforms/:platform/auth-url ─────────────────────────────────────
-const authUrlSchema = z.object({
-  state: z.string().min(1),
+// ─── GET /api/platforms/accounts ─────────────────────────────────────────────────
+platformApp.get("/accounts", async (c) => {
+  const organizationId = getOrganizationId(c);
+
+  const accounts = await db.query.socialAccount.findMany({
+    where: eq(socialAccount.organizationId, organizationId),
+    orderBy: [desc(socialAccount.createdAt)],
+    columns: {
+      id: true,
+      platform: true,
+      name: true,
+      username: true,
+      isActive: true,
+      platformAccountId: true,
+      accessToken: false,
+      refreshToken: false,
+      tokenExpiresAt: true,
+      createdAt: true,
+    },
+  });
+
+  return c.json({ accounts });
 });
+
+// ─── GET /api/platforms/cross-platform ───────────────────────────────────────────
+platformApp.get("/cross-platform", async (c) => {
+  const organizationId = getOrganizationId(c);
+
+  const accounts = await db.query.socialAccount.findMany({
+    where: and(eq(socialAccount.organizationId, organizationId), eq(socialAccount.isActive, true)),
+    columns: {
+      id: true,
+      platform: true,
+      name: true,
+      username: true,
+      platformAccountId: true,
+      accessToken: true,
+    },
+  });
+
+  const byPlatform = await Promise.all(
+    accounts.map(async (a) => {
+      try {
+        const strategy = getPlatformStrategy(a.platform);
+        if (!strategy.analytics || !a.accessToken) {
+          return { platform: a.platform, followers: 0, impressions: 0, engagementRate: 0, name: a.name, username: a.username };
+        }
+        const metrics = await strategy.analytics(a.accessToken, a.platformAccountId, a.platform);
+        return {
+          platform: a.platform,
+          followers: metrics.followers,
+          impressions: metrics.impressions,
+          engagementRate: metrics.engagementRate,
+          name: a.name,
+          username: a.username,
+        };
+      } catch {
+        return { platform: a.platform, followers: 0, impressions: 0, engagementRate: 0, name: a.name, username: a.username };
+      }
+    }),
+  );
+
+  const totalFollowers = byPlatform.reduce((s, p) => s + p.followers, 0);
+  const totalImpressions = byPlatform.reduce((s, p) => s + p.impressions, 0);
+  const totalReach = byPlatform.reduce((s, p) => s + p.impressions, 0);
+  const avgEngagementRate = byPlatform.length > 0
+    ? byPlatform.reduce((s, p) => s + p.engagementRate, 0) / byPlatform.length
+    : 0;
+
+  return c.json({
+    stats: {
+      totalFollowers,
+      totalImpressions,
+      totalReach,
+      avgEngagementRate,
+      byPlatform,
+    },
+  });
+});
+
+// ─── GET /api/platforms/:platform/auth-url ──────────────────────────────────────
+const authUrlSchema = z.object({ state: z.string().min(1) });
 
 platformApp.get("/:platform/auth-url", async (c) => {
   const platform = c.req.param("platform").toUpperCase();
   const query = authUrlSchema.safeParse(new URL(c.req.url).searchParams);
 
   if (!query.success) {
-    return c.json({ error: "Invalid state parameter" }, 400);
+    return c.json({ error: "Missing or invalid 'state' query parameter" }, 400);
   }
 
-  // Get platform credentials from env
-  const clientId = (env as unknown as Record<string, string | undefined>)[`PLATFORM_${platform}_CLIENT_ID`];
-  const clientSecret = (env as unknown as Record<string, string | undefined>)[`PLATFORM_${platform}_CLIENT_SECRET`];
+  const envVars = env as unknown as Record<string, string | undefined>;
+  const clientId = envVars[`PLATFORM_${platform}_CLIENT_ID`];
+  const clientSecret = envVars[`PLATFORM_${platform}_CLIENT_SECRET`];
 
   if (!clientId || !clientSecret) {
-    return c.json({ error: `Platform ${platform} not configured` }, 404);
+    return c.json({ error: `Platform ${platform} is not configured` }, 404);
   }
 
-  const redirectUri = getCallbackUrl(env.NEXT_PUBLIC_APP_URL || "http://localhost:3001", platform);
-  const config = PLATFORM_OAUTH_CONFIG[platform];
-
-  const authUrl = getAuthorizationUrl(platform, {
-    clientId,
-    clientSecret,
-    redirectUri,
-    scope: config?.scopes,
-  }, query.data.state);
+  const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
+  const redirectUri = getCallbackUrl(baseUrl, platform);
+  const authUrl = buildAuthorizationUrl(platform, clientId, redirectUri, query.data.state);
 
   return c.json({ authUrl });
 });
 
-// ─── POST /api/platforms/:platform/callback ────────────────────────────────────
-const callbackSchema = z.object({
-  code: z.string().min(1),
-  state: z.string().min(1),
-});
+// ─── POST /api/platforms/:platform/callback ─────────────────────────────────────
+const callbackSchema = z.object({ code: z.string().min(1), state: z.string().min(1) });
 
 platformApp.post("/:platform/callback", async (c) => {
   const organizationId = getOrganizationId(c);
@@ -113,170 +134,80 @@ platformApp.post("/:platform/callback", async (c) => {
   const body = callbackSchema.safeParse(await c.req.json());
 
   if (!body.success) {
-    return c.json({ error: "Invalid callback parameters" }, 400);
+    return c.json({ error: "Missing or invalid 'code' in request body" }, 400);
   }
 
-  // Get platform credentials
-  const clientId = (env as unknown as Record<string, string | undefined>)[`PLATFORM_${platform}_CLIENT_ID`];
-  const clientSecret = (env as unknown as Record<string, string | undefined>)[`PLATFORM_${platform}_CLIENT_SECRET`];
+  const envVars = env as unknown as Record<string, string | undefined>;
+  const clientId = envVars[`PLATFORM_${platform}_CLIENT_ID`];
+  const clientSecret = envVars[`PLATFORM_${platform}_CLIENT_SECRET`];
 
   if (!clientId || !clientSecret) {
-    return c.json({ error: `Platform ${platform} not configured` }, 404);
+    return c.json({ error: `Platform ${platform} is not configured` }, 404);
   }
 
-  const redirectUri = getCallbackUrl(env.NEXT_PUBLIC_APP_URL || "http://localhost:3001", platform);
+  const baseUrl = env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
+  const redirectUri = getCallbackUrl(baseUrl, platform);
 
   try {
-    // Exchange code for token
-    const tokenResponse = await exchangeCodeForToken(platform, body.data.code, redirectUri, clientId, clientSecret);
-
-    // Fetch profile based on platform
-    let profile: PlatformProfile | null = null;
-
-    switch (platform) {
-      case "INSTAGRAM":
-      case "FACEBOOK":
-        profile = await fetchInstagramProfile(tokenResponse.accessToken);
-        break;
-      case "FACEBOOK":
-        profile = await fetchFacebookPage(tokenResponse.accessToken);
-        break;
-      case "INSTAGRAM":
-        profile = await fetchInstagramProfile(tokenResponse.accessToken);
-        break;
-      case "TIKTOK":
-        profile = await fetchTikTokProfile(tokenResponse.accessToken);
-        break;
-      case "YOUTUBE":
-        profile = await fetchYouTubeChannel(tokenResponse.accessToken);
-        break;
-      case "PINTEREST":
-        profile = await fetchPinterestProfile(tokenResponse.accessToken);
-        break;
-      case "LINKEDIN":
-        profile = await fetchLinkedInProfile(tokenResponse.accessToken);
-        break;
-      case "BLUESKY":
-        profile = await fetchBlueskyProfile(tokenResponse.accessToken);
-        break;
-      case "THREADS":
-        profile = await fetchThreadsProfile(tokenResponse.accessToken);
-        break;
-      case "GOOGLE_BUSINESS":
-        profile = await fetchGoogleBusinessProfile(tokenResponse.accessToken);
-        break;
-      default:
-        return c.json({ error: `Platform ${platform} not supported yet` }, 400);
-    }
+    const token = await exchangeCodeForToken(platform, body.data.code, redirectUri, clientId, clientSecret);
+    const strategy = getPlatformStrategy(platform);
+    const profile = await strategy.profile(token.accessToken, platform);
 
     if (!profile) {
-      return c.json({ error: "Failed to fetch profile" }, 500);
+      return c.json({ error: "Failed to fetch profile from platform" }, 500);
     }
 
-    // Check if account already exists
-    const existing = await db.query.socialAccount.findFirst({
-      where: and(
-        eq(socialAccount.organizationId, organizationId),
-        eq(socialAccount.platformAccountId, profile.platformId),
-      ),
+    const account = await upsertAccount({
+      organizationId,
+      platform,
+      profile: profile as ProfileResponse,
+      token: token as PlatformToken,
     });
 
-    if (existing) {
-      // Update existing account
-      await db.update(socialAccount).set({
-        accessToken: tokenResponse.accessToken,
-        refreshToken: tokenResponse.refreshToken || null,
-        tokenExpiresAt: new Date(Date.now() + tokenResponse.expiresIn * 1000),
-        isActive: true,
-      }).where(eq(socialAccount.id, existing.id));
-
-      return c.json({ success: true, account: { ...existing, accessToken: undefined, refreshToken: undefined } });
-    }
-
-    // Create new account
-    const [newAccount] = await db
-      .insert(socialAccount)
-      .values({
-        id: crypto.randomUUID(),
-        organizationId,
-        platform: platform as any,
-        platformAccountId: profile.platformId,
-        name: profile.name,
-        username: profile.username,
-        accessToken: tokenResponse.accessToken,
-        refreshToken: tokenResponse.refreshToken || null,
-        tokenExpiresAt: new Date(Date.now() + tokenResponse.expiresIn * 1000),
-      })
-      .returning();
-
-    return c.json({ success: true, account: { ...newAccount, accessToken: undefined, refreshToken: undefined } });
+    return c.json({ success: true, account });
   } catch (error) {
     console.error(`[Platform] ${platform} callback error:`, error);
-    return c.json({ error: "Failed to process callback" }, 500);
+    return c.json({ error: "Failed to complete OAuth callback" }, 500);
   }
 });
 
-// ─── GET /api/platforms/:platform/analytics ────────────────────────────────────
-const analyticsSchema = z.object({
-  days: z.number().min(1).max(365).default(30),
-});
+// ─── GET /api/platforms/:platform/analytics ─────────────────────────────────────
+const analyticsSchema = z.object({ days: z.number().min(1).max(365).default(30) });
 
 platformApp.get("/:platform/analytics", async (c) => {
   const organizationId = getOrganizationId(c);
   const platform = c.req.param("platform").toUpperCase();
   const query = analyticsSchema.safeParse(new URL(c.req.url).searchParams);
-
   const days = query.success ? query.data.days : 30;
-  void days; // used in analytics fetch
+  void days;
 
-  // Get connected account
   const [account] = await db
     .select()
     .from(socialAccount)
-    .where(and(
-      eq(socialAccount.organizationId, organizationId),
-      eq(socialAccount.platform, platform as any),
-      eq(socialAccount.isActive, true),
-    ))
+    .where(
+      and(
+        eq(socialAccount.organizationId, organizationId),
+        eq(socialAccount.platform, platform as any),
+        eq(socialAccount.isActive, true),
+      ),
+    )
     .limit(1);
 
   if (!account) {
     return c.json({ error: `No active ${platform} account connected` }, 404);
   }
 
+  if (!account.accessToken) {
+    return c.json({ error: `Access token missing for ${platform}` }, 400);
+  }
+
+  const strategy = getPlatformStrategy(platform);
+  if (!strategy.analytics) {
+    return c.json({ error: `Analytics not supported for ${platform}` }, 400);
+  }
+
   try {
-    const analytics = { followers: 0, following: 0, posts: 0 };
-
-    switch (platform) {
-      case "INSTAGRAM":
-      case "FACEBOOK":
-        // TODO: Implement Instagram/Facebook analytics via platform API
-        break;
-      case "TIKTOK":
-        // TODO: Implement TikTok analytics
-        break;
-      case "YOUTUBE":
-        // TODO: Implement YouTube analytics
-        break;
-      case "PINTEREST":
-        // TODO: Implement Pinterest analytics
-        break;
-      case "LINKEDIN":
-        // TODO: Implement LinkedIn analytics
-        break;
-      case "BLUESKY":
-        // TODO: Implement Bluesky analytics
-        break;
-      case "THREADS":
-        // TODO: Implement Threads analytics
-        break;
-      case "GOOGLE_BUSINESS":
-        // TODO: Implement Google Business analytics
-        break;
-      default:
-        return c.json({ error: `Platform ${platform} not supported yet` }, 400);
-    }
-
+    const analytics = await strategy.analytics(account.accessToken, account.platformAccountId, platform);
     return c.json({ analytics });
   } catch (error) {
     console.error(`[Platform] ${platform} analytics error:`, error);
@@ -284,296 +215,262 @@ platformApp.get("/:platform/analytics", async (c) => {
   }
 });
 
-// ─── GET /api/platforms/:platform/comments ─────────────────────────────────────
+// ─── GET /api/platforms/:platform/comments ──────────────────────────────────────
 const commentsSchema = z.object({
   limit: z.number().min(1).max(100).default(20),
+  threadId: z.string().optional(),
 });
+
+type CommentRow = {
+  id: string;
+  text: string;
+  author: string;
+  authorUsername: string;
+  likeCount: number;
+  replyCount: number;
+  createdAt: string;
+};
 
 platformApp.get("/:platform/comments", async (c) => {
   const organizationId = getOrganizationId(c);
   const platform = c.req.param("platform").toUpperCase();
   const query = commentsSchema.safeParse(new URL(c.req.url).searchParams);
-
   const limit = query.success ? query.data.limit : 20;
-  void limit;
+  const threadId = query.success ? query.data.threadId : undefined;
 
-  // Get connected account
   const [account] = await db
     .select()
     .from(socialAccount)
-    .where(and(
-      eq(socialAccount.organizationId, organizationId),
-      eq(socialAccount.platform, platform as any),
-      eq(socialAccount.isActive, true),
-    ))
+    .where(
+      and(
+        eq(socialAccount.organizationId, organizationId),
+        eq(socialAccount.platform, platform as any),
+        eq(socialAccount.isActive, true),
+      ),
+    )
     .limit(1);
 
   if (!account) {
     return c.json({ error: `No active ${platform} account connected` }, 404);
   }
 
-  try {
-    const comments: Array<{ id: string; text: string; author: string }> = [];
-
-    switch (platform) {
-      case "INSTAGRAM":
-        // TODO: Implement Instagram comments
-        break;
-      case "TIKTOK":
-        // TODO: Implement TikTok comments
-        break;
-      case "YOUTUBE":
-        // TODO: Implement YouTube comments
-        break;
-      case "PINTEREST":
-        // TODO: Implement Pinterest comments
-        break;
-      case "LINKEDIN":
-        // TODO: Implement LinkedIn comments
-        break;
-      case "BLUESKY":
-        // TODO: Implement Bluesky comments
-        break;
-      case "THREADS":
-        // TODO: Implement Threads comments
-        break;
-      case "GOOGLE_BUSINESS":
-        // TODO: Implement Google Business comments
-        break;
-      default:
-        return c.json({ error: `Platform ${platform} not supported yet` }, 400);
-    }
-
-    return c.json({ comments });
-  } catch (error) {
-    console.error(`[Platform] ${platform} comments error:`, error);
-    return c.json({ error: "Failed to fetch comments" }, 500);
+  if (!account.accessToken) {
+    return c.json({ error: `Access token missing for ${platform}` }, 400);
   }
+
+  // Fetch comments based on platform
+  if (platform === "THREADS") {
+    const { getAccountComments, getThreadComments } = await import("@sahabatkreator/platform");
+    let rawComments;
+    if (threadId) {
+      // Fetch comments for a specific thread
+      rawComments = await getThreadComments(account.accessToken, threadId, limit);
+    } else {
+      // Fetch comments across recent threads
+      rawComments = await getAccountComments(account.accessToken, account.platformAccountId, limit);
+    }
+    const comments: CommentRow[] = rawComments.map((c) => ({
+      id: c.id,
+      text: c.text,
+      author: c.from?.name || "Unknown",
+      authorUsername: "",
+      likeCount: c.like_count || 0,
+      replyCount: c.reply_count || 0,
+      createdAt: c.timestamp || c.created_time || "",
+    }));
+    return c.json({ comments });
+  }
+
+  if (platform === "INSTAGRAM" || platform === "INSTAGRAM_PAGE") {
+    const { getInstagramComments } = await import("@sahabatkreator/platform");
+    if (!threadId) {
+      return c.json({ error: "instagram post ID required for comments", comments: [] }, 400);
+    }
+    const raw = await getInstagramComments(account.accessToken, threadId, limit, platform);
+    const comments: CommentRow[] = raw.map((c) => ({
+      id: c.platformCommentId,
+      text: c.text,
+      author: c.authorUsername,
+      authorUsername: c.authorUsername,
+      likeCount: c.likeCount,
+      replyCount: c.replyCount,
+      createdAt: c.createdAt.toISOString(),
+    }));
+    return c.json({ comments });
+  }
+
+  if (platform === "FACEBOOK") {
+    const { getFacebookComments, getFacebookPosts } = await import("@sahabatkreator/platform");
+    // If no post ID, fetch latest post first
+    let postId = threadId;
+    if (!postId) {
+      const posts = await getFacebookPosts(account.accessToken, account.platformAccountId, 1);
+      postId = posts[0]?.id;
+    }
+    if (!postId) {
+      return c.json({ error: "No posts found", comments: [] }, 404);
+    }
+    const raw = await getFacebookComments(account.accessToken, postId, limit);
+    const comments: CommentRow[] = raw.map((c) => ({
+      id: c.platformCommentId,
+      text: c.text,
+      author: c.authorUsername,
+      authorUsername: c.authorUsername,
+      likeCount: c.likeCount,
+      replyCount: c.replyCount,
+      createdAt: c.createdAt.toISOString(),
+    }));
+    return c.json({ comments });
+  }
+
+  if (platform === "TIKTOK") {
+    const { getTikTokComments } = await import("@sahabatkreator/platform");
+    if (!threadId) {
+      return c.json({ error: "TikTok video ID required", comments: [] }, 400);
+    }
+    const raw = await getTikTokComments(account.accessToken, threadId, limit);
+    const comments: CommentRow[] = raw.map((c) => ({
+      id: c.platformCommentId,
+      text: c.text,
+      author: c.authorUsername,
+      authorUsername: c.authorUsername,
+      likeCount: c.likeCount,
+      replyCount: c.replyCount,
+      createdAt: c.createdAt.toISOString(),
+    }));
+    return c.json({ comments });
+  }
+
+  if (platform === "YOUTUBE") {
+    const { getYouTubeComments } = await import("@sahabatkreator/platform");
+    if (!threadId) {
+      return c.json({ error: "YouTube video ID required", comments: [] }, 400);
+    }
+    const raw = await getYouTubeComments(account.accessToken, threadId, limit);
+    const comments: CommentRow[] = raw.map((c) => ({
+      id: c.platformCommentId,
+      text: c.text,
+      author: c.authorUsername,
+      authorUsername: c.authorUsername,
+      likeCount: c.likeCount,
+      replyCount: c.replyCount,
+      createdAt: c.createdAt.toISOString(),
+    }));
+    return c.json({ comments });
+  }
+
+  // Default: return empty for now
+  const comments: CommentRow[] = [];
+  return c.json({ comments });
 });
 
-// ─── Platform OAuth Config ─────────────────────────────────────────────────────
-// Updated to use correct OAuth 2.0 endpoints per platform documentation
+// ─── POST /api/platforms/:platform/threads ─────────────────────────────────────
+const threadCreateSchema = z.object({
+  text: z.string().min(1).max(500),
+  mediaId: z.string().optional(),
+});
 
-interface PlatformOAuthConfig {
-  authorizeUrl: string;
-  tokenUrl: string;
-  scopes: string;
-  // Whether to use form-urlencoded or JSON for token exchange
-  tokenContentType: "application/x-www-form-urlencoded" | "application/json";
-  // Custom field mappings for token response
-  tokenFieldMappings?: {
-    accessToken?: string[];
-    refreshToken?: string[];
-    expiresIn?: string[];
-  };
-}
+platformApp.post("/:platform/threads", async (c) => {
+  const organizationId = getOrganizationId(c);
+  const platform = c.req.param("platform").toUpperCase();
+  const body = threadCreateSchema.safeParse(await c.req.json());
 
-const PLATFORM_OAUTH_CONFIG: Record<string, PlatformOAuthConfig> = {
-  INSTAGRAM: {
-    authorizeUrl: "https://api.instagram.com/oauth/authorize",
-    tokenUrl: "https://api.instagram.com/oauth/access_token",
-    scopes: "user_profile,user_media",
-    tokenContentType: "application/json",
-  },
-  FACEBOOK: {
-    authorizeUrl: "https://www.facebook.com/v18.0/dialog/oauth",
-    tokenUrl: "https://graph.facebook.com/v18.0/oauth/access_token",
-    scopes: "pages_show_list,pages_manage_posts,pages_read_engagement",
-    tokenContentType: "application/json",
-  },
-  TIKTOK: {
-    authorizeUrl: "https://www.tiktok.com/v2/auth/authorize",
-    tokenUrl: "https://open.tiktokapis.com/v2/oauth/token/",
-    scopes: "user.info.basic,video.list,video.publish",
-    tokenContentType: "application/json",
-  },
-  YOUTUBE: {
-    authorizeUrl: "https://accounts.google.com/o/oauth2/v2/auth",
-    tokenUrl: "https://oauth2.googleapis.com/token",
-    scopes: "https://www.googleapis.com/auth/youtube.force-ssl",
-    tokenContentType: "application/x-www-form-urlencoded",
-  },
-  PINTEREST: {
-    authorizeUrl: "https://www.pinterest.com/oauth/",
-    tokenUrl: "https://api.pinterest.com/v5/oauth/token",
-    scopes: "read_accounts,write_accounts,read_pins,write_pins",
-    tokenContentType: "application/x-www-form-urlencoded",
-  },
-  LINKEDIN: {
-    authorizeUrl: "https://www.linkedin.com/oauth/v2/authorization",
-    tokenUrl: "https://www.linkedin.com/oauth/v2/accessToken",
-    scopes: "r_liteprofile,r_emailaddress,w_member_social",
-    tokenContentType: "application/x-www-form-urlencoded",
-  },
-  BLUESKY: {
-    authorizeUrl: "https://bsky.social/login",
-    tokenUrl: "https://bsky.social/xrpc/com.atproto.server.createSession",
-    scopes: "",
-    tokenContentType: "application/json",
-  },
-  THREADS: {
-    authorizeUrl: "https://threads.net/oauth/authorize",
-    tokenUrl: "https://graph.threads.net/oauth/access_token",
-    scopes: "threads_basic,threads_manage_comments,threads_manage_replies",
-    tokenContentType: "application/json",
-  },
-  GOOGLE_BUSINESS: {
-    authorizeUrl: "https://accounts.google.com/o/oauth2/v2/auth",
-    tokenUrl: "https://oauth2.googleapis.com/token",
-    scopes: "https://www.googleapis.com/auth/business.manage",
-    tokenContentType: "application/x-www-form-urlencoded",
-  },
+  if (!body.success) {
+    return c.json({ error: "Missing or invalid 'text' in request body" }, 400);
+  }
+
+  const [account] = await db
+    .select()
+    .from(socialAccount)
+    .where(
+      and(
+        eq(socialAccount.organizationId, organizationId),
+        eq(socialAccount.platform, platform as any),
+        eq(socialAccount.isActive, true),
+      ),
+    )
+    .limit(1);
+
+  if (!account) {
+    return c.json({ error: `No active ${platform} account connected` }, 404);
+  }
+
+  if (!account.accessToken) {
+    return c.json({ error: `Access token missing for ${platform}` }, 400);
+  }
+
+  // Create thread for Threads platform
+  if (platform === "THREADS") {
+    const { createThread } = await import("@sahabatkreator/platform");
+    const result = await createThread(account.accessToken, body.data.text, body.data.mediaId);
+
+    if (result.status === "failed") {
+      return c.json({ error: result.error || "Failed to create thread" }, 500);
+    }
+
+    return c.json({ success: true, thread: result });
+  }
+
+  return c.json({ error: `Thread creation not supported for ${platform}` }, 400);
+});
+
+// ─── GET /api/platforms/:platform/likes ───────────────────────────────────────
+const likesSchema = z.object({
+  limit: z.number().min(1).max(100).default(20),
+});
+
+type LikeRow = {
+  id: string;
+  username: string;
+  avatar?: string | null;
+  createdAt?: string;
 };
 
-/**
- * Exchange authorization code for access token using platform-specific config
- */
-async function exchangeCodeForToken(
-  platform: string,
-  code: string,
-  redirectUri: string,
-  clientId: string,
-  clientSecret: string,
-): Promise<PlatformToken> {
-  const config = PLATFORM_OAUTH_CONFIG[platform];
-  if (!config) throw new Error(`Unsupported platform: ${platform}`);
+platformApp.get("/:platform/likes", async (c) => {
+  const organizationId = getOrganizationId(c);
+  const platform = c.req.param("platform").toUpperCase();
+  const query = likesSchema.safeParse(new URL(c.req.url).searchParams);
+  const limit = query.success ? query.data.limit : 20;
 
-  let response: Response;
+  const [account] = await db
+    .select()
+    .from(socialAccount)
+    .where(
+      and(
+        eq(socialAccount.organizationId, organizationId),
+        eq(socialAccount.platform, platform as any),
+        eq(socialAccount.isActive, true),
+      ),
+    )
+    .limit(1);
 
-  switch (platform) {
-    case "INSTAGRAM":
-      response = await fetch(config.tokenUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          client_id: clientId,
-          client_secret: clientSecret,
-          grant_type: "authorization_code",
-          redirect_uri: redirectUri,
-          code,
-        }),
-      });
-      break;
-
-    case "FACEBOOK":
-      // Facebook/Instagram Graph API returns query string format
-      response = await fetch(`${config.tokenUrl}?client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&grant_type=authorization_code&redirect_uri=${encodeURIComponent(redirectUri)}&code=${encodeURIComponent(code)}`);
-      break;
-
-    case "TIKTOK":
-      response = await fetch(config.tokenUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          client_key: clientId,
-          client_secret: clientSecret,
-          grant_type: "authorization_code",
-          code,
-          redirect_uri: redirectUri,
-        }),
-      });
-      break;
-
-    case "YOUTUBE":
-    case "GOOGLE_BUSINESS":
-      response = await fetch(config.tokenUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          code,
-          client_id: clientId,
-          client_secret: clientSecret,
-          redirect_uri: redirectUri,
-          grant_type: "authorization_code",
-        }).toString(),
-      });
-      break;
-
-    case "PINTEREST":
-      response = await fetch(config.tokenUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          grant_type: "authorization_code",
-          code,
-          redirect_uri: redirectUri,
-          client_id: clientId,
-          client_secret: clientSecret,
-        }).toString(),
-      });
-      break;
-
-    case "LINKEDIN":
-      response = await fetch(config.tokenUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          grant_type: "authorization_code",
-          code,
-          redirect_uri: redirectUri,
-          client_id: clientId,
-          client_secret: clientSecret,
-        }).toString(),
-      });
-      break;
-
-    case "BLUESKY":
-      // Bluesky uses AT Protocol - code is actually the verification code
-      // Need to use the session creation endpoint
-      response = await fetch(config.tokenUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          identifier: clientId,
-          password: code,
-          authority: "bsky.social",
-        }),
-      });
-      break;
-
-    case "THREADS":
-      response = await fetch(config.tokenUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          grant_type: "authorization_code",
-          code,
-          redirect_uri: redirectUri,
-          client_id: clientId,
-          client_secret: clientSecret,
-        }),
-      });
-      break;
-
-    default:
-      throw new Error(`Unsupported platform: ${platform}`);
+  if (!account) {
+    return c.json({ error: `No active ${platform} account connected` }, 404);
   }
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Token exchange failed for ${platform}: ${errorText}`);
+  if (!account.accessToken) {
+    return c.json({ error: `Access token missing for ${platform}` }, 400);
   }
 
-  // Parse response based on content type
-  const contentType = response.headers.get("content-type") || "";
-  let data: Record<string, unknown>;
-
-  if (contentType.includes("application/json")) {
-    data = await response.json() as Record<string, unknown>;
-  } else {
-    // Parse query string format (Facebook/Instagram style)
-    const text = await response.text();
-    const params = new URLSearchParams(text);
-    data = Object.fromEntries(params.entries());
+  // Fetch likes based on platform
+  if (platform === "INSTAGRAM" || platform === "INSTAGRAM_PAGE") {
+    const { getInstagramMentions } = await import("@sahabatkreator/platform");
+    const raw = await getInstagramMentions(account.accessToken, limit, platform);
+    const likes: LikeRow[] = raw
+      .filter((c) => c.likeCount > 0)
+      .slice(0, limit)
+      .map((c) => ({
+        id: c.platformPostId || c.platformCommentId || "",
+        username: c.authorUsername,
+        avatar: c.authorAvatar,
+        createdAt: c.createdAt.toISOString(),
+      }));
+    return c.json({ likes });
   }
 
-  // Extract token fields with flexible mapping
-  const tokenData = data as Record<string, string | number>;
-  const accessToken = String(tokenData.access_token || tokenData.accessToken || "");
-  const refreshToken = tokenData.refresh_token ? String(tokenData.refresh_token) : tokenData.refreshToken ? String(tokenData.refreshToken) : undefined;
-  const expiresIn = Number(tokenData.expires_in) || Number(tokenData.expiresIn) || 3600;
-
-  return { accessToken, refreshToken, expiresIn };
-}
+  // Default: return empty for now
+  const likes: LikeRow[] = [];
+  return c.json({ likes });
+});
 
 export default platformApp;

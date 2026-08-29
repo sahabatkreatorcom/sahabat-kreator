@@ -166,7 +166,7 @@ export function FadeTransition({ children }: PageTransitionProps) {
   }
 
   return (
-    <Suspense fallback={<>{children}</>}>
+    <Suspense fallback={children}>
       <LazyFadeTransition>{children}</LazyFadeTransition>
     </Suspense>
   );

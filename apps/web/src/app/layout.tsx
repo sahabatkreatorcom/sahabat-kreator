@@ -23,9 +23,7 @@ export const metadata: Metadata = {
       { url: "/favicon/web-app-manifest-192x192.png", sizes: "192x192", type: "image/png" },
       { url: "/favicon/web-app-manifest-512x512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: [
-      { url: "/favicon/apple-touch-icon.png", type: "image/png" },
-    ],
+    apple: [{ url: "/favicon/apple-touch-icon.png", type: "image/png" }],
   },
   applicationName: "Sahabat Kreator",
   appleWebApp: {

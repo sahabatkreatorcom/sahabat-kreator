@@ -18,37 +18,37 @@ import { logger } from "./logger";
 const ROLLING_WINDOW_SIZE = 100;
 
 /** Redis key prefix */
-const HEALTH_PREFIX = 'health:';
+const HEALTH_PREFIX = "health:";
 
 /** TTL for health keys — auto-expire if platform isn't used */
 const HEALTH_TTL_SECONDS = 24 * 60 * 60; // 24 hours
 
 /** Health state thresholds */
 const THRESHOLDS = {
-    /** Score above this = healthy */
-    healthy: 80,
-    /** Score above this but below healthy = degraded */
-    degraded: 50,
-    /** Score at or below this = down */
-    down: 50,
+  /** Score above this = healthy */
+  healthy: 80,
+  /** Score above this but below healthy = degraded */
+  degraded: 50,
+  /** Score at or below this = down */
+  down: 50,
 };
 
-export type HealthState = 'healthy' | 'degraded' | 'down';
+export type HealthState = "healthy" | "degraded" | "down";
 
 export interface PlatformHealthStatus {
-    platform: string;
-    /** Score from 0-100 based on recent success rate */
-    score: number;
-    /** Mapped health state */
-    state: HealthState;
-    /** Number of recent successes */
-    successes: number;
-    /** Number of recent failures */
-    failures: number;
-    /** Total outcomes in the rolling window */
-    total: number;
-    /** ISO timestamp of last recorded outcome */
-    lastUpdated: string | null;
+  platform: string;
+  /** Score from 0-100 based on recent success rate */
+  score: number;
+  /** Mapped health state */
+  state: HealthState;
+  /** Number of recent successes */
+  successes: number;
+  /** Number of recent failures */
+  failures: number;
+  /** Total outcomes in the rolling window */
+  total: number;
+  /** ISO timestamp of last recorded outcome */
+  lastUpdated: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -56,8 +56,15 @@ export interface PlatformHealthStatus {
 // ---------------------------------------------------------------------------
 
 const ALL_PLATFORMS = [
-    'instagram', 'tiktok', 'youtube', 'facebook',
-    'pinterest', 'linkedin', 'bluesky', 'threads', 'google_business',
+  "instagram",
+  "tiktok",
+  "youtube",
+  "facebook",
+  "pinterest",
+  "linkedin",
+  "bluesky",
+  "threads",
+  "google_business",
 ];
 
 // ---------------------------------------------------------------------------
@@ -65,7 +72,7 @@ const ALL_PLATFORMS = [
 // ---------------------------------------------------------------------------
 
 function getRedis(): Redis {
-    return Redis.fromEnv();
+  return Redis.fromEnv();
 }
 
 // ---------------------------------------------------------------------------
@@ -79,23 +86,23 @@ function getRedis(): Redis {
  * @param success - Whether the operation succeeded
  */
 export async function recordOutcome(platform: string, success: boolean): Promise<void> {
-    const redis = getRedis();
-    const normalised = platform.toLowerCase();
-    const listKey = `${HEALTH_PREFIX}${normalised}:outcomes`;
-    const tsKey = `${HEALTH_PREFIX}${normalised}:last_updated`;
+  const redis = getRedis();
+  const normalised = platform.toLowerCase();
+  const listKey = `${HEALTH_PREFIX}${normalised}:outcomes`;
+  const tsKey = `${HEALTH_PREFIX}${normalised}:last_updated`;
 
-    try {
-        await Promise.all([
-            redis.lpush(listKey, success ? '1' : '0'),
-            redis.ltrim(listKey, 0, ROLLING_WINDOW_SIZE - 1),
-            redis.set(tsKey, new Date().toISOString()),
-            redis.expire(listKey, HEALTH_TTL_SECONDS),
-            redis.expire(tsKey, HEALTH_TTL_SECONDS),
-        ]);
-    } catch (error) {
-        // Why: Health tracking is observational — failures must not affect publishing
-        logger.error('Failed to record health outcome', { platform: normalised, error });
-    }
+  try {
+    await Promise.all([
+      redis.lpush(listKey, success ? "1" : "0"),
+      redis.ltrim(listKey, 0, ROLLING_WINDOW_SIZE - 1),
+      redis.set(tsKey, new Date().toISOString()),
+      redis.expire(listKey, HEALTH_TTL_SECONDS),
+      redis.expire(tsKey, HEALTH_TTL_SECONDS),
+    ]);
+  } catch (error) {
+    // Why: Health tracking is observational — failures must not affect publishing
+    logger.error("Failed to record health outcome", { platform: normalised, error });
+  }
 }
 
 /**
@@ -104,63 +111,63 @@ export async function recordOutcome(platform: string, success: boolean): Promise
  * @param platform - Platform name (lowercase)
  */
 export async function getHealthStatus(platform: string): Promise<PlatformHealthStatus> {
-    const redis = getRedis();
-    const normalised = platform.toLowerCase();
-    const listKey = `${HEALTH_PREFIX}${normalised}:outcomes`;
-    const tsKey = `${HEALTH_PREFIX}${normalised}:last_updated`;
+  const redis = getRedis();
+  const normalised = platform.toLowerCase();
+  const listKey = `${HEALTH_PREFIX}${normalised}:outcomes`;
+  const tsKey = `${HEALTH_PREFIX}${normalised}:last_updated`;
 
-    try {
-        const [outcomes, lastUpdatedRaw] = await Promise.all([
-            redis.lrange(listKey, 0, ROLLING_WINDOW_SIZE - 1),
-            redis.get(tsKey),
-        ]);
+  try {
+    const [outcomes, lastUpdatedRaw] = await Promise.all([
+      redis.lrange(listKey, 0, ROLLING_WINDOW_SIZE - 1),
+      redis.get(tsKey),
+    ]);
 
-        if (outcomes.length === 0) {
-            // No data — assume healthy
-            return {
-                platform: normalised,
-                score: 100,
-                state: 'healthy',
-                successes: 0,
-                failures: 0,
-                total: 0,
-                lastUpdated: null,
-            };
-        }
-
-        const successes = outcomes.filter((o) => o === '1').length;
-        const failures = outcomes.length - successes;
-        const score = Math.round((successes / outcomes.length) * 100);
-        const lastUpdated = typeof lastUpdatedRaw === 'string' ? lastUpdatedRaw : null;
-
-        return {
-            platform: normalised,
-            score,
-            state: mapScoreToState(score),
-            successes,
-            failures,
-            total: outcomes.length,
-            lastUpdated,
-        };
-    } catch (error) {
-        logger.error('Failed to get health status', { platform: normalised, error });
-        return {
-            platform: normalised,
-            score: 100,
-            state: 'healthy',
-            successes: 0,
-            failures: 0,
-            total: 0,
-            lastUpdated: null,
-        };
+    if (outcomes.length === 0) {
+      // No data — assume healthy
+      return {
+        platform: normalised,
+        score: 100,
+        state: "healthy",
+        successes: 0,
+        failures: 0,
+        total: 0,
+        lastUpdated: null,
+      };
     }
+
+    const successes = outcomes.filter((o) => o === "1").length;
+    const failures = outcomes.length - successes;
+    const score = Math.round((successes / outcomes.length) * 100);
+    const lastUpdated = typeof lastUpdatedRaw === "string" ? lastUpdatedRaw : null;
+
+    return {
+      platform: normalised,
+      score,
+      state: mapScoreToState(score),
+      successes,
+      failures,
+      total: outcomes.length,
+      lastUpdated,
+    };
+  } catch (error) {
+    logger.error("Failed to get health status", { platform: normalised, error });
+    return {
+      platform: normalised,
+      score: 100,
+      state: "healthy",
+      successes: 0,
+      failures: 0,
+      total: 0,
+      lastUpdated: null,
+    };
+  }
 }
 
 /**
  * Get health status for all tracked platforms.
  */
 export async function getAllPlatformHealth(): Promise<PlatformHealthStatus[]> {
-    return Promise.all(ALL_PLATFORMS.map(getHealthStatus));
+  return Promise.all(ALL_PLATFORMS.map(getHealthStatus));
 }
 
 /**
@@ -171,8 +178,8 @@ export async function getAllPlatformHealth(): Promise<PlatformHealthStatus[]> {
  * @returns Whether publishing should proceed
  */
 export async function isPlatformHealthy(platform: string): Promise<boolean> {
-    const status = await getHealthStatus(platform);
-    return status.state !== 'down';
+  const status = await getHealthStatus(platform);
+  return status.state !== "down";
 }
 
 // ---------------------------------------------------------------------------
@@ -183,7 +190,7 @@ export async function isPlatformHealthy(platform: string): Promise<boolean> {
  * Map a numeric score to a health state label.
  */
 function mapScoreToState(score: number): HealthState {
-    if (score >= THRESHOLDS.healthy) return 'healthy';
-    if (score > THRESHOLDS.down) return 'degraded';
-    return 'down';
+  if (score >= THRESHOLDS.healthy) return "healthy";
+  if (score > THRESHOLDS.down) return "degraded";
+  return "down";
 }

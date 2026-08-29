@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, Crown, Loader2, Shield, Zap } from "lucide-react";
+import { Building2, Crown, Loader2, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const PLAN_ICONS: Record<string, React.ReactNode> = {
@@ -95,21 +95,23 @@ export function PlanCard({
   const features = [
     {
       label: "Akun sosial",
-      value: isFinite(limits.socialAccounts) ? limits.socialAccounts.toString() : "Tak terbatas",
+      value: Number.isFinite(limits.socialAccounts)
+        ? limits.socialAccounts.toString()
+        : "Tak terbatas",
     },
     {
       label: "Anggota tim",
-      value: isFinite(limits.teamMembers) ? limits.teamMembers.toString() : "Tak terbatas",
+      value: Number.isFinite(limits.teamMembers) ? limits.teamMembers.toString() : "Tak terbatas",
     },
     {
       label: "Post/bulan",
-      value: isFinite(limits.scheduledPostsPerMonth)
+      value: Number.isFinite(limits.scheduledPostsPerMonth)
         ? limits.scheduledPostsPerMonth.toString()
         : "Tak terbatas",
     },
     {
       label: "AI generasi/bulan",
-      value: isFinite(limits.aiGenerationsPerMonth)
+      value: Number.isFinite(limits.aiGenerationsPerMonth)
         ? limits.aiGenerationsPerMonth.toString()
         : "Tak terbatas",
     },

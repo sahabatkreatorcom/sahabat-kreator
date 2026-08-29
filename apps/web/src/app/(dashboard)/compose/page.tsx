@@ -1,9 +1,18 @@
 "use client";
 
-import { Calendar as CalendarIcon, Hash, Image as ImageIcon, Layers, Save, Trash2, X } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  Hash,
+  Image as ImageIcon,
+  Layers,
+  Save,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { AiCaptionGenerator } from "@/components/compose/ai-caption-generator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,7 +35,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { accountsApi, hashtagsApi, mediaApi, pillarsApi, postsApi } from "@/lib/api-client";
 import { useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import { AiCaptionGenerator } from "@/components/compose/ai-caption-generator";
 
 type Platform = "instagram" | "youtube" | "facebook" | "tiktok" | "twitter" | "linkedin";
 
@@ -62,7 +70,7 @@ function ComposePageInner() {
   const [mediaFiles, setMediaFiles] = useState<
     Array<{ id: string; url: string; type: string; name: string }>
   >([]);
-  const [status, setStatus] = useState<"DRAFT" | "SCHEDULED">("DRAFT");
+  const [_status, setStatus] = useState<"DRAFT" | "SCHEDULED">("DRAFT");
   const [loading, setLoading] = useState(false);
   const [accounts, setAccounts] = useState<any[]>([]);
   const [loadingAccounts, setLoadingAccounts] = useState(true);
@@ -140,10 +148,7 @@ function ComposePageInner() {
 
     for (const file of Array.from(files)) {
       const tempId = crypto.randomUUID();
-      setMediaFiles((prev) => [
-        ...prev,
-        { id: tempId, url: "", type: file.type, name: file.name },
-      ]);
+      setMediaFiles((prev) => [...prev, { id: tempId, url: "", type: file.type, name: file.name }]);
 
       try {
         const presigned = await mediaApi.presignedUpload(file.name, file.type, file.size);
@@ -252,7 +257,7 @@ function ComposePageInner() {
   };
 
   // Get selected hashtags text
-  const selectedHashtagText = hashtagCollections
+  const _selectedHashtagText = hashtagCollections
     .filter((h) => selectedHashtagIds.includes(h.id))
     .map((h) => h.hashtags)
     .join(", ");
@@ -519,14 +524,26 @@ function ComposePageInner() {
                         )}
                       >
                         {selectedHashtagIds.includes(collection.id) && (
-                          <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          <svg
+                            className="h-3 w-3 text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={3}
+                              d="M5 13l4 4L19 7"
+                            />
                           </svg>
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-medium text-sm">{collection.name}</p>
-                        <p className="truncate text-[var(--text-muted)] text-xs">{collection.hashtags}</p>
+                        <p className="truncate text-[var(--text-muted)] text-xs">
+                          {collection.hashtags}
+                        </p>
                       </div>
                     </label>
                   ))}

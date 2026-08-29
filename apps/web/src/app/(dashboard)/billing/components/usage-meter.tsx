@@ -2,8 +2,16 @@
 
 import { cn } from "@/lib/utils";
 
-export function UsageMeter({ label, current, limit }: { label: string; current: number; limit: number }) {
-  const isUnlimited = !isFinite(limit);
+export function UsageMeter({
+  label,
+  current,
+  limit,
+}: {
+  label: string;
+  current: number;
+  limit: number;
+}) {
+  const isUnlimited = !Number.isFinite(limit);
   const percentage = isUnlimited ? 0 : Math.min((current / limit) * 100, 100);
   const isNearLimit = !isUnlimited && percentage >= 80;
   const isAtLimit = !isUnlimited && percentage >= 100;

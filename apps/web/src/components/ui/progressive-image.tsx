@@ -47,7 +47,7 @@ export function ProgressiveImage({
   useEffect(() => {
     setIsLoaded(false);
     setError(false);
-  }, [src]);
+  }, []);
 
   if (error) {
     return (
@@ -105,7 +105,7 @@ export function ProgressiveImage({
 /**
  * Generate a tiny placeholder from src (for external images)
  */
-export function generatePlaceholder(src: string, size = 10): string {
+export function generatePlaceholder(_src: string, size = 10): string {
   // For Next.js image optimization, use blur placeholder
   // For external images, we'd need a separate service
   return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'%3E%3Crect fill='%23333' width='100%25' height='100%25'/%3E%3C/svg%3E`;

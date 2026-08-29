@@ -8,18 +8,16 @@ import {
   Loader2,
   Mail,
   Shield,
-  Users,
   UserPlus,
-  Settings,
-  CreditCard,
+  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
@@ -55,10 +53,26 @@ interface OrganizationInvitation {
 }
 
 const ROLE_CONFIG = {
-  owner: { label: "Owner", color: "bg-amber-500/20 text-amber-400", description: "Akses penuh ke semua pengaturan" },
-  admin: { label: "Admin", color: "bg-purple-500/20 text-purple-400", description: "Kelola anggota dan pengaturan tim" },
-  editor: { label: "Editor", color: "bg-blue-500/20 text-blue-400", description: "Buat & kelola konten" },
-  viewer: { label: "Viewer", color: "bg-gray-500/20 text-gray-400", description: "Hanya melihat konten" },
+  owner: {
+    label: "Owner",
+    color: "bg-amber-500/20 text-amber-400",
+    description: "Akses penuh ke semua pengaturan",
+  },
+  admin: {
+    label: "Admin",
+    color: "bg-purple-500/20 text-purple-400",
+    description: "Kelola anggota dan pengaturan tim",
+  },
+  editor: {
+    label: "Editor",
+    color: "bg-blue-500/20 text-blue-400",
+    description: "Buat & kelola konten",
+  },
+  viewer: {
+    label: "Viewer",
+    color: "bg-gray-500/20 text-gray-400",
+    description: "Hanya melihat konten",
+  },
 } as const;
 
 export function OrganizationAdvancedUI() {
@@ -73,7 +87,7 @@ export function OrganizationAdvancedUI() {
 
   useEffect(() => {
     fetchOrganization();
-  }, []);
+  }, [fetchOrganization]);
 
   async function fetchOrganization() {
     try {
@@ -112,7 +126,7 @@ export function OrganizationAdvancedUI() {
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inviteEmail || !inviteEmail.includes("@")) {
+    if (!inviteEmail?.includes("@")) {
       toast.error("Masukkan email yang valid");
       return;
     }
@@ -231,15 +245,17 @@ export function OrganizationAdvancedUI() {
             <Label>Slug</Label>
             <div className="flex items-center gap-2">
               <div className="flex flex-1 items-center rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-2">
-                <Globe className="h-4 w-4 text-[var(--text-muted)] mr-2 shrink-0" />
-                <span className="text-[var(--text-secondary)] text-sm flex-1">{org?.slug}</span>
+                <Globe className="mr-2 h-4 w-4 shrink-0 text-[var(--text-muted)]" />
+                <span className="flex-1 text-[var(--text-secondary)] text-sm">{org?.slug}</span>
               </div>
               <Button variant="secondary" size="sm" onClick={handleCopySlug} className="gap-2">
                 <Copy className="h-4 w-4" />
                 Salin
               </Button>
             </div>
-            <p className="text-[var(--text-muted)] text-xs">Slug digunakan untuk URL berbagi laporan</p>
+            <p className="text-[var(--text-muted)] text-xs">
+              Slug digunakan untuk URL berbagi laporan
+            </p>
           </div>
 
           <Button onClick={handleSaveName} disabled={saving || !org?.name.trim()} className="gap-2">
@@ -291,10 +307,12 @@ export function OrganizationAdvancedUI() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={cn(
-                      "rounded-full px-3 py-1 font-medium text-xs",
-                      ROLE_CONFIG[member.role as keyof typeof ROLE_CONFIG]?.color,
-                    )}>
+                    <span
+                      className={cn(
+                        "rounded-full px-3 py-1 font-medium text-xs",
+                        ROLE_CONFIG[member.role as keyof typeof ROLE_CONFIG]?.color,
+                      )}
+                    >
                       {ROLE_CONFIG[member.role as keyof typeof ROLE_CONFIG]?.label}
                     </span>
                     {isAdmin && !member.isCurrentUser && (
@@ -302,7 +320,7 @@ export function OrganizationAdvancedUI() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveMember(member.id)}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                        className="text-red-500 hover:bg-red-500/10 hover:text-red-600"
                       >
                         Hapus
                       </Button>
@@ -348,13 +366,15 @@ export function OrganizationAdvancedUI() {
                       </p>
                     </div>
                   </div>
-                  <span className={cn(
-                    "rounded-full px-3 py-1 font-medium text-xs",
-                    ROLE_CONFIG[inv.role as keyof typeof ROLE_CONFIG]?.color,
-                  )}>
+                  <span
+                    className={cn(
+                      "rounded-full px-3 py-1 font-medium text-xs",
+                      ROLE_CONFIG[inv.role as keyof typeof ROLE_CONFIG]?.color,
+                    )}
+                  >
                     {ROLE_CONFIG[inv.role as keyof typeof ROLE_CONFIG]?.label}
                   </span>
-                  <div className="flex items-center gap-2 ml-4">
+                  <div className="ml-4 flex items-center gap-2">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -367,7 +387,7 @@ export function OrganizationAdvancedUI() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleCancelInvitation(inv.id)}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                      className="text-red-500 hover:bg-red-500/10 hover:text-red-600"
                     >
                       Batalkan
                     </Button>
@@ -390,9 +410,19 @@ export function OrganizationAdvancedUI() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {(Object.entries(ROLE_CONFIG) as [keyof typeof ROLE_CONFIG, typeof ROLE_CONFIG[keyof typeof ROLE_CONFIG]][]).map(([key, config]) => (
+            {(
+              Object.entries(ROLE_CONFIG) as [
+                keyof typeof ROLE_CONFIG,
+                (typeof ROLE_CONFIG)[keyof typeof ROLE_CONFIG],
+              ][]
+            ).map(([key, config]) => (
               <div key={key} className="rounded-lg border border-[var(--border)] p-4">
-                <div className={cn("inline-block rounded-full px-3 py-1 font-medium text-xs mb-2", config.color)}>
+                <div
+                  className={cn(
+                    "mb-2 inline-block rounded-full px-3 py-1 font-medium text-xs",
+                    config.color,
+                  )}
+                >
                   {config.label}
                 </div>
                 <p className="text-[var(--text-muted)] text-xs">{config.description}</p>
@@ -406,7 +436,7 @@ export function OrganizationAdvancedUI() {
       {inviteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-xl bg-[var(--bg-secondary)] p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <h3 className="font-semibold text-lg">Undang Anggota Baru</h3>
               <Button
                 variant="ghost"
@@ -449,18 +479,10 @@ export function OrganizationAdvancedUI() {
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
-                <Button
-                  variant="secondary"
-                  onClick={() => setInviteOpen(false)}
-                  type="button"
-                >
+                <Button variant="secondary" onClick={() => setInviteOpen(false)} type="button">
                   Batal
                 </Button>
-                <Button
-                  type="submit"
-                  disabled={isInviting}
-                  className="gap-2"
-                >
+                <Button type="submit" disabled={isInviting} className="gap-2">
                   {isInviting ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" /> Mengirim...

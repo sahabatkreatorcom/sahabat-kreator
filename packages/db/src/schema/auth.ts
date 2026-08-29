@@ -134,10 +134,7 @@ export const member = pgTable(
     createdAt: timestamp("created_at").notNull(),
   },
   (table) => [
-    uniqueIndex("member_organizationId_userId_uidx").on(
-      table.organizationId,
-      table.userId,
-    ),
+    uniqueIndex("member_organizationId_userId_uidx").on(table.organizationId, table.userId),
     index("member_organizationId_idx").on(table.organizationId),
     index("member_userId_idx").on(table.userId),
   ],

@@ -1,14 +1,5 @@
-import {
-  index,
-  integer,
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-  uniqueIndex,
-} from "drizzle-orm/pg-core";
+import { index, integer, jsonb, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { organization } from "./auth";
-import { socialAccount } from "./social-account";
 import {
   skRecommendationCategoryEnum,
   skRecommendationPriorityEnum,
@@ -16,6 +7,7 @@ import {
   skReportStatusEnum,
   skReportTriggerEnum,
 } from "./enum";
+import { socialAccount } from "./social-account";
 
 // ── SK Report ──────────────────────────────────────────────────────
 export const skReport = pgTable(
@@ -28,9 +20,7 @@ export const skReport = pgTable(
     trigger: text("trigger", { enum: skReportTriggerEnum.enumValues })
       .default("PROACTIVE")
       .notNull(),
-    status: text("status", { enum: skReportStatusEnum.enumValues })
-      .default("COMPLETED")
-      .notNull(),
+    status: text("status", { enum: skReportStatusEnum.enumValues }).default("COMPLETED").notNull(),
     title: text("title").notNull(),
     summary: text("summary"),
     overallScore: integer("overall_score"),
@@ -64,10 +54,9 @@ export const skRecommendation = pgTable(
     organizationId: text("organization_id")
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    socialAccountId: text("social_account_id").references(
-      () => socialAccount.id,
-      { onDelete: "set null" },
-    ),
+    socialAccountId: text("social_account_id").references(() => socialAccount.id, {
+      onDelete: "set null",
+    }),
     reportId: text("report_id").references(() => skReport.id, {
       onDelete: "cascade",
     }),
@@ -101,7 +90,11 @@ export const skRecommendation = pgTable(
     index("sk_recommendation_status_idx").on(table.status),
     index("sk_recommendation_org_status_idx").on(table.organizationId, table.status),
     index("sk_recommendation_social_account_idx").on(table.socialAccountId),
-    index("sk_recommendation_org_social_status_idx").on(table.organizationId, table.socialAccountId, table.status),
+    index("sk_recommendation_org_social_status_idx").on(
+      table.organizationId,
+      table.socialAccountId,
+      table.status,
+    ),
     index("sk_recommendation_org_platform_idx").on(table.platform),
     index("sk_recommendation_report_idx").on(table.reportId),
   ],

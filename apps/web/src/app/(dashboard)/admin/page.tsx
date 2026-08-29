@@ -1,28 +1,28 @@
 "use client";
 
 import {
-  Shield,
-  Users,
   Building2,
-  Key,
-  Settings,
-  Ban,
-  UserPlus,
+  CheckCircle,
   Eye,
+  Key,
   LogOut,
   RefreshCw,
-  Bell,
-  AlertTriangle,
-  CheckCircle,
+  Settings,
+  UserPlus,
+  Users,
   XCircle,
-  Loader2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { adminApi, type AdminUser, type AdminOrganization, type AdminSettings, type AdminCredential } from "@/lib/api-client";
-import { cn } from "@/lib/utils";
-import { signOut } from "@/lib/auth-client";
+import {
+  type AdminCredential,
+  type AdminOrganization,
+  type AdminSettings,
+  type AdminUser,
+  adminApi,
+} from "@/lib/api-client";
 import { useSession } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 type AdminTab = "stats" | "users" | "organizations" | "credentials" | "settings" | "impersonate";
 
@@ -38,9 +38,15 @@ export default function AdminPage() {
   const [impersonation, setImpersonation] = useState<any>(null);
   const [userSearch, setUserSearch] = useState("");
   const [orgSearch, setOrgSearch] = useState("");
-  const [banModal, setBanModal] = useState<{ open: boolean; userId: string; userName: string } | null>(null);
+  const [banModal, setBanModal] = useState<{
+    open: boolean;
+    userId: string;
+    userName: string;
+  } | null>(null);
   const [banReason, setBanReason] = useState("");
-  const [credentialForm, setCredentialForm] = useState<Record<string, { clientId: string; clientSecret: string }>>({});
+  const [credentialForm, setCredentialForm] = useState<
+    Record<string, { clientId: string; clientSecret: string }>
+  >({});
 
   const isAdmin = (session?.user as any)?.role === "superadmin";
 
@@ -53,8 +59,12 @@ export default function AdminPage() {
     Promise.all([
       adminApi.getStats().then((res) => res.ok && setStats(res.data.stats)),
       adminApi.getUsers({ limit: 50 }).then((res) => res.ok && setUsers(res.data.users)),
-      adminApi.getOrganizations({ limit: 20 }).then((res) => res.ok && setOrganizations(res.data.organizations)),
-      adminApi.getPlatformCredentials().then((res) => res.ok && setCredentials(res.data.credentials)),
+      adminApi
+        .getOrganizations({ limit: 20 })
+        .then((res) => res.ok && setOrganizations(res.data.organizations)),
+      adminApi
+        .getPlatformCredentials()
+        .then((res) => res.ok && setCredentials(res.data.credentials)),
       adminApi.getSettings().then((res) => res.ok && setSettings(res.data.settings)),
       adminApi.getImpersonationStatus().then((res) => res.ok && setImpersonation(res.data)),
     ]).finally(() => setLoading(false));
@@ -134,7 +144,12 @@ export default function AdminPage() {
 
   const tabs: { id: AdminTab; label: string; icon: React.ReactNode; badge?: number }[] = [
     { id: "stats", label: "Statistik", icon: <Eye className="h-4 w-4" /> },
-    { id: "users", label: "Pengguna", icon: <Users className="h-4 w-4" />, badge: users.filter((u) => u.banned).length },
+    {
+      id: "users",
+      label: "Pengguna",
+      icon: <Users className="h-4 w-4" />,
+      badge: users.filter((u) => u.banned).length,
+    },
     { id: "organizations", label: "Organisasi", icon: <Building2 className="h-4 w-4" /> },
     { id: "credentials", label: "Platform API", icon: <Key className="h-4 w-4" /> },
     { id: "settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
@@ -156,7 +171,7 @@ export default function AdminPage() {
             <button
               type="button"
               onClick={handleEndImpersonation}
-              className="flex items-center gap-2 rounded-lg bg-[var(--error)] px-3 py-2 text-white text-sm font-medium hover:opacity-90"
+              className="flex items-center gap-2 rounded-lg bg-[var(--error)] px-3 py-2 font-medium text-sm text-white hover:opacity-90"
             >
               <LogOut className="h-4 w-4" />
               End Impersonation
@@ -186,13 +201,30 @@ export default function AdminPage() {
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
               {[
                 { label: "Total Users", value: stats?.totalUsers ?? 0, icon: Users, color: "blue" },
-                { label: "Organizations", value: stats?.totalOrganizations ?? 0, icon: Building2, color: "purple" },
-                { label: "Members", value: stats?.totalMembers ?? 0, icon: UserPlus, color: "green" },
-                { label: "Revenue", value: `Rp ${(stats?.totalRevenue ?? 0).toLocaleString()}`, icon: Key, color: "gold" },
+                {
+                  label: "Organizations",
+                  value: stats?.totalOrganizations ?? 0,
+                  icon: Building2,
+                  color: "purple",
+                },
+                {
+                  label: "Members",
+                  value: stats?.totalMembers ?? 0,
+                  icon: UserPlus,
+                  color: "green",
+                },
+                {
+                  label: "Revenue",
+                  value: `Rp ${(stats?.totalRevenue ?? 0).toLocaleString()}`,
+                  icon: Key,
+                  color: "gold",
+                },
               ].map((stat) => (
                 <div key={stat.label} className="card p-5">
                   <div className="mb-4 flex items-center justify-between">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-${stat.color}-500/10`}>
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-xl bg-${stat.color}-500/10`}
+                    >
                       <stat.icon className={`h-5 w-5 text-${stat.color}-500`} />
                     </div>
                   </div>
@@ -204,7 +236,7 @@ export default function AdminPage() {
           )}
 
           {/* Tabs Navigation */}
-          <div className="flex flex-wrap gap-2 border-b border-[var(--border)] pb-4">
+          <div className="flex flex-wrap gap-2 border-[var(--border)] border-b pb-4">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -220,7 +252,7 @@ export default function AdminPage() {
                 {tab.icon}
                 {tab.label}
                 {tab.badge && tab.badge > 0 && (
-                  <span className="ml-1 rounded-full bg-[var(--error)] px-1.5 py-0.5 text-xs text-white">
+                  <span className="ml-1 rounded-full bg-[var(--error)] px-1.5 py-0.5 text-white text-xs">
                     {tab.badge}
                   </span>
                 )}
@@ -244,11 +276,11 @@ export default function AdminPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[var(--border)] text-left">
-                      <th className="pb-3 pr-4 font-medium text-[var(--text-muted)]">User</th>
-                      <th className="pb-3 pr-4 font-medium text-[var(--text-muted)]">Role</th>
-                      <th className="pb-3 pr-4 font-medium text-[var(--text-muted)]">Status</th>
-                      <th className="pb-3 pr-4 font-medium text-[var(--text-muted)]">Created</th>
+                    <tr className="border-[var(--border)] border-b text-left">
+                      <th className="pr-4 pb-3 font-medium text-[var(--text-muted)]">User</th>
+                      <th className="pr-4 pb-3 font-medium text-[var(--text-muted)]">Role</th>
+                      <th className="pr-4 pb-3 font-medium text-[var(--text-muted)]">Status</th>
+                      <th className="pr-4 pb-3 font-medium text-[var(--text-muted)]">Created</th>
                       <th className="pb-3 font-medium text-[var(--text-muted)]">Actions</th>
                     </tr>
                   </thead>
@@ -256,13 +288,16 @@ export default function AdminPage() {
                     {users
                       .filter((u) => u.email.includes(userSearch.toLowerCase()))
                       .map((u) => (
-                        <tr key={u.id} className="border-b border-[var(--border-light)] last:border-0">
+                        <tr
+                          key={u.id}
+                          className="border-[var(--border-light)] border-b last:border-0"
+                        >
                           <td className="py-3 pr-4">
                             <div className="flex items-center gap-2">
                               {u.image ? (
                                 <img src={u.image} alt={u.name} className="h-8 w-8 rounded-full" />
                               ) : (
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent-gold)] text-white text-xs font-bold">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent-gold)] font-bold text-white text-xs">
                                   {u.name?.charAt(0) || u.email?.charAt(0)}
                                 </div>
                               )}
@@ -273,10 +308,14 @@ export default function AdminPage() {
                             </div>
                           </td>
                           <td className="py-3 pr-4">
-                            <span className={cn(
-                              "rounded-full px-2 py-1 text-xs font-medium",
-                              u.role === "superadmin" ? "bg-purple-500/10 text-purple-600" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]",
-                            )}>
+                            <span
+                              className={cn(
+                                "rounded-full px-2 py-1 font-medium text-xs",
+                                u.role === "superadmin"
+                                  ? "bg-purple-500/10 text-purple-600"
+                                  : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]",
+                              )}
+                            >
                               {u.role === "superadmin" ? "Super Admin" : "User"}
                             </span>
                           </td>
@@ -299,7 +338,13 @@ export default function AdminPage() {
                               {!u.banned ? (
                                 <button
                                   type="button"
-                                  onClick={() => setBanModal({ open: true, userId: u.id, userName: u.name || u.email })}
+                                  onClick={() =>
+                                    setBanModal({
+                                      open: true,
+                                      userId: u.id,
+                                      userName: u.name || u.email,
+                                    })
+                                  }
                                   className="rounded-md bg-[var(--error)]/10 px-2 py-1 text-[var(--error)] text-xs hover:bg-[var(--error)]/20"
                                 >
                                   Ban
@@ -350,18 +395,23 @@ export default function AdminPage() {
                     <div key={org.id} className="rounded-lg border border-[var(--border)] p-4">
                       <div className="mb-2 flex items-center justify-between">
                         <h3 className="font-semibold">{org.name}</h3>
-                        <span className={cn(
-                          "rounded-full px-2 py-0.5 text-xs font-medium",
-                          org.tier === "PRO" ? "bg-[var(--accent-gold)]/10 text-[var(--accent-gold)]" :
-                          org.tier === "BUSINESS" ? "bg-blue-500/10 text-blue-600" :
-                          org.tier === "ENTERPRISE" ? "bg-purple-500/10 text-purple-600" :
-                          "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]",
-                        )}>
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-0.5 font-medium text-xs",
+                            org.tier === "PRO"
+                              ? "bg-[var(--accent-gold)]/10 text-[var(--accent-gold)]"
+                              : org.tier === "BUSINESS"
+                                ? "bg-blue-500/10 text-blue-600"
+                                : org.tier === "ENTERPRISE"
+                                  ? "bg-purple-500/10 text-purple-600"
+                                  : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]",
+                          )}
+                        >
                           {org.tier}
                         </span>
                       </div>
                       <p className="text-[var(--text-muted)] text-xs">{org.slug}</p>
-                      <div className="mt-3 flex items-center gap-4 text-xs text-[var(--text-muted)]">
+                      <div className="mt-3 flex items-center gap-4 text-[var(--text-muted)] text-xs">
                         <span>Members: {org.memberCount ?? 0}</span>
                         <span>Posts: {org.postCount ?? 0}</span>
                       </div>
@@ -386,29 +436,50 @@ export default function AdminPage() {
                   <div key={cred.platform} className="rounded-lg border border-[var(--border)] p-4">
                     <div className="mb-3 flex items-center justify-between">
                       <h3 className="font-semibold">{cred.platform}</h3>
-                      <span className={cn(
-                        "rounded-full px-2 py-0.5 text-xs font-medium",
-                        cred.isConfigured ? "bg-[var(--success)]/10 text-[var(--success)]" : "bg-[var(--error)]/10 text-[var(--error)]",
-                      )}>
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 font-medium text-xs",
+                          cred.isConfigured
+                            ? "bg-[var(--success)]/10 text-[var(--success)]"
+                            : "bg-[var(--error)]/10 text-[var(--error)]",
+                        )}
+                      >
                         {cred.isConfigured ? "Configured" : "Not Configured"}
                       </span>
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
-                        <label className="mb-1 block text-[var(--text-muted)] text-xs">Client ID</label>
+                        <label className="mb-1 block text-[var(--text-muted)] text-xs">
+                          Client ID
+                        </label>
                         <input
                           type="text"
                           defaultValue={cred.clientId}
-                          onChange={(e) => setCredentialForm((f) => ({ ...f, [cred.platform]: { ...f[cred.platform], clientId: e.target.value } }))}
+                          onChange={(e) =>
+                            setCredentialForm((f) => ({
+                              ...f,
+                              [cred.platform]: { ...f[cred.platform], clientId: e.target.value },
+                            }))
+                          }
                           className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm"
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-[var(--text-muted)] text-xs">Client Secret</label>
+                        <label className="mb-1 block text-[var(--text-muted)] text-xs">
+                          Client Secret
+                        </label>
                         <input
                           type="password"
-                          defaultValue={cred.clientSecret || ''}
-                          onChange={(e) => setCredentialForm((f) => ({ ...f, [cred.platform]: { ...f[cred.platform], clientSecret: e.target.value } }))}
+                          defaultValue={cred.clientSecret || ""}
+                          onChange={(e) =>
+                            setCredentialForm((f) => ({
+                              ...f,
+                              [cred.platform]: {
+                                ...f[cred.platform],
+                                clientSecret: e.target.value,
+                              },
+                            }))
+                          }
                           className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm"
                         />
                       </div>
@@ -417,7 +488,7 @@ export default function AdminPage() {
                       <button
                         type="button"
                         onClick={() => handleSaveCredential(cred.platform)}
-                        className="rounded-lg bg-[var(--accent-gold)] px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+                        className="rounded-lg bg-[var(--accent-gold)] px-4 py-2 font-medium text-sm text-white hover:opacity-90"
                       >
                         Save
                       </button>
@@ -433,7 +504,7 @@ export default function AdminPage() {
             <div className="card p-6">
               <h2 className="mb-4 font-semibold">Platform Settings</h2>
               <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-[var(--border)] pb-4">
+                <div className="flex items-center justify-between border-[var(--border)] border-b pb-4">
                   <div>
                     <p className="font-medium text-sm">Registration Enabled</p>
                     <p className="text-[var(--text-muted)] text-xs">Allow new users to register</p>
@@ -442,16 +513,20 @@ export default function AdminPage() {
                     <input
                       type="checkbox"
                       checked={settings?.registrationEnabled ?? true}
-                      onChange={(e) => handleUpdateSettings("registrationEnabled", e.target.checked)}
+                      onChange={(e) =>
+                        handleUpdateSettings("registrationEnabled", e.target.checked)
+                      }
                       className="sr-only"
                     />
                     <div className="peer h-6 w-11 rounded-full bg-[var(--bg-tertiary)] after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-[var(--accent-gold)] peer-checked:after:translate-x-full" />
                   </label>
                 </div>
-                <div className="flex items-center justify-between border-b border-[var(--border)] pb-4">
+                <div className="flex items-center justify-between border-[var(--border)] border-b pb-4">
                   <div>
                     <p className="font-medium text-sm">Maintenance Mode</p>
-                    <p className="text-[var(--text-muted)] text-xs">Take platform offline for maintenance</p>
+                    <p className="text-[var(--text-muted)] text-xs">
+                      Take platform offline for maintenance
+                    </p>
                   </div>
                   <label className="relative inline-flex cursor-pointer items-center">
                     <input
@@ -466,13 +541,17 @@ export default function AdminPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-sm">Max Members Per Organization</p>
-                    <p className="text-[var(--text-muted)] text-xs">Maximum number of members allowed</p>
+                    <p className="text-[var(--text-muted)] text-xs">
+                      Maximum number of members allowed
+                    </p>
                   </div>
                   <input
                     type="number"
                     value={settings?.maxMembersPerOrganization ?? 20}
-                    onChange={(e) => handleUpdateSettings("maxMembersPerOrganization", Number(e.target.value))}
-                    className="w-24 rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm text-right"
+                    onChange={(e) =>
+                      handleUpdateSettings("maxMembersPerOrganization", Number(e.target.value))
+                    }
+                    className="w-24 rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-2 text-right text-sm"
                   />
                 </div>
               </div>
@@ -506,7 +585,7 @@ export default function AdminPage() {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8 text-[var(--text-muted)]">
+                <div className="py-8 text-center text-[var(--text-muted)]">
                   <UserPlus className="mx-auto mb-3 h-8 w-8 opacity-50" />
                   <p>Use the Impersonate button on user rows to start</p>
                 </div>
@@ -525,7 +604,7 @@ export default function AdminPage() {
               Are you sure you want to ban <strong>{banModal.userName}</strong>?
             </p>
             <div className="mb-4">
-              <label className="mb-1 block text-sm font-medium">Reason</label>
+              <label className="mb-1 block font-medium text-sm">Reason</label>
               <textarea
                 value={banReason}
                 onChange={(e) => setBanReason(e.target.value)}
@@ -537,7 +616,10 @@ export default function AdminPage() {
             <div className="flex justify-end gap-2">
               <button
                 type="button"
-                onClick={() => { setBanModal(null); setBanReason(""); }}
+                onClick={() => {
+                  setBanModal(null);
+                  setBanReason("");
+                }}
                 className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm hover:bg-[var(--bg-tertiary)]"
               >
                 Cancel

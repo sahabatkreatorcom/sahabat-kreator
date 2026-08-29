@@ -36,7 +36,7 @@ export function useCalendarData() {
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [fetchPosts]);
 
   return { posts, loading, error, refetch: fetchPosts };
 }

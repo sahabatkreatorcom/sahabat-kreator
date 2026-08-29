@@ -3,10 +3,12 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--bg-primary)]">
-      <div className="text-center space-y-4 p-6">
-        <h1 className="text-6xl font-bold text-[var(--accent-gold)]">404</h1>
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Halaman tidak ditemukan</h2>
-        <p className="text-[var(--text-muted)] max-w-md">
+      <div className="space-y-4 p-6 text-center">
+        <h1 className="font-bold text-6xl text-[var(--accent-gold)]">404</h1>
+        <h2 className="font-semibold text-[var(--text-primary)] text-xl">
+          Halaman tidak ditemukan
+        </h2>
+        <p className="max-w-md text-[var(--text-muted)]">
           Halaman yang kamu cari tidak tersedia. Mungkin sudah dipindahkan atau kamu mengakses URL
           yang salah.
         </p>
@@ -16,7 +18,7 @@ export default function NotFound() {
         >
           Kembali ke Beranda
         </Link>
-        <p className="text-[var(--text-muted)] text-xs mt-4">
+        <p className="mt-4 text-[var(--text-muted)] text-xs">
           Aplikasi ini dapat diakses secara offline. Beberapa fitur mungkin terbatas.
         </p>
       </div>

@@ -1,7 +1,7 @@
-import { Hono } from "hono";
 import { db } from "@sahabatkreator/db";
-import { user, organization, member, payment } from "@sahabatkreator/db/schema";
-import { eq, desc, count, sql, like } from "drizzle-orm";
+import { member, organization, payment, user } from "@sahabatkreator/db/schema";
+import { count, desc, eq, like, sql } from "drizzle-orm";
+import { Hono } from "hono";
 import { z } from "zod";
 import { requireAuth } from "../lib/auth-middleware";
 
@@ -9,7 +9,9 @@ const adminApp = new Hono();
 
 adminApp.use("/*", requireAuth);
 adminApp.use("/*", async (c, next) => {
-  const session = (c as unknown as { get: (key: string) => unknown }).get("session") as { user?: { role?: string } } | null;
+  const session = (c as unknown as { get: (key: string) => unknown }).get("session") as {
+    user?: { role?: string };
+  } | null;
   const role = session?.user?.role;
   if (role !== "superadmin") {
     return c.json({ error: "Forbidden: Super admin only" }, 403);
@@ -117,7 +119,7 @@ const banSchema = z.object({
 
 adminApp.post("/users/:id/ban", async (c) => {
   const targetUserId = c.req.param("id");
-  
+
   const body = await c.req.json();
   const parsed = banSchema.safeParse(body);
 
@@ -136,11 +138,14 @@ adminApp.post("/users/:id/ban", async (c) => {
 
   const expiresAt = parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : null;
 
-  await db.update(user).set({
-    banned: true,
-    banReason: parsed.data.reason,
-    banExpires: expiresAt,
-  }).where(eq(user.id, targetUserId));
+  await db
+    .update(user)
+    .set({
+      banned: true,
+      banReason: parsed.data.reason,
+      banExpires: expiresAt,
+    })
+    .where(eq(user.id, targetUserId));
 
   return c.json({ success: true });
 });
@@ -148,11 +153,14 @@ adminApp.post("/users/:id/ban", async (c) => {
 adminApp.post("/users/:id/unban", async (c) => {
   const targetUserId = c.req.param("id");
 
-  await db.update(user).set({
-    banned: false,
-    banReason: null,
-    banExpires: null,
-  }).where(eq(user.id, targetUserId));
+  await db
+    .update(user)
+    .set({
+      banned: false,
+      banReason: null,
+      banExpires: null,
+    })
+    .where(eq(user.id, targetUserId));
 
   return c.json({ success: true });
 });

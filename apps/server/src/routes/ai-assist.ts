@@ -1,6 +1,6 @@
+import { env } from "@sahabatkreator/env/server";
 import { Hono } from "hono";
 import { z } from "zod";
-import { env } from "@sahabatkreator/env/server";
 import { requireAuth } from "../lib/auth-middleware";
 
 const aiAssistApp = new Hono();
@@ -27,7 +27,7 @@ aiAssistApp.post("/generate-reply", async (c) => {
 
   if (!apiKey) {
     return c.json({
-      reply: `Terima kasih atas komentarnya! 🙏`,
+      reply: "Terima kasih atas komentarnya! 🙏",
       source: "fallback",
     });
   }
@@ -72,7 +72,7 @@ aiAssistApp.post("/generate-reply", async (c) => {
     throw new Error("Invalid response");
   } catch (error) {
     console.error("[AI Reply] Generation failed:", error);
-    return c.json({ reply: `Terima kasih atas komentarnya! 🙏`, source: "fallback" });
+    return c.json({ reply: "Terima kasih atas komentarnya! 🙏", source: "fallback" });
   }
 });
 
@@ -109,7 +109,8 @@ aiAssistApp.post("/generate-alt-text", async (c) => {
         messages: [
           {
             role: "system",
-            content: "You are an accessibility expert. Generate descriptive alt text for social media images in Bahasa Indonesia. Be concise but descriptive.",
+            content:
+              "You are an accessibility expert. Generate descriptive alt text for social media images in Bahasa Indonesia. Be concise but descriptive.",
           },
           {
             role: "user",
@@ -151,8 +152,13 @@ aiAssistApp.post("/generate-tags", async (c) => {
 
   if (!apiKey) {
     const fallbackTags = [
-      "#ContentCreator", "#Tips", "#Viral", "#Trending",
-      "#KontenKreator", "#SocialMedia", "#Indonesia",
+      "#ContentCreator",
+      "#Tips",
+      "#Viral",
+      "#Trending",
+      "#KontenKreator",
+      "#SocialMedia",
+      "#Indonesia",
     ].slice(0, count);
     return c.json({ tags: fallbackTags, source: "fallback" });
   }
@@ -170,7 +176,8 @@ aiAssistApp.post("/generate-tags", async (c) => {
         messages: [
           {
             role: "system",
-            content: "You are a hashtag expert for Indonesian social media. Generate relevant, trending hashtags. Mix popular and niche tags for maximum reach.",
+            content:
+              "You are a hashtag expert for Indonesian social media. Generate relevant, trending hashtags. Mix popular and niche tags for maximum reach.",
           },
           {
             role: "user",
@@ -239,7 +246,8 @@ aiAssistApp.post("/predict-score", async (c) => {
         messages: [
           {
             role: "system",
-            content: "You are a social media engagement predictor. Analyze a post caption and predict its engagement score (0-100) with suggestions. Return JSON with score and suggestions array.",
+            content:
+              "You are a social media engagement predictor. Analyze a post caption and predict its engagement score (0-100) with suggestions. Return JSON with score and suggestions array.",
           },
           {
             role: "user",
@@ -307,7 +315,8 @@ aiAssistApp.post("/rewrite-caption", async (c) => {
         messages: [
           {
             role: "system",
-            content: "You are an expert social media copywriter. Rewrite the caption based on the user's instruction. Return ONLY the rewritten caption in Bahasa Indonesia.",
+            content:
+              "You are an expert social media copywriter. Rewrite the caption based on the user's instruction. Return ONLY the rewritten caption in Bahasa Indonesia.",
           },
           {
             role: "user",

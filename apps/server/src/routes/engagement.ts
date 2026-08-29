@@ -1,10 +1,10 @@
 import { db } from "@sahabatkreator/db";
 import { engagementItem } from "@sahabatkreator/db/schema";
-import { and, eq, desc, count } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
-import { getOrganizationId } from "../lib/context";
 import { requireAuth } from "../lib/auth-middleware";
+import { getOrganizationId } from "../lib/context";
 
 const engagementApp = new Hono();
 engagementApp.use("/*", requireAuth);
@@ -19,10 +19,37 @@ engagementApp.get("/", async (c) => {
   const conditions = [eq(engagementItem.organizationId, organizationId)];
 
   if (type) {
-    conditions.push(eq(engagementItem.type, type as "COMMENT" | "MENTION" | "DM" | "REVIEW" | "STORY_MENTION" | "STORY_REPLY" | "PUBLIC_POST"));
+    conditions.push(
+      eq(
+        engagementItem.type,
+        type as
+          | "COMMENT"
+          | "MENTION"
+          | "DM"
+          | "REVIEW"
+          | "STORY_MENTION"
+          | "STORY_REPLY"
+          | "PUBLIC_POST",
+      ),
+    );
   }
   if (platform) {
-    conditions.push(eq(engagementItem.platform, platform as "INSTAGRAM" | "FACEBOOK" | "TIKTOK" | "YOUTUBE" | "PINTEREST" | "GOOGLE_BUSINESS" | "LINKEDIN" | "BLUESKY" | "THREADS" | "MANUAL"));
+    conditions.push(
+      eq(
+        engagementItem.platform,
+        platform as
+          | "INSTAGRAM"
+          | "FACEBOOK"
+          | "TIKTOK"
+          | "YOUTUBE"
+          | "PINTEREST"
+          | "GOOGLE_BUSINESS"
+          | "LINKEDIN"
+          | "BLUESKY"
+          | "THREADS"
+          | "MANUAL",
+      ),
+    );
   }
   if (unreadOnly) {
     conditions.push(eq(engagementItem.isRead, false));
@@ -42,7 +69,9 @@ engagementApp.get("/", async (c) => {
   const unreadCount = await db
     .select({ count: count() })
     .from(engagementItem)
-    .where(and(eq(engagementItem.organizationId, organizationId), eq(engagementItem.isRead, false)));
+    .where(
+      and(eq(engagementItem.organizationId, organizationId), eq(engagementItem.isRead, false)),
+    );
 
   return c.json({
     items,
@@ -59,12 +88,7 @@ engagementApp.get("/:id", async (c) => {
   const item = await db
     .select()
     .from(engagementItem)
-    .where(
-      and(
-        eq(engagementItem.id, itemId),
-        eq(engagementItem.organizationId, organizationId),
-      ),
-    );
+    .where(and(eq(engagementItem.id, itemId), eq(engagementItem.organizationId, organizationId)));
 
   if (!item.length) return c.json({ error: "Not found" }, 404);
   return c.json({ item: item[0] });
@@ -78,12 +102,7 @@ engagementApp.patch("/:id/read", async (c) => {
   const result = await db
     .update(engagementItem)
     .set({ isRead: true, updatedAt: new Date() })
-    .where(
-      and(
-        eq(engagementItem.id, itemId),
-        eq(engagementItem.organizationId, organizationId),
-      ),
-    );
+    .where(and(eq(engagementItem.id, itemId), eq(engagementItem.organizationId, organizationId)));
 
   if (!result) return c.json({ error: "Not found" }, 404);
 
@@ -120,12 +139,7 @@ engagementApp.post("/:id/reply", async (c) => {
   const result = await db
     .update(engagementItem)
     .set({ isReplied: true, updatedAt: new Date() })
-    .where(
-      and(
-        eq(engagementItem.id, itemId),
-        eq(engagementItem.organizationId, organizationId),
-      ),
-    );
+    .where(and(eq(engagementItem.id, itemId), eq(engagementItem.organizationId, organizationId)));
 
   if (!result) return c.json({ error: "Not found" }, 404);
 
@@ -139,12 +153,7 @@ engagementApp.delete("/:id", async (c) => {
 
   const result = await db
     .delete(engagementItem)
-    .where(
-      and(
-        eq(engagementItem.id, itemId),
-        eq(engagementItem.organizationId, organizationId),
-      ),
-    );
+    .where(and(eq(engagementItem.id, itemId), eq(engagementItem.organizationId, organizationId)));
 
   if (!result) return c.json({ error: "Not found" }, 404);
 

@@ -23,9 +23,7 @@ export function getVapidPublicKey(): string | null {
  * Subscribes the current browser to push notifications.
  * Returns the subscription object or null if unsupported.
  */
-export async function subscribeUser(
-  vapidPublicKey: string,
-): Promise<PushSubscription | null> {
+export async function subscribeUser(vapidPublicKey: string): Promise<PushSubscription | null> {
   if (!("serviceWorker" in navigator) || !("PushManager" in navigator)) {
     return null;
   }
@@ -93,9 +91,7 @@ export async function sendPushNotification(
 /**
  * Stores the push subscription in the database via API.
  */
-export async function storeSubscription(
-  subscription: PushSubscription,
-): Promise<{ id: string }> {
+export async function storeSubscription(subscription: PushSubscription): Promise<{ id: string }> {
   const API_BASE = env.NEXT_PUBLIC_SERVER_URL;
   const res = await fetch(`${API_BASE}/api/push/subscribe`, {
     method: "POST",
@@ -124,11 +120,7 @@ export async function removeSubscription(subscriptionId: string): Promise<void> 
  * Checks if the browser supports web push notifications.
  */
 export function isPushSupported(): boolean {
-  return (
-    "serviceWorker" in navigator &&
-    "PushManager" in navigator &&
-    "Notification" in window
-  );
+  return "serviceWorker" in navigator && "PushManager" in navigator && "Notification" in window;
 }
 
 /**

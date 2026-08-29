@@ -7,8 +7,8 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { organization, user } from "./auth";
 import { engagementItem } from "./app";
+import { organization, user } from "./auth";
 import { platformEnum } from "./enum";
 
 // ── Conversation Thread ──────────────────────────────────────────
@@ -43,10 +43,7 @@ export const conversationThread = pgTable(
     index("conversation_thread_org_idx").on(table.organizationId),
     index("conversation_thread_status_idx").on(table.status),
     index("conversation_thread_platform_idx").on(table.platform),
-    index("conversation_thread_org_status_idx").on(
-      table.organizationId,
-      table.status,
-    ),
+    index("conversation_thread_org_status_idx").on(table.organizationId, table.status),
     index("conversation_thread_org_last_activity_idx").on(
       table.organizationId,
       table.lastActivityAt,
@@ -74,10 +71,7 @@ export const engagementLabel = pgTable(
   },
   (table) => [
     index("engagement_label_org_idx").on(table.organizationId),
-    uniqueIndex("engagement_label_org_name_uidx").on(
-      table.organizationId,
-      table.name,
-    ),
+    uniqueIndex("engagement_label_org_name_uidx").on(table.organizationId, table.name),
   ],
 );
 
@@ -95,10 +89,7 @@ export const engagementItemLabels = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex("engagement_item_labels_uidx").on(
-      table.engagementItemId,
-      table.labelId,
-    ),
+    uniqueIndex("engagement_item_labels_uidx").on(table.engagementItemId, table.labelId),
     index("engagement_item_labels_item_idx").on(table.engagementItemId),
     index("engagement_item_labels_label_idx").on(table.labelId),
   ],
@@ -131,10 +122,7 @@ export const cannedReply = pgTable(
   (table) => [
     index("canned_reply_org_idx").on(table.organizationId),
     index("canned_reply_category_idx").on(table.category),
-    uniqueIndex("canned_reply_org_name_uidx").on(
-      table.organizationId,
-      table.name,
-    ),
+    uniqueIndex("canned_reply_org_name_uidx").on(table.organizationId, table.name),
   ],
 );
 

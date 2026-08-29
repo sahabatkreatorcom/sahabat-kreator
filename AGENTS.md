@@ -1,4 +1,4 @@
-cek lagi repo referensi E:\socaliseit\app dan implementasikan di proyek baru "Sahabat Kreator" dengan beberapa penyesuaian
+repo referensi E:\socaliseit\app dan implementasikan di proyek baru "Sahabat Kreator" dengan beberapa penyesuaian
 1. Copy paste UI/UX dari repo referensi
 2. Sahabat Kreator menggunakan better-auth dengan organization, admin, dan 2FA
 3. ORM menggunakan drizzle

@@ -8,11 +8,11 @@
  * - Uses a Redis-based mutex (BullMQ lock) to prevent concurrent refresh races
  */
 
-import { connection, type TokenRefreshJobData } from "@sahabatkreator/jobs";
 import { db } from "@sahabatkreator/db";
 import { socialAccount } from "@sahabatkreator/db/schema";
-import { and, eq, isNull, isNotNull, lt, or } from "drizzle-orm";
+import { connection } from "@sahabatkreator/jobs";
 import { Worker } from "bullmq";
+import { and, eq, isNotNull, isNull, lt, or } from "drizzle-orm";
 
 const REFRESH_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const NOW = () => new Date();
@@ -37,7 +37,8 @@ async function refreshInstagramToken(refreshToken: string): Promise<RefreshedTok
       refresh_token: refreshToken,
     }),
   });
-  if (!resp.ok) throw new Error(`Instagram token refresh failed: ${resp.status} ${await resp.text()}`);
+  if (!resp.ok)
+    throw new Error(`Instagram token refresh failed: ${resp.status} ${await resp.text()}`);
   const data = await resp.json();
   return {
     accessToken: data.access_token,
@@ -91,33 +92,60 @@ export const tokenRefreshWorker = new Worker(
 
     // Find tokens expiring within the next 15 minutes OR already expired but not yet revoked
     const expiringAccounts = await db
-      .select({ id: socialAccount.id, organizationId: socialAccount.organizationId, platform: socialAccount.platform, refreshToken: socialAccount.refreshToken, tokenExpiresAt: socialAccount.tokenExpiresAt })
+      .select({
+        id: socialAccount.id,
+        organizationId: socialAccount.organizationId,
+        platform: socialAccount.platform,
+        refreshToken: socialAccount.refreshToken,
+        tokenExpiresAt: socialAccount.tokenExpiresAt,
+      })
       .from(socialAccount)
       .where(
         and(
           eq(socialAccount.isActive, true),
           or(
-            and(isNull(socialAccount.tokenExpiresAt), lt(socialAccount.updatedAt, new Date(now.getTime() - 24 * 60 * 60 * 1000))), // never refreshed in 24h
-            and(isNotNull(socialAccount.tokenExpiresAt), lt(socialAccount.tokenExpiresAt, windowSoon)),
+            and(
+              isNull(socialAccount.tokenExpiresAt),
+              lt(socialAccount.updatedAt, new Date(now.getTime() - 24 * 60 * 60 * 1000)),
+            ), // never refreshed in 24h
+            and(
+              isNotNull(socialAccount.tokenExpiresAt),
+              lt(socialAccount.tokenExpiresAt, windowSoon),
+            ),
           ),
         ),
       );
 
     console.log(`[TokenRefresh] Found ${expiringAccounts.length} accounts needing refresh`);
 
-    const results: Array<{ socialAccountId: string; platform: string; success: boolean; error?: string }> = [];
+    const results: Array<{
+      socialAccountId: string;
+      platform: string;
+      success: boolean;
+      error?: string;
+    }> = [];
 
     for (const acc of expiringAccounts) {
       if (!acc.refreshToken) {
         console.warn(`[TokenRefresh] ${acc.platform}/${acc.id} has no refresh token — skip`);
-        results.push({ socialAccountId: acc.id, platform: acc.platform, success: false, error: "no_refresh_token" });
+        results.push({
+          socialAccountId: acc.id,
+          platform: acc.platform,
+          success: false,
+          error: "no_refresh_token",
+        });
         continue;
       }
 
       const refresher = refreshers[acc.platform];
       if (!refresher) {
         console.warn(`[TokenRefresh] No refresher for platform ${acc.platform}`);
-        results.push({ socialAccountId: acc.id, platform: acc.platform, success: false, error: "unknown_platform" });
+        results.push({
+          socialAccountId: acc.id,
+          platform: acc.platform,
+          success: false,
+          error: "unknown_platform",
+        });
         continue;
       }
 
@@ -133,12 +161,19 @@ export const tokenRefreshWorker = new Worker(
           })
           .where(eq(socialAccount.id, acc.id));
 
-        console.log(`[TokenRefresh] Refreshed ${acc.platform}/${acc.id} → expires ${refreshed.expiresAt.toISOString()}`);
+        console.log(
+          `[TokenRefresh] Refreshed ${acc.platform}/${acc.id} → expires ${refreshed.expiresAt.toISOString()}`,
+        );
         results.push({ socialAccountId: acc.id, platform: acc.platform, success: true });
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         console.error(`[TokenRefresh] Failed to refresh ${acc.platform}/${acc.id}: ${msg}`);
-        results.push({ socialAccountId: acc.id, platform: acc.platform, success: false, error: msg });
+        results.push({
+          socialAccountId: acc.id,
+          platform: acc.platform,
+          success: false,
+          error: msg,
+        });
       }
     }
 

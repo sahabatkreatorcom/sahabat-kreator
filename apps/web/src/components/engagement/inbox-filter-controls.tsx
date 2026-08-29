@@ -1,6 +1,6 @@
 "use client";
 
-import { Filter, MessageSquare, AtSign, Mail, Star } from "lucide-react";
+import { AtSign, Filter, Mail, MessageSquare, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +18,11 @@ const FILTERS = [
   { id: "review", label: "Review", icon: Star },
 ];
 
-export function InboxFilterControls({ activeFilter, onFilterChange, counts }: InboxFilterControlsProps) {
+export function InboxFilterControls({
+  activeFilter,
+  onFilterChange,
+  counts,
+}: InboxFilterControlsProps) {
   return (
     <div className="flex flex-wrap gap-2">
       {FILTERS.map((filter) => {

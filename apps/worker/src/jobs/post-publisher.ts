@@ -1,8 +1,8 @@
-import { connection, type PostJobData } from "@sahabatkreator/jobs";
 import { db } from "@sahabatkreator/db";
 import { post, socialAccount } from "@sahabatkreator/db/schema";
-import { eq } from "drizzle-orm";
+import { connection, type PostJobData } from "@sahabatkreator/jobs";
 import { type Job, Worker } from "bullmq";
+import { eq } from "drizzle-orm";
 
 export const postPublisherWorker = new Worker<PostJobData>(
   "post",
@@ -25,10 +25,7 @@ export const postPublisherWorker = new Worker<PostJobData>(
     }
 
     // Update post status to publishing
-    await db
-      .update(post)
-      .set({ status: "PUBLISHING" })
-      .where(eq(post.id, postId));
+    await db.update(post).set({ status: "PUBLISHING" }).where(eq(post.id, postId));
 
     try {
       // TODO: Implement actual platform API publishing
@@ -49,10 +46,7 @@ export const postPublisherWorker = new Worker<PostJobData>(
       return { published: true, postId, publishedAt: new Date().toISOString() };
     } catch (error) {
       // Update post status to failed
-      await db
-        .update(post)
-        .set({ status: "FAILED" })
-        .where(eq(post.id, postId));
+      await db.update(post).set({ status: "FAILED" }).where(eq(post.id, postId));
 
       throw error;
     }
